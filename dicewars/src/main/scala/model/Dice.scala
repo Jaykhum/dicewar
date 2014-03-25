@@ -1,7 +1,7 @@
 package main.scala.model
 
+import scala.util.Random
+
 class Dice {
-	def roll = {
-	  // TODO: random
-	}
+	def roll = { new Random(6)}
 }
