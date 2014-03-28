@@ -1,10 +1,38 @@
 package main.scala.model
 
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.immutable.StringOps
+import main.scala.util.FileUtil
+
 class Gamefield {
 	val divider = 3
 // TODO:
 // - Spielfeld 20x10, ein Land braucht 4x3 (breite/höhe) Zeichen
 	val world = Array.ofDim[Land](10,20)
+	
+	def mapPosition(map:String)
+	{
+		val fu = new FileUtil
+		var file = "C:\\study\\workspace\\dicewars\\Maps\\"+ map
+		var outArray = fu.readData(file)
+		var Position = new Array[Int](2)
+	  	var a = 0
+		for(a <- 0 to outArray.size-1){
+		  var s = outArray.apply(a)
+		  var charArray = s.toCharArray
+		  // row 
+		  Position(0) = String.valueOf(charArray(0)).toInt
+		  // colum
+
+		  if(charArray.length == 3)	Position(1) = String.valueOf(charArray(2)).toInt
+		  else if(charArray.length == 4)	Position(1) = String.valueOf(charArray(3)).toInt
+		  
+		  world(Position(0)) (Position(1)) = new Land
+		}
+	}
+	
+	def getWorld() = world
+	
 // - belegbare Länder aus der Txt-File lesen
 	def reinforcement(player: Avatar)={
 		var amountNewUnits = player.getTerritories/divider
