@@ -8,18 +8,21 @@ import main.scala.model.Gamefield
 
 object dicewars {
     def main(args: Array[String]) {
-//    val controller=new DicewarController()
-//    val tui=new TUI(controller)
+    val controller=new DicewarController()
+    val game =  new Gamefield
+    game.initMap
+    game.mapPosition("basicland")
+    val tui= new TUI(controller, game)
     //val gui = new SwingGui(controller)
+   while(true)
+   {
+     tui.mapChoice
+     tui.processInputLine(readLine())
+   }
 
-    //while(tui.processInputLine(readLine())){}
      //val file =  new File("C:\\study\\workspace\\dicewars\\Maps\\basicland")
-      val game =  new Gamefield
-      game.mapPosition("basicland")
-      for( i <- 0 to 9; j <- 0  to 19){  
-        print(game.world(i)(j))
-        if(j == 19)
-          println()
-      }
+      
+     
+      
   }
 }

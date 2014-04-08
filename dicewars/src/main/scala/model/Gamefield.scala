@@ -7,17 +7,29 @@ import main.scala.util.FileUtil
 class Gamefield {
 	val divider = 3
 // TODO:
-// - Spielfeld 20x10, ein Land braucht 4x3 (breite/höhe) Zeichen
-	val world = Array.ofDim[Land](10,20)
+	val height = 10;
+	val width = 18;
+	// - Spielfeld 20x10, ein Land braucht 4x3 (breite/höhe) Zeichen
+	val world = Array.ofDim[Land](height,width)
+	
+	def initMap
+	{
+
+	  for(i <- 0 to height-1; j <- 0 to width-1)
+	  {
+	    world(i)(j) = new Water
+	  }
+	}
 	
 	def mapPosition(map:String)
 	{
 		val fu = new FileUtil
-		var file = "C:\\study\\workspace\\dicewars\\Maps\\"+ map
+		var file = "C:\\Konstanz_Studium\\3.Semester\\Risiko\\workspace\\workspace_git\\dicewars\\Maps\\"+ map
 		var outArray = fu.readData(file)
 		var Position = new Array[Int](2)
 	  	var a = 0
 		for(a <- 0 to outArray.size-1){
+		  
 		  var s = outArray.apply(a)
 		  var charArray = s.toCharArray
 		  // row 
@@ -25,9 +37,9 @@ class Gamefield {
 		  // colum
 
 		  if(charArray.length == 3)	Position(1) = String.valueOf(charArray(2)).toInt
-		  else if(charArray.length == 4)	Position(1) = String.valueOf(charArray(3)).toInt
+		  else if(charArray.length == 4)	Position(1) = String.valueOf(charArray(3)).toInt + 10
+		  world(Position(0)) (Position(1)) = new Field
 		  
-		  world(Position(0)) (Position(1)) = new Land
 		}
 	}
 	

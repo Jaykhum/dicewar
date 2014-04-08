@@ -7,9 +7,10 @@ class FileUtil {
 
 	def readData(filename: String) =  {
 		var inputArray = new ArrayBuffer[String]()
-		for (line <- Source.fromFile(filename).getLines()) {
+		for (line <-  Source.fromFile(filename).getLines()) {
 		  inputArray +=line
 		}
+		
 		inputArray
 	}
 }
