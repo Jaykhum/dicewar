@@ -75,12 +75,12 @@ class TUI (var controller: DicewarController, var game: Gamefield) extends React
    
    def mapChoice = 
    {
-     printM1
+     printM4
    }
 
    def printM1 = 
    {
-     println("basicland")
+     println("Basicland")
      println("------------")
      println("|          |")  
      println("|   $$$$   |")
@@ -88,4 +88,39 @@ class TUI (var controller: DicewarController, var game: Gamefield) extends React
      println("|          |")
      println("------------")
    }
+   
+   def printM2 = 
+   {
+     println("Land 2")
+     println("------------")
+     println("|       $$$|")  
+     println("|     $$$$$|")
+     println("|   $$$$$$$|")
+     println("|$$$$$$$$$$|")
+     println("------------")
+   }
+   
+   def printM3 = 
+   {
+     println("Land 3")
+     println("------------")
+     println("|  $$$$$$$$|")  
+     println("| $$$   $$$|")
+     println("|$$   $$$$ |")
+     println("|$$$$$$$$  |")
+     println("------------")
+   }
+   
+   def printM4 = 
+   {
+     println("Land 4")
+     println("------------")
+     println("|$$$$$$$$$$|")  
+     println("|  $$  $$$$|")
+     println("|  $$  $$$$|")
+     println("|$$$$$$$$$$|")
+     println("------------")
+   }
+   
+   
 }
