@@ -12,7 +12,6 @@ object dicewars {
     val controller=new DicewarController()
     val game =  new Gamefield
     game.initMap
-    game.mapPosition("basicland")
     val tui= new TUI(controller, game)
     tui.showMenu
 //   while(true)
@@ -20,10 +19,7 @@ object dicewars {
 //     tui.mapChoice
 //     tui.processInputLine(readLine())
 //   }
-   while(true)
-   {
-     tui.processInputLine(readLine())
-   }
+
 
      //val file =  new File("C:\\study\\workspace\\dicewar\\dicewars\\Maps\\")
     
