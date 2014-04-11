@@ -11,12 +11,10 @@ object dicewars {
     val controller=new DicewarController()
     val game =  new Gamefield
     game.initMap
-    game.mapPosition("basicland")
     val tui= new TUI(controller, game)
-    //val gui = new SwingGui(controller)
+    tui.showMenu
    while(true)
    {
-     tui.mapChoice
      tui.processInputLine(readLine())
    }
 
