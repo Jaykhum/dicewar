@@ -3,5 +3,13 @@ package main.scala.model
 import scala.util.Random
 
 class Dice {
-	def roll = { new Random(6)}
+  //TODO Richtiges Random momentan keine Zufallszahl
+	var dice = new Random(100000)
+	var rnd:Int = 0
+	
+	def roll:Int = 
+	{
+	 rnd = dice.nextInt(6)
+	 rnd
+	}
 }

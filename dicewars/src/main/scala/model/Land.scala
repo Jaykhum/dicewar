@@ -41,7 +41,7 @@ class WorldPosition(y: Int, x: Int){
   	 	else
   	 	  return false
   	}
-  
+  /* TODO: Überprüfen ob über Spielfeld hinaus */
 }
 
 /*
@@ -53,9 +53,13 @@ var holder: Int
 def showImage = "00"
 def checkNeighbourhood(field1:Land): Boolean
 def checkHolder(player: Avatar):Boolean
-def addArmy
+def incArmy
+def decArmy
 def getFieldType:Boolean
 def setHolder(id:Int)
+def getHolder:Int
+def getArmy: Int
+def setArmy(armyCount:Int)
 }
 
 /*
@@ -64,7 +68,7 @@ def setHolder(id:Int)
 class Field(row: Int, col: Int) extends Land 
 {
 // number of units on the field
-	var army = 1
+	var army = 5
 // player-id who holds the field
 	var holder: Int = 0
 // position in world
@@ -74,12 +78,15 @@ class Field(row: Int, col: Int) extends Land
 /**/
 	def getArmy = army
 /**/
-	def getHolder = holder
+	def getHolder:Int = holder
 /**/
 	def setArmy(armyCount:Int) = this.army = armyCount
 	
 /**/
-	def addArmy() = this.army += 1
+	def incArmy = this.army += 1
+
+/**/
+	def decArmy = this.army -= 1
 	
 /**/
 	def setHolder(id:Int) = this.holder = id
@@ -122,14 +129,17 @@ class Water(row: Int, col: Int) extends Land
   // position in world
   val position = new WorldPosition(row, col)
   val sign = "ww"
-  var holder: Int = 0
+  var holder: Int = -1
   override def showImage = sign
-  
-  def setHolder(id:Int) = holder = -1
+  def setArmy(armyCount:Int) = println("this is a water field")
+  def getArmy = 0
+  def setHolder(id:Int) = println("this is a water field")
+  def getHolder:Int = holder
   def getFieldType = false
  /**/
-	def addArmy() = println("this is a water field")
-	
+	def incArmy() = println("this is a water field")
+ /**/
+	def decArmy() = println("this is a water field")	
  /*
  * compute if the current player holds this field
  * */
