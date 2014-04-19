@@ -5,8 +5,9 @@ import scala.util.Sorting
 import scala.collection.immutable.StringOps
 import main.scala.util.FileUtil
 import scala.util.Random
+import main.scala.util._
 
-class Gamefield {
+class Gamefield extends Observable{
 	val divider = 3
 	val height = 10;
 	val width = 18;

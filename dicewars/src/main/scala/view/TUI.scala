@@ -4,8 +4,9 @@ import main.scala.model.Gamefield
 import scala.io.Source._
 import swing._
 import com.sun.xml.internal.fastinfoset.algorithm.HexadecimalEncodingAlgorithm
+import main.scala.util._
 
-class TUI (var controller: DicewarController, var game: Gamefield) extends Reactor {
+class TUI (var game: Gamefield) extends Observable with Observer{
   
    val delimiterVertical = "|";
    val delimiterHorizontal: Char = '-';
@@ -13,7 +14,9 @@ class TUI (var controller: DicewarController, var game: Gamefield) extends React
    val labelVertical = Array[String] ("01", "02", "03", "04", "05", "06", "07", "08", "09","10")
   
    
-   def showTUI = {
+   override def updateObserver(notification:Notification){}
+   
+   def showField = {
      // label top
      print("    ")
      for(h <- 0 to game.width-1)
@@ -69,6 +72,7 @@ class TUI (var controller: DicewarController, var game: Gamefield) extends React
 		  case "Land 4" => gameProcess("land4")
 		  case _ => println("Falsche Eingabe, bitte korrekt Wiederholen")
 	   }
+     showMenu
      
    }
    def mapProcess()
@@ -97,10 +101,17 @@ class TUI (var controller: DicewarController, var game: Gamefield) extends React
 	   false
    }
    
+   def sendMapChoice(mapName:String) = 
+   {
+     var notify = new Notification(Notification.Map)
+     notify.map = mapName
+     notifyObservers(notify)
+   }
+   
    def gameProcess(mapName:String) 
    {
-     mapChoice(mapName)
-     showTUI
+     sendMapChoice(mapName)
+     showField
      var exit = false
      while(!exit)
      {
@@ -108,15 +119,55 @@ class TUI (var controller: DicewarController, var game: Gamefield) extends React
      }
      if(exit)
      {
-       println("Spiel wurde beendet")
+       gameOver
      }
    }
    
-   def gameProcessInputLine(input:String) =
+   def gameOver()
    {
+     println("Spiel wurde beendet")
+     println("--------------------------------------------------------------------------------")
+   }
+   
+   /**
+    * Correct Length of the Input is either 1 or 3 Sings.
+    */
+   def checkIsCorrectLength(input:String) : Boolean = 
+   {
+     if (input != null)
+     {
+       var inputCharArray = input.toCharArray();
+       if(inputCharArray.length == 1 || inputCharArray.length == 3)
+       {
+         return true
+       }
+     }
+      false
+   }
+   
+   
+   def gameProcessInputLine(input:String) : Boolean =
+   {
+     if(!checkIsCorrectLength(input))
+     {
+        println("Ihr Eingabe: " + input + "ist nicht korrekt, bitte Wiederholen")
+        return false
+     }
+       
+     if(input.length == 1)
+     {
+       input match
+       {
+	       case "2" => helpView; return false
+	       case "3" => return true
+     
+       }
+     }
+     
      var row = 0
      var column = 0
      var inputCharArray = input.toCharArray();
+     
      var inputColumn = inputCharArray(0).toString
      var inputRow = inputCharArray(1).toString + inputCharArray(2).toString;
      inputColumn match
@@ -139,8 +190,6 @@ class TUI (var controller: DicewarController, var game: Gamefield) extends React
        case "P" => column =15
        case "Q" => column =16
        case "R" => column =17
-       case "2" => helpView
-       case "3" =>  true
        case _ => println("Ihr Eingabe: " + input + "ist nicht korrekt, bitte Wiederholen")
      }
      inputRow match
@@ -155,13 +204,19 @@ class TUI (var controller: DicewarController, var game: Gamefield) extends React
        case "08" => row =7
        case "09" => row =8
        case "10" => row =9
-       case "2" => helpView
-       case "3" =>  true
        case _ => println("Ihr Eingabe: " + input + "ist nicht korrekt, bitte Wiederholen")
      }
      println("Row: " + row + "Column: " +column)
+     sendPositionChoice(new Position(row,column))
      checkGameOver
-
+     	
+   }
+   
+   def sendPositionChoice(position:Position)
+   {
+     var notify = new Notification(Notification.Position)
+     notify.position = position
+     notifyObservers(notify)
    }
    
    def helpView() 
@@ -169,17 +224,17 @@ class TUI (var controller: DicewarController, var game: Gamefield) extends React
      println("1 Map-Auswahl")
      println("Wahl einer Map mithilfe des namens. Zur Verfuegung stehen:")
      println("Basicland : Land 1 : Land 2 : Land 3")
-     println("------------------------------------------------------------------------")
+     println("--------------------------------------------------------------------------------")
      println("Spiel: Feld Auswahl")
      println("Fuer die Auswahl eines Spielfeldes das Muster [Spalte][Zeile] verwenden.")
      println("Beispiel: Fuer das erste Feld (erste Spalte und erste Zeile) wähle:")
      println("A01")
-     println("------------------------------------------------------------------------")
+     println("--------------------------------------------------------------------------------")
      println("2 Hilfe")
      println("Hilfsanzeige")
-     println("------------------------------------------------------------------------")
+     println("--------------------------------------------------------------------------------")
      println("3 Exit")
-     println("Das Spiel kann zu jedem Zeitpunkt mit der Taste 4 beendet werden.")
+     println("Das Spiel kann zu jedem Zeitpunkt mit der Eingabe 3 beendet werden.")
    }
    
    def checkGameOver() =
@@ -195,13 +250,21 @@ class TUI (var controller: DicewarController, var game: Gamefield) extends React
      printM3;
      printM4;
    }
+   def startTUI()
+   {
+     showMenu
+     while(true)   
+    {
+     processInputLine(readLine())
+    }
+   }
    
    def showMenu()
    {
      println("1 Map-Auswahl")
-     println("2 Spiel starten")
-     println("3 Hilfe")
-     println("4 exit")
+     println("2 Hilfe")
+     println("3 exit")
+     println("--------------------------------------------------------------------------------")
    }
    
    def helpLimiter() 
@@ -215,10 +278,7 @@ class TUI (var controller: DicewarController, var game: Gamefield) extends React
      println()
    }
    
-   def mapChoice(mapName:String) = 
-   {
-     game.mapPosition(mapName)
-   }
+   
 
    def printM1 = 
    {

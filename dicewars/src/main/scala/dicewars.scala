@@ -10,28 +10,27 @@ import main.scala.model.Avatar
 object dicewars {
     def main(args: Array[String]) {
     val controller=new DicewarController()
-    val game =  new Gamefield
-    game.initMap
-    val tui= new TUI(controller, game)
-   // tui.showMenu
-//   while(true)
-//   {
-//     tui.processInputLine(readLine())
-//   }
+//    val game =  new Gamefield
+//    game.initMap
+//    val tui= new TUI(controller, game)
+//    tui.showMenu
+//	while(true)
+//	{
+//		tui.processInputLine(readLine())
+//	}
 
 
      //val file =  new File("C:\\study\\workspace\\dicewar\\dicewars\\Maps\\")
     
-    var player1 = new Avatar
-    player1.setId(1)
-    game.mapPosition("basicland");
-    //game.battlePhase(player1)
-    
-    game.tactic(player1, game.world(4)(9), game.world(4)(10))
-    game.tactic(player1, game.world(4)(10), game.world(4)(11))
-    game.tactic(player1, game.world(4)(9), game.world(5)(9))
-    game.tactic(player1, game.world(3)(5), game.world(4)(9))
-    game.tactic(player1, game.world(7)(15), game.world(4)(9))
+//    var player1 = new Avatar
+//    player1.setId(1)
+//    game.mapPosition("basicland");
+//    
+//    game.tactic(player1, game.world(4)(9), game.world(4)(10))
+//    game.tactic(player1, game.world(4)(10), game.world(4)(11))
+//    game.tactic(player1, game.world(4)(9), game.world(5)(9))
+//    game.tactic(player1, game.world(3)(5), game.world(4)(9))
+//    game.tactic(player1, game.world(7)(15), game.world(4)(9))
     /*
      * Test
      * */
