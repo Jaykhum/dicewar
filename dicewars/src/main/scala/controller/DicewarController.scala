@@ -26,14 +26,46 @@ class DicewarController extends Observer {
 		  case Notification.Position=> println("Notify Position" + notification.position.column + notification.position.row)
 		  case Notification.Reinforcement=>delegateReinforcement(notification)
 		  case Notification.Battle=>delegateBattle(notification)
+		  case Notification.Attack=>delegateAttack(notification)
+		  case Notification.Question=>delegateQuestion(notification)
+		  case Notification.Tactic=>delegateTactic(notification)
+		  case Notification.Army=>delegateArmy(notification)
 		  case _ => println("Falsche Notification")
 	   }
+    }
+    
+     def delegateArmy(n:Notification)
+    {
+       var from = n.currentPlayer.fromLand
+       from.permissionMoveArmy = game.checkNumberOfUnitMove(from, n.value)
+        if(from.permissionMoveArmy)
+        n.currentPlayer.newUnitsTemporary = n.value
+    }
+    
+    def delegateTactic(notification:Notification)
+    {
+      game.setFromAndTo(notification.currentPlayer, notification.position, notification.isFirstLand)
+     
+    }
+    
+    def delegateQuestion(notification:Notification)
+    {
+     //(avatarContainer )Mögliche Fehlerquelle durch id auf zugriff array index, funkt nur weil index und id synchron sind
+     var player = game.avatarContainer(notification.currentPlayer.id) 
+     player.myTurn = notification.question
+    }
+    
+    def delegateAttack(notification:Notification)
+    {
+      game.attackLand.permissionMoveArmy = game.checkNumberOfUnitMove(game.attackLand, notification.value)
+      game.setValueForAttackAndDefenseLand(notification.value)
+         
     }
     
     def delegateBattle(notification:Notification)
     {
       game.setAttackAndDefenseLand(notification.currentPlayer, notification.position, notification.isOwnLand)
-      //game.checkSelection(notification.currentPlayer, notification.position)
+
        
     }
     
@@ -53,6 +85,7 @@ class DicewarController extends Observer {
       {
         game.startReinforcement(game.avatarContainer(i))
         game.startBattlePhase(game.avatarContainer(i))
+        game.startTacticPhase(game.avatarContainer(i))
       }
     }
     

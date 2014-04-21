@@ -128,13 +128,15 @@ class Gamefield extends Observable{
 		player.newUnitsTemporary = player.getTerritories/divider
 		if (player.newUnitsTemporary < 3) player.newUnitsTemporary = 3;
 		do{
+		    sendNotificationInfo("Zahl der Verstärkung: "+ player.newUnitsTemporary)
+		    sendNotificationInfo("Spieler: " + player.id + "ist dran.")
+		    sendNotificationInfo("Bitte Teritorium eingeben (Spalte,Zeile).")
 			var notification = new Notification(Notification.Reinforcement)
 			notification.value = player.newUnitsTemporary
 			notification.currentPlayer = player
 		    notifyObservers(notification);
 			
 		}while(player.newUnitsTemporary != 0)
-		  
 	}
 	
 	def handleReinforcement(player:Avatar,position:Position) 
@@ -145,19 +147,14 @@ class Gamefield extends Observable{
 			  world(position.row)(position.column).incArmy
 			  player.newUnitsTemporary -= 1
 			}
-			else 
-			  println("This is not your land")
+			else if(!world(position.row)(position.column).getFieldType)
+			  sendNotificationInfo("Ein Wasserfeld hat kein besitzer")
+			else
+			  sendNotificationInfo("Das Teritorium ist nicht dein Land.")
 	}
 	
 	
 	def singleAttack(attack: Land, defense: Land ) ={
-	  // val atkDice[3]
-	  // val defDice[2]
-	  /* while(attack keine Einheit oder def keine Einheit oder Angreifer bricht ab){
-	    Dice.roll
-	  }
-	  * 
-	  */
 	  if(attack.checkNeighbourhood(defense))
 	  {
 	    if(attack.getFieldType && defense.getFieldType)
@@ -185,12 +182,14 @@ class Gamefield extends Observable{
 	     for(i <- 0 to attackDice.length -1)
 	     {
 	       attackDice(i) = dice.roll
-	       println("Würfel Augen: " + attackDice(i))
+	       sendNotificationInfo("Würfel Augen: " + attackDice(i))
+//	       println("Würfel Augen: " + attackDice(i))
 	     }
 	     for(i <- 0 to defenseDice.length -1)
 	     {
 	       defenseDice(i) = dice.roll
-	       println("Würfel Augen: " + defenseDice(i))
+	       sendNotificationInfo("Würfel Augen: " + defenseDice(i))
+//	       println("Würfel Augen: " + defenseDice(i))
 	     }
 	     Sorting.quickSort(attackDice)
 	     Sorting.quickSort(defenseDice)
@@ -204,47 +203,89 @@ class Gamefield extends Observable{
 	     
 	     if(defenseCountDices > 1  && attackCountDices >1)
 	     {
-	       println("Defense: " + defenseDice.length)
-	       println("Attack: " + attackDice.length)
-	       println("defenseCountDices "+ defenseCountDices)
-	       println("attackCountDices "+ attackCountDices)
+	       println("Debug:Defense: " + defenseDice.length)
+	       println("Debug:Attack: " + attackDice.length)
+	       println("Debug:defenseCountDices "+ defenseCountDices)
+	       println("Debug:attackCountDices "+ attackCountDices)
 	    	if(attackDice(1) > defenseDice(1))
 	    		defense.decArmy
 	    	else
 	    		attack.decArmy
 	     }
 	     
-	     if(defense.getArmy == 0){
-	    	 var in:Int = 0
-	    	 var ok = false
-	    	 if(attack.getArmy > 3){
-		    	 while (ok == false)
-		    	 {
-			    	 println("Sieg!! Bitte wählen sie aus wieviele Einheiten sie verschieben wollen!")
-			    	 println("Hinweis: Eine Einheit muss stationiert bleiben.")
-			    	 println("Attack: Noch verblieber Einheiten: " + attack.getArmy)
-			    	 in = readLine().toInt
-			    	 if(attack.getArmy - in < 1)
-			    	   println("Zuviele Einheiten gewählt. Bitte erneut eingeben.")
-			    	 else
-			    		 ok = true;
-		    	 }
-	    	 }
-	    	 else 
-	    	   in = attackCountDices
-	    	 attack.setArmy(attack.getArmy - in)
-	    	 defense.setArmy(defense.getArmy + in)
-	    	 defense.setHolder(attack.getHolder)
-	     }
+	     moveUnit(attack,defense,attackCountDices)
 	     
 	    }else
 	    {
-	      println("Ist kein Feld sondern Wasser")
+	      sendNotificationInfo("Ist kein Feld sondern Wasser")
 	    }
 	    
 	  }  
 	  else
-	    println("nein is kein nachbar")
+	    sendNotificationInfo("Ist kein Feld sondern Wasser")
+	}
+	
+	
+	def moveUnit(attack: Land, defense: Land, attackCountDices:Int)
+	{  
+	  if(defense.getArmy == 0){
+	    	 var in:Int = 0
+	    	 sendNotificationInfo("Sieg!!")
+	    	 if(attack.getArmy > 3)
+	    	 {
+	    	   do
+	    	   {
+		    	   sendNotificationInfo("Bitte wähle aus wieviele Einheiten du verschieben möchtest!")
+		    	   sendNotificationInfo("Hinweis: Eine Einheit muss stationiert bleiben.")
+	    	       sendNotificationInfo("Attack: Noch verbliebene Einheiten: " + attack.getArmy)
+	    	       var n = new Notification(Notification.Attack)
+		    	   notifyObservers(n);
+	    	   }while (!attack.permissionMoveArmy)
+		    	 
+	    	 }
+	    	 else{ 
+		    	 setValueForAttackAndDefenseLand(attackCountDices)
+	    	 }
+	    	 
+	     }
+	  attack.permissionMoveArmy = false
+	}
+	
+	def setValueForAttackAndDefenseLand(army:Int)
+	{
+	   if(attackLand.permissionMoveArmy)
+      {
+        setArmyForAttackAndDefenseLand(army)
+        setNewHolderForBeatenLand
+      }
+	}
+	
+	def setArmyForAttackAndDefenseLand(army:Int) 
+	{
+		 attackLand.setArmy(attackLand.getArmy - army)
+		 defenseLand.setArmy(defenseLand.getArmy + army)
+	}
+	
+	def setNewHolderForBeatenLand = defenseLand.holder = attackLand.holder
+	
+	def checkNumberOfUnitMove(land:Land, army:Int):Boolean =
+	{
+		if(land.getArmy - army < 1)
+		{
+			sendNotificationInfo("Zuviele Einheiten gewählt. Bitte erneut eingeben.")
+			return false
+		}
+	    else
+	    	return true
+	    false
+	}
+	
+	
+	def sendNotificationInfo(message:String)
+	{
+	  var notificationInfo = new Notification(Notification.Message)
+	  notificationInfo.message = message
+	  notifyObservers(notificationInfo)
 	}
 	
 	def startBattlePhase(player:Avatar)
@@ -264,6 +305,10 @@ class Gamefield extends Observable{
 			notificationInfo.message = "Das ausgewählte Land ist nicht dein Land, bitte wiederhole die Eingabe korrekt."
 		    notifyObservers(notificationInfo)
 		    sendBattleNotification(player,true)
+	    }else
+	    {
+	        player.checkPoint = position
+			attackLand = world(position.row) (position.column)
 	    }
 	    
 	  }
@@ -276,6 +321,9 @@ class Gamefield extends Observable{
 			notificationInfo.message = "Das ausgewählte Land ist nicht das Land deines Feindes, bitte wiederhole die Eingabe korrekt."
 		    notifyObservers(notificationInfo)
 		    sendBattleNotification(player,false)
+	    }else
+	    {
+	      defenseLand = world(position.row) (position.column)
 	    }
 	      
 	    	
@@ -308,21 +356,29 @@ class Gamefield extends Observable{
 	  var ownLand = attackLand
 	  var otherLand = defenseLand
 	  var outloop = false
-	  while(outloop == false)
+	  while(!outloop)
 		  {
-		    if(ownLand.getArmy > 1){
+		    if(ownLand.getArmy > 1)
+		    {
 			    singleAttack(ownLand, otherLand)
 			    if(otherLand.getHolder == player.id)
 			    {
 			      outloop = true
 			    }
 			    else{
-				    println(player.id + "Noch verblieber Einheiten: " + ownLand.getArmy)
-				    println(otherLand.getHolder + "Noch verblieber Einheiten: " + otherLand.getArmy)
-				    println("Weiter angreifen? (ja/nein)")
-					var in = readLine()
-					if(in.equalsIgnoreCase("nein"))
+			    	sendNotificationInfo(player.id + ": Noch verbliebe Einheiten: " + ownLand.getArmy)
+			    	sendNotificationInfo(otherLand.getHolder + ": Noch verbliebe Einheiten: " + otherLand.getArmy)
+			    	sendNotificationInfo("Weiter angreifen? (ja/nein)")
+			    	val notification = new Notification(Notification.Question)
+			    	notification.currentPlayer = player
+			    	notifyObservers(notification)
+			    	
+					if(!player.myTurn)
+					{
 					  outloop = true
+					}
+					  else
+						  outloop = false
 				}
 		    }
 		    else
@@ -344,8 +400,7 @@ class Gamefield extends Observable{
 		if (ownLand.checkHolder(player))
 		{
 			notificationInfo.message = "Richtige Wahl"
-			player.checkPoint = position
-			attackLand = world(position.row) (position.column)
+			
 			ok = true
 					
 		}else
@@ -366,7 +421,7 @@ class Gamefield extends Observable{
 		if(ownLand.checkNeighbourhood(otherLand))
 		{
 			notificationInfo.message = "Richtige Wahl"
-			defenseLand = world(position.row) (position.column)
+			
 			ok = true
 					
 		}else
@@ -378,87 +433,6 @@ class Gamefield extends Observable{
 		ok		 
 	}
 	
-	def battlePhase(player:Avatar)=
-	{
-	  var outloop = false
-	  while(outloop == false)
-	  {
-		  var ownLand:Land = null
-		  var otherLand:Land = null
-		  /**/
-		  while(outloop == false){
-			  println("Wähle das Land von dem du Angreifen willst aus.")
-			  println("Zuerst Spalte eingeben")
-			  var in = readLine()
-			  var col: Int = in.toInt
-			  println("Nun Zeile eingeben")
-			  in = readLine()
-			  var row: Int = in.toInt
-			  ownLand = world(row)(col)
-			  if (ownLand.checkHolder(player))
-			  {
-			    println("Richtige wahl")
-			    outloop = true
-			  }else
-			  {
-			    println("Falsche Wahl1")
-			  }
-			  
-		  }
-		  
-		  outloop = false
-		  /**/
-		  while(outloop == false){
-			  println("Wähle das Land das du Angreifen willst aus.")
-			  println("Zuerst Spalte eingeben")
-			  var in = readLine()
-			  var col: Int = in.toInt
-			  println("Nun Zeile eingeben")
-			  in = readLine()
-			  var row: Int = in.toInt
-			  otherLand = world(row)(col)
-			  if(ownLand.checkNeighbourhood(otherLand))
-			    {
-			    println("Richtige wahl")
-			    outloop = true
-			    }else
-			  {
-			    println("Falsche Wahl2")
-			  }
-		  }
-		  
-		  outloop = false
-		  while(outloop == false)
-		  {
-		    if(ownLand.getArmy > 1){
-			    singleAttack(ownLand, otherLand)
-			    if(otherLand.getHolder == player.id)
-			    {
-			      outloop = true
-			    }
-			    else{
-				    println(player.id + "Noch verblieber Einheiten: " + ownLand.getArmy)
-				    println(otherLand.getHolder + "Noch verblieber Einheiten: " + otherLand.getArmy)
-				    println("Weiter angreifen? (ja/nein)")
-					var in = readLine()
-					if(in.equalsIgnoreCase("nein"))
-					  outloop = true
-				}
-		    }
-		    else
-		      outloop = true
-			  	
-		  }
-		println("Battlephase beenden? (ja/nein)")
-		
-		var in = readLine()
-		outloop = false
-		if(in.equalsIgnoreCase("ja"))
-			outloop = true
-			println("outloop: " + outloop )
-	  }
-	 
-	}
 	
 	def inverseArray(array:Array[Int]):Array[Int]=
 	{
@@ -499,6 +473,102 @@ class Gamefield extends Observable{
 	  }
 	  
 	}
+	
+	
+	def startTacticPhase(player:Avatar)
+	{
+	  sendTacticNotification(player,true)
+	  sendTacticNotification(player,false)
+	  setArmyToMove(player.fromLand, player.toLand, player)
+	}
+	
+	def setFromAndTo(player:Avatar, position:Position,firstLand:Boolean)
+	{
+
+	    if(!checkOwnLandSelection(player, position))
+	    {
+			var notificationInfo = new Notification(Notification.Message)
+			notificationInfo.message = "Das ausgewaehlte Land ist nicht dein eigenes Land, bitte wiederhole die Eingabe korrekt."
+		    notifyObservers(notificationInfo)
+		    sendTacticNotification(player,firstLand)
+	    }else
+	    {
+	      if(firstLand)
+	        if(world(position.row)(position.column).getArmy > 1)
+	        	player.fromLand = world(position.row)(position.column)
+	        else
+	        {
+	          sendNotificationInfo("Zu wenig Einheiten auf diesem Land, benötigt werden mindestens 2 Einheiten")
+	          sendTacticNotification(player,true)
+	        }
+	          
+	      else
+	      {
+	        player.toLand = world(position.row)(position.column) 
+	        if(player.fromLand == player.toLand)
+	        {
+	          sendNotificationInfo("Das zweite ausgewaehlte Land darf nicht gleich dem ersten sein")
+	          sendTacticNotification(player,false)
+	        }
+	        if(!player.fromLand.checkNeighbourhood(player.toLand))
+	        {
+	          sendNotificationInfo("Ist kein Nachbarland")
+	          sendTacticNotification(player,false)
+	        }
+	      }
+	    }
+
+	}
+	
+	
+	def sendTacticNotification(player:Avatar,firstLand:Boolean)
+	{
+		var notification = new Notification(Notification.Tactic)
+	  
+		if(firstLand)
+		{
+		  sendNotificationInfo("Bitte wähle ein eigenes Land aus um Truppen zu verschieben")
+		  notification.isFirstLand = true
+		}
+			
+		else
+		{
+			sendNotificationInfo("Bitte Land angeben auf das verschoben werden soll")
+			notification.isFirstLand = false
+		}
+		notification.currentPlayer = player
+	    
+		notifyObservers(notification);
+	    
+	}
+	
+
+	
+
+	
+	def setArmyToMove(from: Land, to: Land, player:Avatar)
+	{  
+	    	   do
+	    	   {
+		    	   sendNotificationInfo("Bitte wähle aus wieviele Einheiten du verschieben möchtest!")
+		    	   sendNotificationInfo("Hinweis: Eine Einheit muss stationiert bleiben.")
+	    	       sendNotificationInfo("Einheiten: " + from.getArmy)
+	    	       var n = new Notification(Notification.Army)
+		    	   n.currentPlayer = player
+		    	   notifyObservers(n);
+	    	   }while (!from.permissionMoveArmy)
+		    	 
+	    	     for(i <- 0 to player.newUnitsTemporary -1)
+	    	     {
+	    	       from.decArmy
+	    	       to.incArmy
+	    	     }
+	    	 player.newUnitsTemporary = 0    
+	    	 from.permissionMoveArmy = false
+   	 
+	     }
+	  
+	
 
 	
 }

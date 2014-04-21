@@ -1,6 +1,7 @@
 package main.scala.model
 
 import java.lang.Boolean
+import main.scala.util.Notification
 
 class WorldPosition(y: Int, x: Int){
   val row: Int = y
@@ -50,6 +51,7 @@ class WorldPosition(y: Int, x: Int){
 abstract class Land{
 val position:WorldPosition
 var holder: Int 
+var permissionMoveArmy:Boolean = false
 def showImage = "00"
 def checkNeighbourhood(field1:Land): Boolean
 def checkHolder(player: Avatar):Boolean
@@ -71,7 +73,8 @@ class Field(row: Int, col: Int) extends Land
 	var army = 5
 // player-id who holds the field
 	var holder: Int = 0
-// position in world
+	
+	// position in world
 	val position = new WorldPosition(row, col)
 
 	def getFieldType = true
@@ -144,7 +147,6 @@ class Water(row: Int, col: Int) extends Land
  * compute if the current player holds this field
  * */
 	def checkHolder(player: Avatar):Boolean = {
-	  	println("A water-field has no holder")
 	    return false
 	}
  
