@@ -1,6 +1,6 @@
 package main.scala.util
 
-class Position(var row: Integer,var column: Integer) 
+class Position(var row: Int,var column: Int) 
 {
 	
 }

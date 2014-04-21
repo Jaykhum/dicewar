@@ -12,40 +12,100 @@ class Gamefield extends Observable{
 	val height = 10;
 	val width = 18;
 	val playercount = 2;
+	val avatarContainer:Array[Avatar] = initPlayer(2)
 	// Gameboard with size 18x10 fields and each fields needs 4x3 (width/height) Signs
 	val world = Array.ofDim[Land](height,width)
 	val dani = "C:\\Konstanz_Studium\\3.Semester\\Risiko\\workspace\\workspace_git\\dicewars\\Maps\\"
 	val jay = "C:\\study\\workspace\\dicewar\\dicewars\\Maps\\"
-	
+
+	var attackLand:Land = null
+	var defenseLand:Land = null
+	/**
+	 * Initialize number of players.
+	 * @param Number of player.
+	 */
+	def initPlayer(numberofPlayer:Integer):Array[Avatar] =
+	{
+	  var avatarContainer = new Array[Avatar](numberofPlayer) 
+	  for(i <- 0 to numberofPlayer -1)
+	  {
+	    avatarContainer(i) = new Avatar(i)
+	  }
+	  avatarContainer
+	}
 	/*
 	 * initialize the world with 18x10 fields and all fields are water-fields
 	 * */
-	def initMap
+	def initWorld
 	{
+	  
 	  for(i <- 0 to height-1; j <- 0 to width-1)
 	  {
 	    world(i)(j) = new Water(i,j)
 	  }
 	}
 	
-	/*
-	 * read the map form a txt-file and defines which fields are lands or water
-	 * */
-	def mapPosition(map:String)
+	
+	/**
+	 * Initialize all Fields and they appended holder
+	 */
+	def initGame(map:String)
+	{
+	  var fieldContainer = initFieldInWorld(map)
+	  initFieldHolder(fieldContainer)
+	}
+	
+	/**
+	 * Assigns player to created Fields.
+	 * @param require an Array with all Fields
+	 */
+	def initFieldHolder(fieldContainer:Array[Field])
+	{
+	  //TODO Anpassen auf mehr als nur zwei Spieler.
+	  val rnd = new Random(playercount)
+	  var playerID =  0
+	  var playerFieldCount = new Array[Int](2)
+	  var fieldCount:Int = fieldContainer.size
+	  playerFieldCount(0) = 0
+	  playerFieldCount(1) = 0
+	  for(i <- 0 to fieldContainer.size -1)
+	  {
+		 playerID =  rnd.nextInt(playercount)
+		  
+		  if( (playerFieldCount(0)+1) > (fieldCount/2) )
+		  {
+		    playerID = 1  
+		    println("id:1")
+		  }else if( (playerFieldCount(1)+1) > (fieldCount/2) )
+		  {
+		    playerID = 0 
+		    println("id:2")
+		  }
+		  
+		  world(fieldContainer(i).position.row) (fieldContainer(i).position.colum).setHolder(playerID)
+		  println("playerid: "+ playerID)
+		  playerFieldCount(playerID) += 1
+	  }
+	  for(i <- 0 to avatarContainer.size -1)
+	  {
+	    avatarContainer(i).occupiedTerritory = playerFieldCount(i) 
+	  }
+	  
+	}
+	
+	/**
+	 * Read fields from Maps-File and initialize the Position to the World.
+	 * @return all Fields in an Array.
+	 */
+	def initFieldInWorld(map:String):Array[Field] =
 	{
 		val fu = new FileUtil
 		var file = dani+ map
 		var outArray = fu.readData(file)
 		var Position = new Array[Int](2)
-		println(playercount)
-	  	val rnd = new Random(playercount)
-		var playerID =  0
-		var playerFieldCount = new Array[Int](2)
-		var fieldCount:Int = outArray.size 
-		playerFieldCount(0) = 0
-		playerFieldCount(1) = 0
-		for(a <- 0 to outArray.size-1){
-		  
+		var fieldContainer = new Array[Field](outArray.size)
+		for(a <- 0 to outArray.size-1)
+		{
 		  var s = outArray.apply(a)
 		  var charArray = s.toCharArray
 		  // row 
@@ -54,47 +114,41 @@ class Gamefield extends Observable{
 
 		  if(charArray.length == 3)	Position(1) = String.valueOf(charArray(2)).toInt
 		  else if(charArray.length == 4)	Position(1) = String.valueOf(charArray(3)).toInt + 10
-		  world(Position(0)) (Position(1)) = new Field(Position(0), Position(1))
-		  
-		  playerID =  rnd.nextInt(playercount)
-		  println("playerid: "+ playerID)
-		  if( (playerFieldCount(0)+1) > (fieldCount/2) )
-		    playerID = 2
-		  else if( (playerFieldCount(1)+1) > (fieldCount/2) )
-		    playerID = 1 
-		  
-		  world(Position(0)) (Position(1)).setHolder(playerID+1)
-		  playerFieldCount(playerID) += 1
+		  fieldContainer(a) = new Field(Position(0), Position(1)) 
+		  world(Position(0)) (Position(1)) = fieldContainer(a)
 		}
+		fieldContainer
+		
 	}
 	
 	def getWorld() = world
 	
 // - belegbare Länder aus der Txt-File lesen
-	def reinforcement(player: Avatar)={
-		var amountNewUnits = player.getTerritories/divider
-		if (amountNewUnits < 3) amountNewUnits = 3;
+	def startReinforcement(player: Avatar)={
+		player.newUnitsTemporary = player.getTerritories/divider
+		if (player.newUnitsTemporary < 3) player.newUnitsTemporary = 3;
 		do{
-			println("Amount of Reinforcement: "+ amountNewUnits)
-			println("Please insert territory (row,colum).")
-			println("First insert the colum of the field")
-			var in = readLine()
-			var col: Int = in.toInt
-			println("Now insert the row of the field")
-			in = readLine()
-			var row: Int = in.toInt
-
-			// Spielfeld Land durch Pos bestimmen und checken ob seins
-			if(world(row)(col).checkHolder(player) && world(row)(col).getFieldType)
-			{
-			  world(row)(col).incArmy
-			  amountNewUnits -= 1
-			}
-			else 
-			  println("this is not your land")
-		}while(amountNewUnits != 0)
+			var notification = new Notification(Notification.Reinforcement)
+			notification.value = player.newUnitsTemporary
+			notification.currentPlayer = player
+		    notifyObservers(notification);
+			
+		}while(player.newUnitsTemporary != 0)
 		  
 	}
+	
+	def handleReinforcement(player:Avatar,position:Position) 
+	{
+	  // Spielfeld Land durch Pos bestimmen und checken ob seins
+	  if(world(position.row)(position.column).checkHolder(player) && world(position.row)(position.column).getFieldType)
+			{
+			  world(position.row)(position.column).incArmy
+			  player.newUnitsTemporary -= 1
+			}
+			else 
+			  println("This is not your land")
+	}
+	
 	
 	def singleAttack(attack: Land, defense: Land ) ={
 	  // val atkDice[3]
@@ -191,6 +245,137 @@ class Gamefield extends Observable{
 	  }  
 	  else
 	    println("nein is kein nachbar")
+	}
+	
+	def startBattlePhase(player:Avatar)
+	{
+	  sendBattleNotification(player,true)
+	  sendBattleNotification(player,false)
+	  attack(player)
+	}
+	
+	def setAttackAndDefenseLand(player:Avatar, position:Position, isOwnLand:Boolean)
+	{
+	  if(isOwnLand)
+	  {
+	    if(!checkOwnLandSelection(player, position))
+	    {
+			var notificationInfo = new Notification(Notification.Message)
+			notificationInfo.message = "Das ausgewählte Land ist nicht dein Land, bitte wiederhole die Eingabe korrekt."
+		    notifyObservers(notificationInfo)
+		    sendBattleNotification(player,true)
+	    }
+	    
+	  }
+	  
+	  if(!isOwnLand)
+	  {
+	    if(!checkForeignLandSelection(player, position))
+	    {
+	    	var notificationInfo = new Notification(Notification.Message)
+			notificationInfo.message = "Das ausgewählte Land ist nicht das Land deines Feindes, bitte wiederhole die Eingabe korrekt."
+		    notifyObservers(notificationInfo)
+		    sendBattleNotification(player,false)
+	    }
+	      
+	    	
+	  }
+       
+
+	}
+	
+	
+	def sendBattleNotification(player:Avatar, ownLand:Boolean)
+	{
+		var notification = new Notification(Notification.Battle)
+		var notificationInfo = new Notification(Notification.Message)
+	  
+		if(ownLand)
+			notificationInfo.message = "Wähle das Land, von welchem du aus Angreifen willst."
+		else
+			notificationInfo.message = "Wähle das Land aus welches du Angreifen willst."
+	      
+		notification.currentPlayer = player
+		notification.isOwnLand = ownLand
+	  
+		notifyObservers(notificationInfo)
+		notifyObservers(notification);
+	    
+	}
+	
+	def attack (player:Avatar)
+	{
+	  var ownLand = attackLand
+	  var otherLand = defenseLand
+	  var outloop = false
+	  while(outloop == false)
+		  {
+		    if(ownLand.getArmy > 1){
+			    singleAttack(ownLand, otherLand)
+			    if(otherLand.getHolder == player.id)
+			    {
+			      outloop = true
+			    }
+			    else{
+				    println(player.id + "Noch verblieber Einheiten: " + ownLand.getArmy)
+				    println(otherLand.getHolder + "Noch verblieber Einheiten: " + otherLand.getArmy)
+				    println("Weiter angreifen? (ja/nein)")
+					var in = readLine()
+					if(in.equalsIgnoreCase("nein"))
+					  outloop = true
+				}
+		    }
+		    else
+		      outloop = true
+			  	
+		  }
+	}
+	
+	
+	/**
+	 * Validate the selection of the current player and send a notification when it was allowed.
+	 * @return true when the selected land is from the current player.
+	 */
+	def checkOwnLandSelection(player:Avatar,position:Position):Boolean =
+	{
+		var ownLand = world(position.row)(position.column)
+		var notificationInfo = new Notification(Notification.Message)
+		var ok = false
+		if (ownLand.checkHolder(player))
+		{
+			notificationInfo.message = "Richtige Wahl"
+			player.checkPoint = position
+			attackLand = world(position.row) (position.column)
+			ok = true
+					
+		}else
+		{
+			notificationInfo.message = "Falsche Wahl"
+			ok = false
+		}
+		notifyObservers(notificationInfo)
+		ok
+	}
+	
+	def checkForeignLandSelection(player:Avatar,position:Position):Boolean =
+	{
+		var otherLand = world(position.row)(position.column)
+		var ownLand = world(player.checkPoint.row)(player.checkPoint.column)
+		var notificationInfo = new Notification(Notification.Message)
+		var ok = false
+		if(ownLand.checkNeighbourhood(otherLand))
+		{
+			notificationInfo.message = "Richtige Wahl"
+			defenseLand = world(position.row) (position.column)
+			ok = true
+					
+		}else
+		{
+			notificationInfo.message = "Falsche Wahl"
+			ok = false
+		}
+		notifyObservers(notificationInfo)
+		ok		 
 	}
 	
 	def battlePhase(player:Avatar)=

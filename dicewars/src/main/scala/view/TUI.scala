@@ -5,6 +5,8 @@ import scala.io.Source._
 import swing._
 import com.sun.xml.internal.fastinfoset.algorithm.HexadecimalEncodingAlgorithm
 import main.scala.util._
+import scala.util.control.Breaks._
+import main.scala.model.Avatar
 
 class TUI (var game: Gamefield) extends Observable with Observer{
   
@@ -13,8 +15,6 @@ class TUI (var game: Gamefield) extends Observable with Observer{
    val labelHorizontal = Array[String] ("  A ", "  B ", "  C ", "  D ", "  E ", "  F ", "  G ", "  H ", "  I ", "  J ", "  K ", "  L ", "  M ", "  N ", "  O ", "  P ", "  Q ", "  R ")
    val labelVertical = Array[String] ("01", "02", "03", "04", "05", "06", "07", "08", "09","10")
   
-   
-   override def updateObserver(notification:Notification){}
    
    def showField = {
      // label top
@@ -59,23 +59,22 @@ class TUI (var game: Gamefield) extends Observable with Observer{
      println()
    }
    
-   def processInputLine(input:String)
+   def processInputLine(input:String):Boolean =
    {
-     showMenu
+     var isCorrect = false
 	   input match
 	   {
-		  case "1" => mapProcess
-		  case "2" => helpView
-		  case "Basicland" => gameProcess("basicland")
-		  case "Land 2" => gameProcess("land2")
-		  case "Land 3" => gameProcess("land3")
-		  case "Land 4" => gameProcess("land4")
+		  case "1" => isCorrect = mapProcess
+		  case "2" => helpView;
+		  case "Basicland" => sendMapChoice("basicland");isCorrect = true
+		  case "Land 2" => sendMapChoice("land2");isCorrect = true
+		  case "Land 3" => sendMapChoice("land3");isCorrect = true
+		  case "Land 4" => sendMapChoice("land4");isCorrect = true
 		  case _ => println("Falsche Eingabe, bitte korrekt Wiederholen")
 	   }
-     showMenu
-     
+     isCorrect
    }
-   def mapProcess()
+   def mapProcess():Boolean =
    {
      
      var isInputCorrect=false
@@ -84,18 +83,19 @@ class TUI (var game: Gamefield) extends Observable with Observer{
        showAllMap 
        isInputCorrect = mapProcessInputLine(readLine())
      }
+     true
    }
    
    def mapProcessInputLine(input:String) : Boolean =
    {
 	   input match
 	   {
-		  case "Basicland" => gameProcess("basicland"); return true
-		  case "Land 2" => gameProcess("land2");return true
-		  case "Land 3" => gameProcess("land3");return true
-		  case "Land 4" => gameProcess("land4");return true
+		  case "Basicland" => sendMapChoice("basicland"); return true
+		  case "Land 2" => sendMapChoice("land2");return true
+		  case "Land 3" => sendMapChoice("land3");return true
+		  case "Land 4" => sendMapChoice("land4");return true
 		  case "2" => helpView
-		  case "3" => showMenu; return true
+//		  case "3" => showMenu; return true
 		  case _ => println("Falsche Eingabe, bitte korrekt Wiederholen");
 	   }
 	   false
@@ -111,7 +111,8 @@ class TUI (var game: Gamefield) extends Observable with Observer{
    def gameProcess(mapName:String) 
    {
      sendMapChoice(mapName)
-     showField
+//     showField
+     /* Diese Logik gehört mittels notification zum Controller
      var exit = false
      while(!exit)
      {
@@ -121,6 +122,8 @@ class TUI (var game: Gamefield) extends Observable with Observer{
      {
        gameOver
      }
+     * 
+     */
    }
    
    def gameOver()
@@ -146,78 +149,83 @@ class TUI (var game: Gamefield) extends Observable with Observer{
    }
    
    
-   def gameProcessInputLine(input:String) : Boolean =
+   def readPosition() : Position =
    {
-     if(!checkIsCorrectLength(input))
+     var ok = false
+     var position:Position = null
+     while(!ok)
      {
-        println("Ihr Eingabe: " + input + "ist nicht korrekt, bitte Wiederholen")
-        return false
-     }
+    	 var input = readLine()
+     
+	     if(!checkIsCorrectLength(input))
+	     {
+	        println("Ihr Eingabe: " + input + "ist nicht korrekt, bitte Wiederholen")
+	       break
+	     }
+		 if(input.length == 1)
+		 {
+		   input match
+		   {
+		       case "2" => helpView; break
+		//	       case "3" => return true
+		 
+		   }
+		 }
+     
        
-     if(input.length == 1)
-     {
-       input match
-       {
-	       case "2" => helpView; return false
-	       case "3" => return true
+    
      
-       }
+	     var row = 0
+	     var column = 0
+	     var inputCharArray = input.toCharArray();
+	     
+	     var inputColumn = inputCharArray(0).toString
+	     var inputRow = inputCharArray(1).toString + inputCharArray(2).toString;
+	     inputColumn match
+	     {
+	       case "A" => column =0
+	       case "B" => column =1
+	       case "C" => column =2
+	       case "D" => column =3
+	       case "E" => column =4
+	       case "F" => column =5
+	       case "G" => column =6
+	       case "H" => column =7
+	       case "I" => column =8
+	       case "J" => column =9
+	       case "K" => column =10
+	       case "L" => column =11
+	       case "M" => column =12
+	       case "N" => column =13
+	       case "O" => column =14
+	       case "P" => column =15
+	       case "Q" => column =16
+	       case "R" => column =17
+	       case _ => println("Ihr Eingabe: " + input + "ist nicht korrekt, bitte Wiederholen"); break
+	     }
+	     inputRow match
+	     {
+	       case "01" => row =0
+	       case "02" => row =1
+	       case "03" => row =2
+	       case "04" => row =3
+	       case "05" => row =4
+	       case "06" => row =5
+	       case "07" => row =6
+	       case "08" => row =7
+	       case "09" => row =8
+	       case "10" => row =9
+	       case _ => println("Ihr Eingabe: " + input + "ist nicht korrekt, bitte Wiederholen"); break
+	     }
+	     println("Row: " + row + "Column: " +column)
+	     
+	     position = new Position(row,column)
+	     ok = true
      }
-     
-     var row = 0
-     var column = 0
-     var inputCharArray = input.toCharArray();
-     
-     var inputColumn = inputCharArray(0).toString
-     var inputRow = inputCharArray(1).toString + inputCharArray(2).toString;
-     inputColumn match
-     {
-       case "A" => column =0
-       case "B" => column =1
-       case "C" => column =2
-       case "D" => column =3
-       case "E" => column =4
-       case "F" => column =5
-       case "G" => column =6
-       case "H" => column =7
-       case "I" => column =8
-       case "J" => column =9
-       case "K" => column =10
-       case "L" => column =11
-       case "M" => column =12
-       case "N" => column =13
-       case "O" => column =14
-       case "P" => column =15
-       case "Q" => column =16
-       case "R" => column =17
-       case _ => println("Ihr Eingabe: " + input + "ist nicht korrekt, bitte Wiederholen")
-     }
-     inputRow match
-     {
-       case "01" => row =0
-       case "02" => row =1
-       case "03" => row =2
-       case "04" => row =3
-       case "05" => row =4
-       case "06" => row =5
-       case "07" => row =6
-       case "08" => row =7
-       case "09" => row =8
-       case "10" => row =9
-       case _ => println("Ihr Eingabe: " + input + "ist nicht korrekt, bitte Wiederholen")
-     }
-     println("Row: " + row + "Column: " +column)
-     sendPositionChoice(new Position(row,column))
-     checkGameOver
+     position
      	
    }
    
-   def sendPositionChoice(position:Position)
-   {
-     var notify = new Notification(Notification.Position)
-     notify.position = position
-     notifyObservers(notify)
-   }
    
    def helpView() 
    {
@@ -237,11 +245,6 @@ class TUI (var game: Gamefield) extends Observable with Observer{
      println("Das Spiel kann zu jedem Zeitpunkt mit der Eingabe 3 beendet werden.")
    }
    
-   def checkGameOver() =
-   {
-     //TODO Prüfe ob Spiel vorüber
-     false
-   }
    
    def showAllMap() 
    {
@@ -253,10 +256,7 @@ class TUI (var game: Gamefield) extends Observable with Observer{
    def startTUI()
    {
      showMenu
-     while(true)   
-    {
-     processInputLine(readLine())
-    }
+     while(!processInputLine(readLine())) {}  
    }
    
    def showMenu()
@@ -323,6 +323,58 @@ class TUI (var game: Gamefield) extends Observable with Observer{
      println("|$$$$$$$$$$|")
      println("------------")
    }
+   
+   override def updateObserver(notification:Notification)
+   {
+     notification.typ match
+	   {
+		  case Notification.Reinforcement => reinforcementView(notification)
+		  case Notification.Battle => battleView(notification)
+		  case Notification.Message => infoView(notification)
+		  case _ => println("Falsche Notification")
+	   }
+   }
+   
+   def infoView(n:Notification)
+   {
+     println(n.message)
+   }
+   
+   def battleView(notification:Notification)
+   {
+     var notificationNew = new Notification(Notification.Battle)
+     notificationNew.position = readPosition
+     notificationNew.currentPlayer = notification.currentPlayer
+     notificationNew.isOwnLand = notification.isOwnLand
+     notifyObservers(notificationNew)
+     
+   }
+   
+   def reinforcementView(notification:Notification)
+   {
+	   println("Amount of Reinforcement: "+ notification.value)
+	   println("Please insert territory (coumn,row).")
+	   println("First insert the colum of the field")
+	   sendReinforcementChoice(readPosition, notification.currentPlayer)
+	   
+   }
+   
+   
+   def sendReinforcementChoice(position:Position, player:Avatar)
+   {
+     var notification = new Notification(Notification.Reinforcement)
+     notification.position = position
+     notification.currentPlayer = player
+     notifyObservers(notification)
+   }
+   
+   def sendPositionChoice(position:Position)
+   {
+     var notification = new Notification(Notification.Position)
+     notification.position = position
+     notifyObservers(notification)
+   }
+   
    
    
 }
