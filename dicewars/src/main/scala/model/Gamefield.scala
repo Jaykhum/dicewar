@@ -15,8 +15,8 @@ class Gamefield extends Observable{
 	val avatarContainer:Array[Avatar] = initPlayer(2)
 	// Gameboard with size 18x10 fields and each fields needs 4x3 (width/height) Signs
 	val world = Array.ofDim[Land](height,width)
-	val dani = "C:\\Konstanz_Studium\\3.Semester\\Risiko\\workspace\\workspace_git\\dicewars\\Maps\\"
-	val jay = "C:\\study\\workspace\\dicewar\\dicewars\\Maps\\"
+	// path to Maps
+	val mapDir:String = "Maps/"
 
 	var attackLand:Land = null
 	var defenseLand:Land = null
@@ -33,12 +33,12 @@ class Gamefield extends Observable{
 	  }
 	  avatarContainer
 	}
+	
 	/*
-	 * initialize the world with 18x10 fields and all fields are water-fields
+	 * Welt initialsieren als 18x10 Gamefeld und alle Felder default als Wasserfelder
 	 * */
 	def initWorld
 	{
-	  
 	  for(i <- 0 to height-1; j <- 0 to width-1)
 	  {
 	    world(i)(j) = new Water(i,j)
@@ -75,15 +75,12 @@ class Gamefield extends Observable{
 		  if( (playerFieldCount(0)+1) > (fieldCount/2) )
 		  {
 		    playerID = 1  
-		    println("id:1")
 		  }else if( (playerFieldCount(1)+1) > (fieldCount/2) )
 		  {
 		    playerID = 0 
-		    println("id:2")
 		  }
 		  
 		  world(fieldContainer(i).position.row) (fieldContainer(i).position.colum).setHolder(playerID)
-		  println("playerid: "+ playerID)
 		  playerFieldCount(playerID) += 1
 	  }
 	  for(i <- 0 to avatarContainer.size -1)
@@ -100,7 +97,7 @@ class Gamefield extends Observable{
 	def initFieldInWorld(map:String):Array[Field] =
 	{
 		val fu = new FileUtil
-		var file = dani+ map
+		var file = mapDir + map
 		var outArray = fu.readData(file)
 		var Position = new Array[Int](2)
 		var fieldContainer = new Array[Field](outArray.size)
@@ -129,7 +126,7 @@ class Gamefield extends Observable{
 		if (player.newUnitsTemporary < 3) player.newUnitsTemporary = 3;
 		do{
 		    sendNotificationInfo("Zahl der Verstärkung: "+ player.newUnitsTemporary)
-		    sendNotificationInfo("Spieler: " + player.id + "ist dran.")
+		    sendNotificationInfo("Spieler: " + player.id + " ist dran.")
 		    sendNotificationInfo("Bitte Teritorium eingeben (Spalte,Zeile).")
 			var notification = new Notification(Notification.Reinforcement)
 			notification.value = player.newUnitsTemporary
@@ -196,11 +193,12 @@ class Gamefield extends Observable{
 	     attackDice = inverseArray(attackDice)
 	     defenseDice = inverseArray(defenseDice)
 	     
+	     // Für ersten Würfel
 	     if(attackDice(0) > defenseDice(0))
 	       defense.decArmy
 	     else
 	       attack.decArmy
-	     
+	     // Für zweiten Würfel
 	     if(defenseCountDices > 1  && attackCountDices >1)
 	     {
 	       println("Debug:Defense: " + defenseDice.length)
@@ -247,7 +245,7 @@ class Gamefield extends Observable{
 		    	 setValueForAttackAndDefenseLand(attackCountDices)
 	    	 }
 	    	 
-	     }
+	    }
 	  attack.permissionMoveArmy = false
 	}
 	
@@ -361,8 +359,9 @@ class Gamefield extends Observable{
 		    if(ownLand.getArmy > 1)
 		    {
 			    singleAttack(ownLand, otherLand)
-			    if(otherLand.getHolder == player.id)
+			    if(otherLand.checkHolder(player))
 			    {
+			      println("Debug (attack): otherland holder == player " )
 			      outloop = true
 			    }
 			    else{
@@ -375,15 +374,16 @@ class Gamefield extends Observable{
 			    	
 					if(!player.myTurn)
 					{
-					  outloop = true
+						outloop = true
 					}
-					  else
-						  outloop = false
+					else
+					{
+						outloop = false
+					}
 				}
 		    }
 		    else
-		      outloop = true
-			  	
+		      outloop = true			  	
 		  }
 	}
 	
@@ -418,7 +418,7 @@ class Gamefield extends Observable{
 		var ownLand = world(player.checkPoint.row)(player.checkPoint.column)
 		var notificationInfo = new Notification(Notification.Message)
 		var ok = false
-		if(ownLand.checkNeighbourhood(otherLand))
+		if(ownLand.checkNeighbourhood(otherLand) && otherLand.checkHolder(player))
 		{
 			notificationInfo.message = "Richtige Wahl"
 			

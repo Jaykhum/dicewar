@@ -90,9 +90,13 @@ class TUI (var game: Gamefield) extends Observable with Observer{
 	   input match
 	   {
 		  case "Basicland" => sendMapChoice("basicland"); return true
+		  case "basicland" => sendMapChoice("basicland"); return true
 		  case "Land 2" => sendMapChoice("land2");return true
+		  case "land 2" => sendMapChoice("land2");return true
 		  case "Land 3" => sendMapChoice("land3");return true
+		  case "land 3" => sendMapChoice("land3");return true
 		  case "Land 4" => sendMapChoice("land4");return true
+		  case "land 4" => sendMapChoice("land4");return true
 		  case "2" => helpView
 //		  case "3" => showMenu; return true
 		  case _ => println("Falsche Eingabe, bitte korrekt Wiederholen");
@@ -132,14 +136,14 @@ class TUI (var game: Gamefield) extends Observable with Observer{
    }
    
    /**
-    * Correct Length of the Input is either 1 or 3 Sings.
+    * Correct Length of the Input is either 1, 2 or 3 Sings.
     */
    def checkIsCorrectLength(input:String) : Boolean = 
    {
      if (input != null)
      {
        var inputCharArray = input.toCharArray();
-       if(inputCharArray.length == 1 || inputCharArray.length == 3)
+       if(inputCharArray.length == 1 || inputCharArray.length == 3 || inputCharArray.length == 2)
        {
          return true
        }
@@ -207,7 +211,15 @@ class TUI (var game: Gamefield) extends Observable with Observer{
 		     var inputCharArray = input.toCharArray();
 		     
 		     var inputColumn = inputCharArray(0).toString
-		     var inputRow = inputCharArray(1).toString + inputCharArray(2).toString;
+		     var inputRow:String = ""
+		     if(inputCharArray.length > 2)
+		     {
+		    	 inputRow = inputCharArray(1).toString + inputCharArray(2).toString
+		     }
+		     else
+		     {
+		    	 inputRow = inputCharArray(1).toString
+		     }
 		     inputColumn match
 		     {
 		       case "A" => column =0
@@ -228,10 +240,37 @@ class TUI (var game: Gamefield) extends Observable with Observer{
 		       case "P" => column =15
 		       case "Q" => column =16
 		       case "R" => column =17
+		       case "a" => column =0
+		       case "b" => column =1
+		       case "c" => column =2
+		       case "d" => column =3
+		       case "e" => column =4
+		       case "f" => column =5
+		       case "g" => column =6
+		       case "h" => column =7
+		       case "i" => column =8
+		       case "j" => column =9
+		       case "k" => column =10
+		       case "l" => column =11
+		       case "m" => column =12
+		       case "n" => column =13
+		       case "o" => column =14
+		       case "p" => column =15
+		       case "q" => column =16
+		       case "r" => column =17
 		       case _ => isMessage = true; loop =true
 		     }
 		     inputRow match
 		     {
+		       case "1" => row =0
+		       case "2" => row =1
+		       case "3" => row =2
+		       case "4" => row =3
+		       case "5" => row =4
+		       case "6" => row =5
+		       case "7" => row =6
+		       case "8" => row =7
+		       case "9" => row =8
 		       case "01" => row =0
 		       case "02" => row =1
 		       case "03" => row =2

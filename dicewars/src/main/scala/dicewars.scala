@@ -7,9 +7,30 @@ import scala.collection.mutable.ArrayBuffer
 import main.scala.model.Gamefield
 import main.scala.model.Avatar
 
+// tests
+import main.scala.model.Dice
+
 object dicewars {
     def main(args: Array[String]) {
     val controller=new DicewarController()
+     
+    
+      
+     /*
+     * Test
+     * */
+/*
+     var attackDice = new Array[Int](10)
+      var dice = new Dice
+	  for(i <- 0 to attackDice.length -1)
+	  {
+	       attackDice(i) = dice.roll
+	       println(i + ": " + attackDice(i))
+	  }
+ */
+     
+      
+      
 //    val game =  new Gamefield
 //    game.initMap
 //    val tui= new TUI(controller, game)
@@ -31,9 +52,7 @@ object dicewars {
 //    game.tactic(player1, game.world(4)(9), game.world(5)(9))
 //    game.tactic(player1, game.world(3)(5), game.world(4)(9))
 //    game.tactic(player1, game.world(7)(15), game.world(4)(9))
-    /*
-     * Test
-     * */
+
     // linker n
 //    print("4,10 und 4,9:  ")
 //    game.singleAttack(game.world(4)(10), game.world(4)(9))
