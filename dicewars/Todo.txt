@@ -3,3 +3,7 @@
 3. While-Schleife statt Pseudo-Rekursion für Battle-Phase und Tatctical-Phase.
 4. End-Game einbauen.
 5. Hart gesetzte Variablen zum testen muessen raus(z.b. player units).
+6. Player kennt seine Farbe. Player id in tui farblich kennzeichen.
+7. In Battle-Phase: Nach der Beendigung des singleangriffs müssen weitere Angriffe moeglich sein. 
+8. Exit einbauen. Bei Exit Prozess des Spiels beenden.
+9. Anzahl der Spieler Dynamisch halten(TUI Abfrage wieviel Spieler mitspielen). Höchstens 3 Spieler. D.h auch abfrage des Avatar Container anderst gestalten.

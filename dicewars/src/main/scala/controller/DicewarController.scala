@@ -50,7 +50,7 @@ class DicewarController extends Observer {
     
     def delegateQuestion(notification:Notification)
     {
-     //(avatarContainer )M�gliche Fehlerquelle durch id auf zugriff array index, funkt nur weil index und id synchron sind
+     //(avatarContainer )Moegliche Fehlerquelle durch id auf zugriff array index, funkt nur weil index und id synchron sind
      var player = game.avatarContainer(notification.currentPlayer.id) 
      player.myTurn = notification.question
     }
