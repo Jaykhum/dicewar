@@ -77,9 +77,13 @@ class TUI (var game: Gamefield) extends Observable with Observer{
 		  case "1" => isCorrect = mapProcess
 		  case "2" => helpView;
 		  case "Basicland" => sendMapChoice("basicland");isCorrect = true
+		  case "basicland" => sendMapChoice("basicland");isCorrect = true
 		  case "Land 2" => sendMapChoice("land2");isCorrect = true
+		  case "land 2" => sendMapChoice("land2");isCorrect = true
 		  case "Land 3" => sendMapChoice("land3");isCorrect = true
+		  case "land 3" => sendMapChoice("land3");isCorrect = true
 		  case "Land 4" => sendMapChoice("land4");isCorrect = true
+		  case "land 4" => sendMapChoice("land4");isCorrect = true
 		  case _ => println("Falsche Eingabe, bitte korrekt Wiederholen")
 	   }
      isCorrect
