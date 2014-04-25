@@ -21,7 +21,6 @@ class DicewarController extends Observer {
      notification.typ match
 	   {
 		  case Notification.Map => initGame(notification)
-		  case Notification.Position=> println("Notify Position" + notification.position.column + notification.position.row)
 		  case Notification.Reinforcement=>delegateReinforcement(notification)
 		  case Notification.Battle=>delegateBattle(notification)
 		  case Notification.Attack=>delegateAttack(notification)
@@ -55,7 +54,7 @@ class DicewarController extends Observer {
     
     def delegateAttack(notification:Notification)
     {
-      game.attackLand.permissionMoveArmy = game.checkNumberOfUnitMove(game.attackLand, notification.value)
+      game.fromLand.permissionMoveArmy = game.checkNumberOfUnitMove(game.fromLand, notification.value)
       game.setValueForAttackAndDefenseLand(notification.value)
          
     }

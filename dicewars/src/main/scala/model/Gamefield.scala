@@ -18,8 +18,8 @@ class Gamefield extends Observable{
 	// path to Maps
 	val mapDir:String = "Maps/"
 
-	var attackLand:Land = null
-	var defenseLand:Land = null
+	var fromLand:Land = null
+	var toLand:Land = null
 	/**
 	 * Initialize number of players.
 	 * @param Number of player.
@@ -90,7 +90,7 @@ class Gamefield extends Observable{
 		    playerID = 0 
 		  }
 		  
-		  world(fieldContainer(i).position.row) (fieldContainer(i).position.colum).setHolder(playerID)
+		  world(fieldContainer(i).position.row) (fieldContainer(i).position.column).setHolder(playerID)
 		  playerFieldCount(playerID) += 1
 	  }
 	  for(i <- 0 to avatarContainer.size -1)
@@ -118,7 +118,7 @@ class Gamefield extends Observable{
 		  var charArray = s.toCharArray
 		  // row 
 		  Position(0) = String.valueOf(charArray(0)).toInt
-		  // colum
+		  // column
 
 		  if(charArray.length == 3)	Position(1) = String.valueOf(charArray(2)).toInt
 		  else if(charArray.length == 4)	Position(1) = String.valueOf(charArray(3)).toInt + 10
@@ -139,9 +139,9 @@ class Gamefield extends Observable{
 		player.newUnitsTemporary = player.getTerritories/divider
 		if (player.newUnitsTemporary < 3) player.newUnitsTemporary = 3;
 		do{
-		    sendNotificationInfo("Zahl der Verstaerkung: "+ player.newUnitsTemporary)
-		    sendNotificationInfo("Spieler: " + player.id + " ist dran.")
-		    sendNotificationInfo("Bitte Teritorium eingeben (Spalte,Zeile).")
+		    sendNotificationMessage(Message.Info,"Zahl der Verstaerkung: "+ player.newUnitsTemporary)
+		    sendNotificationMessage(Message.Info,"Spieler: " + player.id + " ist dran.")
+		    sendNotificationMessage(Message.Info,"Bitte Teritorium eingeben (Spalte,Zeile).")
 			var notification = new Notification(Notification.Reinforcement)
 			notification.value = player.newUnitsTemporary
 			notification.currentPlayer = player
@@ -153,7 +153,7 @@ class Gamefield extends Observable{
 	/**
 	 * Check whether the reinforcement is correct, otherwise the user get an appropriate message.
 	 */
-	def handleReinforcement(player:Avatar,position:Position) 
+	def handleReinforcement(player:Avatar,position:WorldPosition) 
 	{
 	  // Spielfeld Land durch Pos bestimmen und checken ob seins
 	  if(world(position.row)(position.column).checkHolder(player) && world(position.row)(position.column).getFieldType)
@@ -162,9 +162,9 @@ class Gamefield extends Observable{
 			  player.newUnitsTemporary -= 1
 			}
 			else if(!world(position.row)(position.column).getFieldType)
-			  sendNotificationInfo("Ein Wasserfeld hat kein besitzer")
+			  sendNotificationMessage(Message.Error,"Ein Wasserfeld hat kein besitzer")
 			else
-			  sendNotificationInfo("Das Teritorium ist nicht dein Land.")
+			  sendNotificationMessage(Message.Error,"Das Teritorium ist nicht dein Land.")
 	}
 	
 	/**
@@ -200,13 +200,13 @@ class Gamefield extends Observable{
 	     for(i <- 0 to attackDice.length -1)
 	     {
 	       attackDice(i) = dice.roll
-	       sendNotificationInfo("Wuerfel Augen: " + attackDice(i))
+	       sendNotificationMessage(Message.Info,"Spieler " + attack.getHolder +" hat eine " + attackDice(i) + " gewuerfelt. ")
 //	       println("Wuerfel Augen: " + attackDice(i))
 	     }
 	     for(i <- 0 to defenseDice.length -1)
 	     {
 	       defenseDice(i) = dice.roll
-	       sendNotificationInfo("Wuerfel Augen: " + defenseDice(i))
+	       sendNotificationMessage(Message.Info,"Spieler " + defense.getHolder +" hat eine " + defenseDice(i) + " gewuerfelt. ")
 //	       println("Wuerfel Augen: " + defenseDice(i))
 	     }
 	     Sorting.quickSort(attackDice)
@@ -236,12 +236,12 @@ class Gamefield extends Observable{
 	     
 	    }else
 	    {
-	      sendNotificationInfo("Ist kein Feld sondern Wasser")
+	      sendNotificationMessage(Message.Error,"Ist kein Feld sondern Wasser")
 	    }
 	    
 	  }  
 	  else
-	    sendNotificationInfo("Ist kein Feld sondern Wasser")
+	    sendNotificationMessage(Message.Error,"Ist kein Feld sondern Wasser")
 	}
 	
 	/**
@@ -255,14 +255,14 @@ class Gamefield extends Observable{
 	{  
 	  if(defense.getArmy == 0){
 	    	 var in:Int = 0
-	    	 sendNotificationInfo("Sieg!!")
+	    	 sendNotificationMessage(Message.Success,"Sieg!!")
 	    	 if(attack.getArmy > 3)
 	    	 {
 	    	   do
 	    	   {
-		    	   sendNotificationInfo("Bitte waehle aus wieviele Einheiten du verschieben moechtest!")
-		    	   sendNotificationInfo("Hinweis: Eine Einheit muss stationiert bleiben.")
-	    	       sendNotificationInfo("Attack: Noch verbliebene Einheiten: " + attack.getArmy)
+		    	   sendNotificationMessage(Message.Info,"Bitte waehle aus wieviele Einheiten du verschieben moechtest!")
+		    	   sendNotificationMessage(Message.Info,"Hinweis: Eine Einheit muss stationiert bleiben.")
+	    	       sendNotificationMessage(Message.Info,"Spieler "+ attack.getHolder + ":  Noch verbliebene Einheiten: " + attack.getArmy)
 	    	       var n = new Notification(Notification.Attack)
 		    	   notifyObservers(n);
 	    	   }while (!attack.permissionMoveArmy)
@@ -282,7 +282,7 @@ class Gamefield extends Observable{
 	 */
 	def setValueForAttackAndDefenseLand(army:Int)
 	{
-	   if(attackLand.permissionMoveArmy)
+	   if(fromLand.permissionMoveArmy)
       {
         setArmyForAttackAndDefenseLand(army)
         setNewHolderForBeatenLand
@@ -295,13 +295,13 @@ class Gamefield extends Observable{
 	 */
 	def setArmyForAttackAndDefenseLand(army:Int) 
 	{
-		 attackLand.setArmy(attackLand.getArmy - army)
-		 defenseLand.setArmy(defenseLand.getArmy + army)
+		 fromLand.setArmy(fromLand.getArmy - army)
+		 toLand.setArmy(toLand.getArmy + army)
 	}
 	/**
 	 * Set the new holder which is the attack land for the beaten land.
 	 */
-	def setNewHolderForBeatenLand = defenseLand.holder = attackLand.holder
+	def setNewHolderForBeatenLand = toLand.holder = fromLand.holder
 	
 	/**
 	 * Check whether the amount of unit to move for the assigned land is allowed.
@@ -314,7 +314,7 @@ class Gamefield extends Observable{
 	{
 		if(land.getArmy - army < 1)
 		{
-			sendNotificationInfo("Zuviele Einheiten gewaehlt. Bitte erneut eingeben.")
+			sendNotificationMessage(Message.Error,"Zuviele Einheiten gewaehlt. Bitte erneut eingeben.")
 			return false
 		}
 	    else
@@ -324,13 +324,15 @@ class Gamefield extends Observable{
 	
 	/**
 	 * Send notifications to Inform the User.
-	 * @param message. Informations for the user.
+	 * @param messageType. Responsible for the color of the output.
+	 * @param messageContent. Informations for the user.
 	 */
-	def sendNotificationInfo(message:String)
+	def sendNotificationMessage(messageType:Message.MessageTyp, messageContent:String)
 	{
-	  var notificationInfo = new Notification(Notification.Message)
-	  notificationInfo.message = message
-	  notifyObservers(notificationInfo)
+	  var notificationMessage = new Notification(Notification.Message)
+	  var message = new Message(messageType, messageContent)
+	  notificationMessage.message = message
+	  notifyObservers(notificationMessage)
 	}
 	
 	/**
@@ -351,18 +353,17 @@ class Gamefield extends Observable{
 	 * @param position. World Position in the game.
 	 * @param isOwnLand. For true the function will set the value for the attack land otherwise the defense land
 	 */
-	def setAttackOrDefenseLand(player:Avatar, position:Position, isOwnLand:Boolean)
+	def setAttackOrDefenseLand(player:Avatar, position:WorldPosition, isOwnLand:Boolean)
 	{
 	  if(isOwnLand)
 	  {
 	    if(!checkOwnLandSelection(player, position))
 	    {
-		    sendNotificationInfo("Das ausgewaehlte Land ist nicht dein Land, bitte wiederhole die Eingabe korrekt.")
+		    sendNotificationMessage(Message.Error,"Das ausgewaehlte Land ist nicht dein Land, bitte wiederhole die Eingabe korrekt.")
 		    sendBattleNotification(player,true)
 	    }else
 	    {
-	        player.checkPoint = position
-			attackLand = world(position.row) (position.column)
+			fromLand = world(position.row) (position.column)
 	    }
 	    
 	  }
@@ -371,13 +372,11 @@ class Gamefield extends Observable{
 	  {
 	    if(!checkForeignLandSelection(player, position))
 	    {
-	    	var notificationInfo = new Notification(Notification.Message)
-			notificationInfo.message = "Das ausgewaehlte Land ist nicht das Land deines Feindes, bitte wiederhole die Eingabe korrekt."
-		    notifyObservers(notificationInfo)
+			sendNotificationMessage(Message.Error,"Das ausgewaehlte Land ist nicht das Land deines Feindes, bitte wiederhole die Eingabe korrekt.")
 		    sendBattleNotification(player,false)
 	    }else
 	    {
-	      defenseLand = world(position.row) (position.column)
+	      toLand = world(position.row) (position.column)
 	    }
 	
 	  }
@@ -391,17 +390,15 @@ class Gamefield extends Observable{
 	def sendBattleNotification(player:Avatar, ownLand:Boolean)
 	{
 		var notification = new Notification(Notification.Battle)
-		var notificationInfo = new Notification(Notification.Message)
 	  
 		if(ownLand)
-			notificationInfo.message = "Waehle das Land, von welchem du aus Angreifen willst."
+			sendNotificationMessage(Message.Info, "Waehle das Land, von welchem du aus Angreifen willst.")
 		else
-			notificationInfo.message = "Waehle das Land aus welches du Angreifen willst."
+			sendNotificationMessage(Message.Info,"Waehle das Land aus welches du Angreifen willst.")
 	      
 		notification.currentPlayer = player
 		notification.isOwnLand = ownLand
 	  
-		notifyObservers(notificationInfo)
 		notifyObservers(notification);
 	    
 	}
@@ -412,8 +409,8 @@ class Gamefield extends Observable{
 	 */
 	def attack (player:Avatar)
 	{
-	  var ownLand = attackLand
-	  var otherLand = defenseLand
+	  var ownLand = fromLand
+	  var otherLand = toLand
 	  var outloop = false
 	  while(!outloop)
 		  {
@@ -426,9 +423,9 @@ class Gamefield extends Observable{
 			      outloop = true
 			    }
 			    else{
-			    	sendNotificationInfo(player.id + ": Noch verbliebene Einheiten: " + ownLand.getArmy)
-			    	sendNotificationInfo(otherLand.getHolder + ": Noch verbliebe Einheiten: " + otherLand.getArmy)
-			    	sendNotificationInfo("Weiter angreifen? (ja/nein)")
+			    	sendNotificationMessage(Message.Info,"Spieler " + player.id + ": Noch verbliebene Einheiten: " + ownLand.getArmy)
+			    	sendNotificationMessage(Message.Info,"Spieler " + otherLand.getHolder + ": Noch verbliebene Einheiten: " + otherLand.getArmy)
+			    	sendNotificationMessage(Message.Info,"Weiter angreifen? (ja/nein)")
 			    	val notification = new Notification(Notification.Question)
 			    	notification.currentPlayer = player
 			    	notifyObservers(notification)
@@ -455,23 +452,21 @@ class Gamefield extends Observable{
 	 * @param position. World position of the land.
 	 * @return true when the selected land is from the current player.
 	 */
-	def checkOwnLandSelection(player:Avatar,position:Position):Boolean =
+	def checkOwnLandSelection(player:Avatar,position:WorldPosition):Boolean =
 	{
 		var ownLand = world(position.row)(position.column)
-		var notificationInfo = new Notification(Notification.Message)
 		var ok = false
 		if (ownLand.checkHolder(player))
 		{
-			notificationInfo.message = "Richtige Wahl"
+			sendNotificationMessage(Message.Success,"Land wurde gewaehlt")
 			
 			ok = true
 					
 		}else
 		{
-			notificationInfo.message = "Falsche Wahl"
+			sendNotificationMessage(Message.Error,"Falsche Wahl")
 			ok = false
 		}
-		notifyObservers(notificationInfo)
 		ok
 	}
 	
@@ -481,24 +476,22 @@ class Gamefield extends Observable{
 	 * @param position. World position of the land.
 	 * @return true when the selected land is not from the current player.
 	 */
-	def checkForeignLandSelection(player:Avatar,position:Position):Boolean =
+	def checkForeignLandSelection(player:Avatar,position:WorldPosition):Boolean =
 	{
 		var otherLand = world(position.row)(position.column)
-		var ownLand = world(player.checkPoint.row)(player.checkPoint.column)
-		var notificationInfo = new Notification(Notification.Message)
+		var ownLand = world(fromLand.position.row)(fromLand.position.column)
 		var ok = false
 		if(ownLand.checkNeighbourhood(otherLand) && !otherLand.checkHolder(player))
 		{
-			notificationInfo.message = "Richtige Wahl"
+			sendNotificationMessage(Message.Success,"Land wurde gewaehlt")
 			
 			ok = true
 					
 		}else
 		{
-			notificationInfo.message = "Falsche Wahl"
+			sendNotificationMessage(Message.Error,"Falsche Wahl")
 			ok = false
 		}
-		notifyObservers(notificationInfo)
 		ok		 
 	}
 	
@@ -530,7 +523,7 @@ class Gamefield extends Observable{
 	def startTacticPhase(player:Avatar)
 	{
 	  // Abfrage ob der Spieler Einheiten verschieben moechte
-	  sendNotificationInfo("Taktische Phase!\nMoechten Sie Einheiten verschieben? (ja/nein)")
+	  sendNotificationMessage(Message.Info,"Taktische Phase!\nMoechten Sie Einheiten verschieben? (ja/nein)")
 	  val notification = new Notification(Notification.Question)
 	  notification.currentPlayer = player
 	  notifyObservers(notification)
@@ -550,12 +543,12 @@ class Gamefield extends Observable{
 	 * @param position. Position of the game world.
 	 * @param from. To set the from (Source) land the parameter require the value true, otherwise false for the to (Target) land.  
 	 */
-	def setFromOrTo(player:Avatar, position:Position,from:Boolean)
+	def setFromOrTo(player:Avatar, position:WorldPosition,from:Boolean)
 	{
 
 	    if(!checkOwnLandSelection(player, position))
 	    {
-		    sendNotificationInfo("Das ausgewaehlte Land ist nicht dein eigenes Land, bitte wiederhole die Eingabe korrekt.")
+		    sendNotificationMessage(Message.Error,"Das ausgewaehlte Land ist nicht dein eigenes Land, bitte wiederhole die Eingabe korrekt.")
 		    sendTacticNotification(player,from)
 	    }else
 	    {
@@ -564,7 +557,7 @@ class Gamefield extends Observable{
 	        	player.fromLand = world(position.row)(position.column)
 	        else
 	        {
-	          sendNotificationInfo("Zu wenig Einheiten auf diesem Land, benoetigt werden mindestens 2 Einheiten")
+	          sendNotificationMessage(Message.Error,"Zu wenig Einheiten auf diesem Land, benoetigt werden mindestens 2 Einheiten")
 	          sendTacticNotification(player,true)
 	        }
 	          
@@ -573,12 +566,12 @@ class Gamefield extends Observable{
 	        player.toLand = world(position.row)(position.column) 
 	        if(player.fromLand == player.toLand)
 	        {
-	          sendNotificationInfo("Das zweite ausgewaehlte Land darf nicht gleich dem ersten sein")
+	          sendNotificationMessage(Message.Error,"Das zweite ausgewaehlte Land darf nicht gleich dem ersten sein")
 	          sendTacticNotification(player,false)
 	        }
 	        if(!player.fromLand.checkNeighbourhood(player.toLand))
 	        {
-	          sendNotificationInfo("Ist kein Nachbarland")
+	          sendNotificationMessage(Message.Error,"Ist kein Nachbarland")
 	          sendTacticNotification(player,false)
 	        }
 	      }
@@ -597,13 +590,13 @@ class Gamefield extends Observable{
 	  
 		if(from)
 		{
-		  sendNotificationInfo("Bitte waehle ein eigenes Land aus um Truppen zu verschieben")
+		  sendNotificationMessage(Message.Info,"Bitte waehle ein eigenes Land aus um Truppen zu verschieben")
 		  notification.isFirstLand = true
 		}
 			
 		else
 		{
-			sendNotificationInfo("Bitte Land angeben auf das verschoben werden soll")
+			sendNotificationMessage(Message.Info,"Bitte Land angeben auf das verschoben werden soll")
 			notification.isFirstLand = false
 		}
 		notification.currentPlayer = player
@@ -626,9 +619,9 @@ class Gamefield extends Observable{
 	{  
 	    	   do
 	    	   {
-		    	   sendNotificationInfo("Bitte waehle aus wieviele Einheiten du verschieben moechtest!")
-		    	   sendNotificationInfo("Hinweis: Eine Einheit muss stationiert bleiben.")
-	    	       sendNotificationInfo("Einheiten: " + from.getArmy)
+		    	   sendNotificationMessage(Message.Info,"Bitte waehle aus wieviele Einheiten du verschieben moechtest!")
+		    	   sendNotificationMessage(Message.Info,"Hinweis: Eine Einheit muss stationiert bleiben.")
+	    	       sendNotificationMessage(Message.Info,"Einheiten: " + from.getArmy)
 	    	       var n = new Notification(Notification.Army)
 		    	   n.currentPlayer = player
 		    	   notifyObservers(n);

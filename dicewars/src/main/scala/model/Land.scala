@@ -5,11 +5,11 @@ import main.scala.util.Notification
 
 class WorldPosition(y: Int, x: Int){
   val row: Int = y
-  val colum: Int = x
+  val column: Int = x
   
   def isSame(position: WorldPosition): Boolean = 
   {
-    if(position.row ==  this.row && position.colum == this.colum)
+    if(position.row ==  this.row && position.column == this.column)
       return true
     else
       return false
@@ -17,10 +17,10 @@ class WorldPosition(y: Int, x: Int){
   
 //	  def isBorder(position: WorldPosition): Boolean =
 //	  {
-//	    val rightN = new WorldPosition(this.row, this.colum + 1)
-//	    val leftN = new WorldPosition(this.row, this.colum - 1)
-//	    val upperN = new WorldPosition(this.row + 1, this.colum)
-//	    val bottomN = new WorldPosition(this.row - 1, this.colum)
+//	    val rightN = new WorldPosition(this.row, this.column + 1)
+//	    val leftN = new WorldPosition(this.row, this.column - 1)
+//	    val upperN = new WorldPosition(this.row + 1, this.column)
+//	    val bottomN = new WorldPosition(this.row - 1, this.column)
 //	    
 //	    position match{ 
 //	      case rightN => return true
@@ -35,9 +35,9 @@ class WorldPosition(y: Int, x: Int){
    * */
   	def isBorder(position: WorldPosition): Boolean =
   	{
-  	 	if(((position.row == this.row - 1) && (position.colum == this.colum)) || ((position.row == this.row + 1) && (position.colum == this.colum)))
+  	 	if(((position.row == this.row - 1) && (position.column == this.column)) || ((position.row == this.row + 1) && (position.column == this.column)))
   	 	  return true
-  	 	else if(((position.colum == this.colum - 1) && (position.row == this.row)) || ((position.colum == this.colum + 1) && (position.row == this.row)))
+  	 	else if(((position.column == this.column - 1) && (position.row == this.row)) || ((position.column == this.column + 1) && (position.row == this.row)))
   	 	  return true
   	 	else
   	 	  return false
