@@ -346,8 +346,8 @@ class TUI (var game: Gamefield) extends Observable with Observer{
      println("--------------------------------------------------------------------------------")
      println("Spiel: Feld Auswahl")
      println("Fuer die Auswahl eines Spielfeldes das Muster [Spalte][Zeile] verwenden.")
-     println("Beispiel: Fuer das erste Feld (erste Spalte und erste Zeile) wähle:")
-     println("A01")
+     println("Beispiele: Fuer das erste Feld (erste Spalte und erste Zeile) wähle:")
+     println("A01 " + "oder " + "A1 " + "a01 " + "oder " + "a1")
      println("--------------------------------------------------------------------------------")
      println("2 Hilfe")
      println("Hilfsanzeige")
@@ -446,9 +446,11 @@ class TUI (var game: Gamefield) extends Observable with Observer{
 		  case Notification.Question => questionProcess(notification)
 		  case Notification.Tactic => tacticProcess(notification)
 		  case Notification.Army => armyProcess(notification)
+		  case Notification.UI => showField
 		  case _ => println("Debug: Falsche Notification")
 	   }
    }
+   
    
    def armyProcess(n:Notification)
    {

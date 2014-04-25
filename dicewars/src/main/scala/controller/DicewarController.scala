@@ -42,7 +42,7 @@ class DicewarController extends Observer {
     
     def delegateTactic(notification:Notification)
     {
-      game.setFromAndTo(notification.currentPlayer, notification.position, notification.isFirstLand)
+      game.setFromOrTo(notification.currentPlayer, notification.position, notification.isFirstLand)
      
     }
     
@@ -62,7 +62,7 @@ class DicewarController extends Observer {
     
     def delegateBattle(notification:Notification)
     {
-      game.setAttackAndDefenseLand(notification.currentPlayer, notification.position, notification.isOwnLand)
+      game.setAttackOrDefenseLand(notification.currentPlayer, notification.position, notification.isOwnLand)
 
        
     }

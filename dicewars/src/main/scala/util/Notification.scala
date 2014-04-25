@@ -18,5 +18,5 @@ class Notification(var typ: Notification.NotificationTyp)
 object Notification extends Enumeration 
 {
     type NotificationTyp = Value
-    val Map, Reinforcement, Battle, Attack, Position, Message, Question, Tactic, Army = Value
+    val Map, Reinforcement, Battle, Attack, Position, Message, Question, Tactic, Army, UI = Value
 }
