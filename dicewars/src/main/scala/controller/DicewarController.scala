@@ -1,6 +1,4 @@
 package main.scala.controller
-import scala.swing.event.Event
-import scala.swing.Publisher
 import main.scala.model._
 import main.scala.view._
 import main.scala.util._

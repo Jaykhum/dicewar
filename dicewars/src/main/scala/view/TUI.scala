@@ -2,8 +2,6 @@ package main.scala.view
 import main.scala.controller.DicewarController
 import main.scala.model.Gamefield
 import scala.io.Source._
-import swing._
-import com.sun.xml.internal.fastinfoset.algorithm.HexadecimalEncodingAlgorithm
 import main.scala.util._
 import main.scala.model.Avatar
 
