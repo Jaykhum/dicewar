@@ -323,11 +323,8 @@ class Gamefield extends Observable{
 	    {
 	      defenseLand = world(position.row) (position.column)
 	    }
-	      
-	    	
+	
 	  }
-       
-
 	}
 	
 	
@@ -418,7 +415,7 @@ class Gamefield extends Observable{
 		var ownLand = world(player.checkPoint.row)(player.checkPoint.column)
 		var notificationInfo = new Notification(Notification.Message)
 		var ok = false
-		if(ownLand.checkNeighbourhood(otherLand) && otherLand.checkHolder(player))
+		if(ownLand.checkNeighbourhood(otherLand) && !otherLand.checkHolder(player))
 		{
 			notificationInfo.message = "Richtige Wahl"
 			
@@ -474,12 +471,27 @@ class Gamefield extends Observable{
 	  
 	}
 	
-	
+	/*
+	 * Taktische Phase der Spieler hat einmal das Recht
+	 * seine Einheiten von max. einem Land zu einem anderen Land,
+	 * das ihn gehoert, zu verschieben.
+	 * Danach ist die Runde fuer den Spieler Beendet und der 
+	 * Naechste ist an der Reihe.
+	 * */
 	def startTacticPhase(player:Avatar)
 	{
-	  sendTacticNotification(player,true)
-	  sendTacticNotification(player,false)
-	  setArmyToMove(player.fromLand, player.toLand, player)
+	  // Abfrage ob der Spieler Einheiten verschieben moechte
+	  sendNotificationInfo("Taktische Phase!\nMöchten Sie Einheiten verschieben? (ja/nein)")
+	  val notification = new Notification(Notification.Question)
+	  notification.currentPlayer = player
+	  notifyObservers(notification)
+	  // falls ja fuehre Phase aus, ansonsten Zug beendet
+	  if(player.myTurn)
+	  {	  
+	    sendTacticNotification(player,true)
+	    sendTacticNotification(player,false)
+	    setArmyToMove(player.fromLand, player.toLand, player)
+	  }
 	}
 	
 	def setFromAndTo(player:Avatar, position:Position,firstLand:Boolean)
@@ -567,8 +579,4 @@ class Gamefield extends Observable{
 	    	 from.permissionMoveArmy = false
    	 
 	     }
-	  
-	
-
-	
 }

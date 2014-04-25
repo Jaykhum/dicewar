@@ -72,7 +72,7 @@ class Field(row: Int, col: Int) extends Land
 // number of units on the field
 	var army = 5
 // player-id who holds the field
-	var holder: Int = 0
+	var holder: Int = -3
 	
 	// position in world
 	val position = new WorldPosition(row, col)

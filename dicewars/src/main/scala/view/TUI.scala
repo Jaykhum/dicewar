@@ -45,10 +45,21 @@ class TUI (var game: Gamefield) extends Observable with Observer{
           helpLimiter
         }else
         {
-        print(delimiterVertical + game.world(j)(k-1).showImage + delimiterVertical)
-        }
+        	// ohne Farben
+        	//print(delimiterVertical + game.world(j)(k-1).showImage + delimiterVertical)
+        	
+        	// mit Farben
+        	if(game.world(j)(k-1).getHolder == -1)
+        		print(delimiterVertical + Console.BLUE + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 0)
+        		print(delimiterVertical + Console.RED + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 1)
+        		print(delimiterVertical + Console.GREEN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 2)
+        		print(delimiterVertical + Console.YELLOW + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
         
-      }     
+        }
+       }     
       // Label bottom
        print("    ")
      for(h <- 0 to game.width-1)
