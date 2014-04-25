@@ -1,0 +1,5 @@
+1. In Battle-Phase: Falls ausgewaehltes ownland keinen Nachbarn zu attackieren besitzt, abbruch und ownland neu setzen.
+2. TUI anzeige nach jedem Zug.
+3. While-Schleife statt Pseudo-Rekursion für Battle-Phase und Tatctical-Phase.
+4. End-Game einbauen.
+5. Hart gesetzte Variablen zum testen muessen raus(z.b. player units).
