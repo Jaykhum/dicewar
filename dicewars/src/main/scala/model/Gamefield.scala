@@ -6,6 +6,7 @@ import scala.collection.immutable.StringOps
 import main.scala.util.FileUtil
 import scala.util.Random
 import main.scala.util._
+import main.scala.util.Message
 
 class Gamefield extends Observable{
 	val divider = 3
