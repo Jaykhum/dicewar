@@ -1,5 +1,4 @@
 package main.scala.model
-import main.scala.model.WorldPosition
 
 class Avatar(var id:Integer) {
 	var myTurn = false				// turn?

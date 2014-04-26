@@ -46,16 +46,49 @@ class TUI (var game: Gamefield) extends Observable with Observer{
         {
         	// ohne Farben
         	//print(delimiterVertical + game.world(j)(k-1).showImage + delimiterVertical)
-        	
+          
+          if(game.fromLand != null && game.fromLand == game.world(j)(k-1))
+          {
+            
+            
+        	if(game.world(j)(k-1).getHolder == -1)
+        		print(delimiterVertical + Console.CYAN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 0)
+        		print(delimiterVertical + Console.YELLOW + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 1)
+        		print(delimiterVertical + Console.MAGENTA + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 2)
+        		print(delimiterVertical + Console.GREEN + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        		
+        		
+          }else if(game.toLand != null && game.toLand == game.world(j)(k-1))
+          {
+            
+            
+        	if(game.world(j)(k-1).getHolder == -1)
+        		print(delimiterVertical + Console.CYAN + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 0)
+        		print(delimiterVertical + Console.YELLOW + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 1)
+        		print(delimiterVertical + Console.MAGENTA + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 2)
+        		print(delimiterVertical + Console.GREEN + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        		
+        		
+          }else
+          {
+            
         	// mit Farben
         	if(game.world(j)(k-1).getHolder == -1)
-        		print(delimiterVertical + Console.BLUE + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        		print(delimiterVertical + Console.CYAN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
         	else if(game.world(j)(k-1).getHolder == 0)
-        		print(delimiterVertical + Console.RED + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-        	else if(game.world(j)(k-1).getHolder == 1)
-        		print(delimiterVertical + Console.GREEN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-        	else if(game.world(j)(k-1).getHolder == 2)
         		print(delimiterVertical + Console.YELLOW + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 1)
+        		print(delimiterVertical + Console.MAGENTA + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 2)
+        		print(delimiterVertical + Console.GREEN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        		
+          }
         
         }
        }     
