@@ -2,20 +2,27 @@ package main.scala.controller
 import main.scala.model._
 import main.scala.view._
 import main.scala.util._
+import main.scala.view.swing.GUI
 
 class DicewarController extends Observer {
     val game =  new Gamefield
     game.initWorld
-    val tui= new TUI(game)
     
+    
+    val tui= new TUI(game)
+    /*
     tui.addObserver(this)
     game.addObserver(tui)
     
     tui.startTUI
     
     startGamePhase;
+    */
     
+    val gui= new GUI
+    gui.startView(this)
     
+        
     override def updateObserver(notification:Notification)
     {
      notification.typ match

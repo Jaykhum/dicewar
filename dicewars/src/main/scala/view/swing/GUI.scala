@@ -22,6 +22,7 @@ class GUI extends Frame {
 		this controller = controller
 		fieldPanel = new FieldPanel(controller)
 		listenTo(fieldPanel)
+		selectPanel(fieldPanel)
 	}
 
 	val swingView = this
@@ -49,6 +50,14 @@ class GUI extends Frame {
 	{
 	    // dieses View aus der Liste entfernen.
 	    dispose
+	}
+	
+	def selectPanel(panel:Panel)
+	{
+		visible = false
+		minimumSize = new Dimension(640, 480)
+		contents =  panel
+		visible = true
 	}
 	/*
 	val name:String = "Dicewars"
