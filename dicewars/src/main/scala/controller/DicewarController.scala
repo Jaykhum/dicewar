@@ -92,5 +92,4 @@ class DicewarController extends Observer {
       game.handleReinforcement(notification.currentPlayer, notification.position)
     }
 
->>>>>>> branch 'master' of https://github.com/Jaykhum/dicewar.git
 }
