@@ -2,26 +2,29 @@ package main.scala.controller
 import main.scala.model._
 import main.scala.view._
 import main.scala.util._
+import main.scala.view.swing.GUI
 
 class DicewarController extends Observer {
     val game =  new Gamefield
     game.initWorld
-    val tui= new TUI(game)
     
+    val gui= new GUI
+    
+    val tui= new TUI(game)
+
     tui.addObserver(this)
     game.addObserver(tui)
     
     tui.startTUI
     
     startGamePhase;
-    
+
     
     override def updateObserver(notification:Notification)
     {
      notification.typ match
 	   {
 		  case Notification.Map => initGame(notification)
-		  case Notification.Position=> println("Notify Position" + notification.position.column + notification.position.row)
 		  case Notification.Reinforcement=>delegateReinforcement(notification)
 		  case Notification.Battle=>delegateBattle(notification)
 		  case Notification.Attack=>delegateAttack(notification)
@@ -42,7 +45,7 @@ class DicewarController extends Observer {
     
     def delegateTactic(notification:Notification)
     {
-      game.setFromAndTo(notification.currentPlayer, notification.position, notification.isFirstLand)
+      game.setFromOrTo(notification.currentPlayer, notification.position, notification.isFirstLand)
      
     }
     
@@ -55,14 +58,14 @@ class DicewarController extends Observer {
     
     def delegateAttack(notification:Notification)
     {
-      game.attackLand.permissionMoveArmy = game.checkNumberOfUnitMove(game.attackLand, notification.value)
+      game.fromLand.permissionMoveArmy = game.checkNumberOfUnitMove(game.fromLand, notification.value)
       game.setValueForAttackAndDefenseLand(notification.value)
          
     }
     
     def delegateBattle(notification:Notification)
     {
-      game.setAttackAndDefenseLand(notification.currentPlayer, notification.position, notification.isOwnLand)
+      game.setAttackOrDefenseLand(notification.currentPlayer, notification.position, notification.isOwnLand)
 
        
     }

@@ -1,11 +1,7 @@
 package main.scala
 import main.scala.controller.DicewarController
-import main.scala.view.TUI
-import main.scala.util.FileUtil
-import java.io.File
-import scala.collection.mutable.ArrayBuffer
-import main.scala.model.Gamefield
-import main.scala.model.Avatar
+
+
 
 // tests
 import main.scala.model.Dice
@@ -13,8 +9,7 @@ import main.scala.model.Dice
 object dicewars {
     def main(args: Array[String]) {
     val controller=new DicewarController()
-     
-    
+   
       
      /*
      * Test
