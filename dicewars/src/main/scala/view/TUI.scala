@@ -4,6 +4,7 @@ import main.scala.model.Gamefield
 import scala.io.Source._
 import main.scala.util._
 import main.scala.model.Avatar
+import main.scala.model.WorldPosition
 
 class TUI (var game: Gamefield) extends Observable with Observer{
   
@@ -188,10 +189,10 @@ class TUI (var game: Gamefield) extends Observable with Observer{
    }
    
    
-   def readPosition : Position =
+   def readPosition : WorldPosition =
    {
      var loop = true
-     var position:Position = null
+     var position:WorldPosition = null
      var isMessage = false
      var permissionMatch = true
      while(loop)
@@ -296,7 +297,7 @@ class TUI (var game: Gamefield) extends Observable with Observer{
 		       case "10" => row =9
 		       case _ => isMessage = true; loop = true
 		     }
-		     position = new Position(row,column)
+		     position = new WorldPosition(row,column)
 		 }
 		 
 		 if(isMessage)
@@ -346,8 +347,8 @@ class TUI (var game: Gamefield) extends Observable with Observer{
      println("--------------------------------------------------------------------------------")
      println("Spiel: Feld Auswahl")
      println("Fuer die Auswahl eines Spielfeldes das Muster [Spalte][Zeile] verwenden.")
-     println("Beispiel: Fuer das erste Feld (erste Spalte und erste Zeile) wähle:")
-     println("A01")
+     println("Beispiele: Fuer das erste Feld (erste Spalte und erste Zeile) wähle:")
+     println("A01 " + "oder " + "A1 " + "a01 " + "oder " + "a1")
      println("--------------------------------------------------------------------------------")
      println("2 Hilfe")
      println("Hilfsanzeige")
@@ -442,13 +443,15 @@ class TUI (var game: Gamefield) extends Observable with Observer{
 		  case Notification.Reinforcement => reinforcementProcess(notification)
 		  case Notification.Battle => battleProcess(notification)
 		  case Notification.Attack => attackProcess
-		  case Notification.Message => infoProcess(notification)
+		  case Notification.Message => messageProcess(notification)
 		  case Notification.Question => questionProcess(notification)
 		  case Notification.Tactic => tacticProcess(notification)
 		  case Notification.Army => armyProcess(notification)
+		  case Notification.UI => showField
 		  case _ => println("Debug: Falsche Notification")
 	   }
    }
+   
    
    def armyProcess(n:Notification)
    {
@@ -468,9 +471,23 @@ class TUI (var game: Gamefield) extends Observable with Observer{
      notifyObservers(n)
    }
    
-   def infoProcess(n:Notification)
+   def messageProcess(messageNotification:Notification)
    {
-     println(n.message)
+     var messageTyp:Message.MessageTyp = messageNotification.message.typ
+     var messageContent:String = messageNotification.message.content
+     messageTyp match
+	   {
+		  case Message.Success => messageprint(Console.GREEN, messageContent)
+		  case Message.Error => messageprint(Console.RED, messageContent)
+		  case Message.Info => messageprint(Console.WHITE, messageContent)
+		  case _ => println("Debug: Falsche Notification")
+	   }
+     
+   }
+   
+   def messageprint(color:String, messageContent:String)
+   {
+     println(color + messageContent + Console.RESET )
    }
    
    
@@ -498,7 +515,7 @@ class TUI (var game: Gamefield) extends Observable with Observer{
    }
    
    
-   def sendReinforcementChoice(position:Position, player:Avatar)
+   def sendReinforcementChoice(position:WorldPosition, player:Avatar)
    {
      var notification = new Notification(Notification.Reinforcement)
      notification.position = position
@@ -506,10 +523,5 @@ class TUI (var game: Gamefield) extends Observable with Observer{
      notifyObservers(notification)
    }
    
-   def sendPositionChoice(position:Position)
-   {
-     var notification = new Notification(Notification.Position)
-     notification.position = position
-     notifyObservers(notification)
-   }
+
 }

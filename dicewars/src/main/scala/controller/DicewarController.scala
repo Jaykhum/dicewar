@@ -2,23 +2,19 @@ package main.scala.controller
 import main.scala.model._
 import main.scala.view._
 import main.scala.util._
-import main.scala.view.swing.GUI
 
 class DicewarController extends Observer {
     val game =  new Gamefield
     game.initWorld
-    
-    val gui= new GUI
-    
     val tui= new TUI(game)
-
+    
     tui.addObserver(this)
     game.addObserver(tui)
     
     tui.startTUI
     
     startGamePhase;
-
+    
     
     override def updateObserver(notification:Notification)
     {
@@ -96,4 +92,5 @@ class DicewarController extends Observer {
       game.handleReinforcement(notification.currentPlayer, notification.position)
     }
 
+>>>>>>> branch 'master' of https://github.com/Jaykhum/dicewar.git
 }
