@@ -1,7 +1,8 @@
 package main.scala.view.swing
 
 import main.scala.model.Gamefield
-import main.scala.view.swing.FieldPanel
+//import main.scala.view.swing.FieldPanel
+//import main.scala.view.swing.MenuPanel
 import main.scala.controller.DicewarController
 import scala.swing._
 import scala.swing.Swing.LineBorder
@@ -10,7 +11,8 @@ import scala.swing.event.WindowClosing
 class GUI extends Frame {
 
 	title = "Dicewars"
-	var fieldPanel:FieldPanel =  null			
+	var fieldPanel:FieldPanel =  null
+	var menuPanel:MenuPanel = null
 	private var controller:DicewarController = null
 	reactions +=
 	{
@@ -21,8 +23,11 @@ class GUI extends Frame {
 	{
 		this controller = controller
 		fieldPanel = new FieldPanel(controller)
+		menuPanel = new MenuPanel("Spiel Start")
 		listenTo(fieldPanel)
-		selectPanel(fieldPanel)
+		//selectPanel(fieldPanel)
+		listenTo(menuPanel)
+		selectPanel(menuPanel)
 	}
 
 	val swingView = this
@@ -49,6 +54,7 @@ class GUI extends Frame {
 	def closeView 
 	{
 	    // dieses View aus der Liste entfernen.
+		// tui ebenfalls schließen (noti.)
 	    dispose
 	}
 	
