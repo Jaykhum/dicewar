@@ -9,3 +9,5 @@
 9. Anzahl der Spieler Dynamisch halten(TUI Abfrage wieviel Spieler mitspielen). Höchstens 3 Spieler. D.h auch abfrage des Avatar Container anderst gestalten.
 10. Weiter Angreifen in Battlephase bricht nicht ab wenn der Verteidiger keine Einheiten mehr besitzt. Z.b. Attack = 0, Defense = 2 => Weiter angreifen?
 11. Fehler: in Rot ausgeben. Erfolge: in Grün ausgeben.
+12. Ki erstellen
+13. Dependency Injection bei Gelegenheit verwenden.
