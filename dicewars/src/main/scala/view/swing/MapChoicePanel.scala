@@ -39,7 +39,7 @@ class MapChoicePanel(headline:String) extends GridPanel(5,1)
 		this.listenTo(this)
 		action =  Action("land 2")
 		{
-  
+			
 		}
 		//iconPath = path + "land2.png"		
 		iconPath = path + "land.png"

@@ -23,11 +23,14 @@ class GUI extends Frame {
 	{
 		this controller = controller
 		fieldPanel = new FieldPanel(controller)
-		menuPanel = new MenuPanel("Spiel Start")
 		listenTo(fieldPanel)
-		//selectPanel(fieldPanel)
+		menuPanel = new MenuPanel("Spiel Start")
 		listenTo(menuPanel)
-		selectPanel(menuPanel)
+		if(!controller.mapSelected)
+			selectPanel(menuPanel)
+		else
+			selectPanel(fieldPanel)
+		
 	}
 
 	val swingView = this
@@ -61,7 +64,7 @@ class GUI extends Frame {
 	def selectPanel(panel:Panel)
 	{
 		visible = false
-		minimumSize = new Dimension(640, 480)
+		minimumSize = new Dimension(340, 280)
 		contents =  panel
 		visible = true
 	}
