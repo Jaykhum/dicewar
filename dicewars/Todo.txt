@@ -11,3 +11,7 @@
 11. Fehler: in Rot ausgeben. Erfolge: in Grün ausgeben.
 12. Ki erstellen
 13. Dependency Injection bei Gelegenheit verwenden.
+14. TODO Kommentare anpassen (Englisch)
+15. Menu sowie Mapchoice bisher ohne Notifications erstellt, muss noch hinzugefuegt werden
+16. Im Gamefield flag setzen für mapSelected (mit der zugehörigen Notification)
+17. Nach einem erfolgreichen Angriff kann mit der eingabe 0 kein Spieler verschoben werden (Spiellogik: Fehler oder Korrekt?).

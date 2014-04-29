@@ -11,14 +11,13 @@ class Notification(var typ: Notification.NotificationTyp)
   var value = 0;
   var currentPlayer:Avatar = null
   var message:Message = null
-  var isOwnLand:Boolean = false
+  var isFromLand:Boolean = false
   var question:Boolean = false
-  var isFirstLand = false
   var land:Land = null
 
 }
 object Notification extends Enumeration 
 {
     type NotificationTyp = Value
-    val Map, Reinforcement, Battle, Attack, Message, Question, Tactic, Army, UI = Value
+    val Menu, Help, MapSample, Map, Exit, Reinforcement, BattleAssign, BattleAttack, Message, Question, TacticAssign, TacticArmy, UI = Value
 }

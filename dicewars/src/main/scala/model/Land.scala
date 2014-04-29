@@ -73,7 +73,7 @@ def setArmy(armyCount:Int)
 class Field(row: Int, col: Int) extends Land 
 {
 // number of units on the field
-	var army = 5
+	var army = 3
 // player-id who holds the field
 	var holder: Int = -3
 	

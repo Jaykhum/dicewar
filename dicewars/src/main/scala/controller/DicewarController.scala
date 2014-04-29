@@ -14,7 +14,8 @@ class DicewarController extends Observer {
     tui.addObserver(this)
     game.addObserver(tui)
     
-    tui.startTUI
+    game.startShowGameMenu
+    
     
     startGamePhase;
    
@@ -27,28 +28,65 @@ class DicewarController extends Observer {
     {
      notification.typ match
 	   {
+       	  case Notification.Menu => delegateMenu
+       	  case Notification.MapSample =>delegateMapExample
+       	  case Notification.Help => delegateHelp
+       	  case Notification.Exit => delegateExit
 		  case Notification.Map => initGame(notification)
 		  case Notification.Reinforcement=>delegateReinforcement(notification)
-		  case Notification.Battle=>delegateBattle(notification)
-		  case Notification.Attack=>delegateAttack(notification)
+		  case Notification.BattleAssign=>delegateBattleAssign(notification)
+		  case Notification.BattleAttack=>delegateBattleAttack(notification)
 		  case Notification.Question=>delegateQuestion(notification)
-		  case Notification.Tactic=>delegateTactic(notification)
-		  case Notification.Army=>delegateArmy(notification)
+		  case Notification.TacticAssign=>delegateTacticAssign(notification)
+		  case Notification.TacticArmy=>delegateTacticArmy(notification)
 		  case _ => println("Falsche Notification")
 	   }
     }
     
-     def delegateArmy(n:Notification)
+    
+    def delegateMenu
     {
-       var from = n.currentPlayer.fromLand
-       from.permissionMoveArmy = game.checkNumberOfUnitMove(from, n.value)
+      game.startShowGameMenu
+    }
+    
+    def delegateMapExample
+    {
+      game.startShowMapExample
+    }
+    
+    def delegateHelp
+    {
+      game.startShowHelp
+    }
+    
+    def delegateExit
+    {
+      //TODO exit function
+    }
+    
+     def delegateTacticArmy(n:Notification)
+    {
+        var from = n.currentPlayer.fromLand
+        from.permissionMoveArmy = game.checkNumberOfUnitMove(from, n.value)
         if(from.permissionMoveArmy)
         n.currentPlayer.newUnitsTemporary = n.value
     }
     
-    def delegateTactic(notification:Notification)
+    def delegateTacticAssign(notification:Notification)
     {
-      game.setFromOrTo(notification.currentPlayer, notification.position, notification.isFirstLand)
+      
+        notification.currentPlayer.inputCorrect = game.checkTacticLandSelection(notification.currentPlayer, notification.position, notification.isFromLand)
+//        game.sendBattleAssignMessage(notification.currentPlayer, notification.position, notification.isOwnLand)
+        
+        var inputCorrect = notification.currentPlayer.inputCorrect
+        if(inputCorrect)
+        {
+          game.setFromOrTo(notification.currentPlayer, notification.position, notification.isFromLand)
+          game.sendNotificationUI
+        }
+      
+      
+      
      
     }
     
@@ -59,23 +97,28 @@ class DicewarController extends Observer {
      player.myTurn = notification.question
     }
     
-    def delegateAttack(notification:Notification)
+    def delegateBattleAttack(notification:Notification)
     {
       game.fromLand.permissionMoveArmy = game.checkNumberOfUnitMove(game.fromLand, notification.value)
       game.setValueForAttackAndDefenseLand(notification.value)
          
     }
     
-    def delegateBattle(notification:Notification)
-    {
-//      do
-//      {
-//        
-//      }while()
-      game.setAttackOrDefenseLand(notification.currentPlayer, notification.position, notification.isOwnLand)
-
-       
+    def delegateBattleAssign(notification:Notification)
+    { 
+    	notification.currentPlayer.inputCorrect = game.checkBattleLandSelection(notification.currentPlayer, notification.position, notification.isFromLand)
+        game.sendBattleAssignMessage(notification.currentPlayer, notification.position, notification.isFromLand)
+        
+        var inputCorrect = notification.currentPlayer.inputCorrect
+        if(inputCorrect)
+        {
+          game.setAttackOrDefenseLand(notification.position, notification.isFromLand)
+          game.sendNotificationUI
+        }
+    
     }
+    
+    
     
     def initGame(notification:Notification)
     {

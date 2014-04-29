@@ -101,54 +101,36 @@ class TUI (var game: Gamefield) extends Observable with Observer{
      println()
    }
    
-   def processInputLine(input:String):Boolean =
+   def menueProcessInputLine(input:String):Boolean =
    {
-     var isCorrect = false
+     var isCorrect = true
 	   input match
 	   {
-		  case "1" => isCorrect = mapProcess
-		  case "2" => helpView;
-		  case "Basicland" => sendMapChoice("basicland");isCorrect = true
-		  case "basicland" => sendMapChoice("basicland");isCorrect = true
-		  case "Land 2" => sendMapChoice("land2");isCorrect = true
-		  case "land 2" => sendMapChoice("land2");isCorrect = true
-		  case "Land 3" => sendMapChoice("land3");isCorrect = true
-		  case "land 3" => sendMapChoice("land3");isCorrect = true
-		  case "Land 4" => sendMapChoice("land4");isCorrect = true
-		  case "land 4" => sendMapChoice("land4");isCorrect = true
-		  case _ => println("Falsche Eingabe, bitte korrekt Wiederholen")
+		  case "1" => sendMapSample
+		  case "2" => sendHelp; isCorrect = false
+		  case "Basicland" => sendMapChoice("basicland")
+		  case "basicland" => sendMapChoice("basicland")
+		  case "Land 2" => sendMapChoice("land2")
+		  case "land 2" => sendMapChoice("land2")
+		  case "Land 3" => sendMapChoice("land3")
+		  case "land 3" => sendMapChoice("land3")
+		  case "Land 4" => sendMapChoice("land4")
+		  case "land 4" => sendMapChoice("land4")
+		  case _ => println("Falsche Eingabe, bitte korrekt Wiederholen"); isCorrect = false
 	   }
      isCorrect
    }
-   def mapProcess():Boolean =
+   
+   def sendHelp
    {
-     
-     var isInputCorrect=false
-      while(!isInputCorrect)
-     {
-       showAllMap 
-       isInputCorrect = mapProcessInputLine(readLine())
-     }
-     true
+     var notify = new Notification(Notification.Help)
+     notifyObservers(notify)
    }
    
-   def mapProcessInputLine(input:String) : Boolean =
+   def sendMapSample
    {
-	   input match
-	   {
-		  case "Basicland" => sendMapChoice("basicland"); return true
-		  case "basicland" => sendMapChoice("basicland"); return true
-		  case "Land 2" => sendMapChoice("land2");return true
-		  case "land 2" => sendMapChoice("land2");return true
-		  case "Land 3" => sendMapChoice("land3");return true
-		  case "land 3" => sendMapChoice("land3");return true
-		  case "Land 4" => sendMapChoice("land4");return true
-		  case "land 4" => sendMapChoice("land4");return true
-		  case "2" => helpView
-//		  case "3" => showMenu; return true
-		  case _ => println("Falsche Eingabe, bitte korrekt Wiederholen");
-	   }
-	   false
+     var notify = new Notification(Notification.MapSample)
+     notifyObservers(notify)
    }
    
    def sendMapChoice(mapName:String) = 
@@ -158,23 +140,39 @@ class TUI (var game: Gamefield) extends Observable with Observer{
      notifyObservers(notify)
    }
    
-   def gameProcess(mapName:String) 
+
+   def mapProcess():Boolean =
    {
-     sendMapChoice(mapName)
-//     showField
-     /* Diese Logik gehört mittels notification zum Controller
-     var exit = false
-     while(!exit)
+     
+     var isInputCorrect=false
+      while(!isInputCorrect)
      {
-       exit = gameProcessInputLine(readLine())
+       isInputCorrect = mapProcessInputLine(readLine())
      }
-     if(exit)
-     {
-       gameOver
-     }
-     * 
-     */
+     true
    }
+   
+   def mapProcessInputLine(input:String) : Boolean =
+   {
+     var isCorrect = true
+	   input match
+	   {
+		  case "Basicland" => sendMapChoice("basicland")
+		  case "basicland" => sendMapChoice("basicland")
+		  case "Land 2" => sendMapChoice("land2")
+		  case "land 2" => sendMapChoice("land2")
+		  case "Land 3" => sendMapChoice("land3")
+		  case "land 3" => sendMapChoice("land3")
+		  case "Land 4" => sendMapChoice("land4")
+		  case "land 4" => sendMapChoice("land4")
+		  case "2" => sendHelp; isCorrect = false
+//		  case "3" => showMenu; return true
+		  case _ => println("Falsche Eingabe, bitte korrekt Wiederholen");isCorrect = false
+	   }
+	   isCorrect
+   }
+   
+ 
    
    def gameOver()
    {
@@ -214,7 +212,7 @@ class TUI (var game: Gamefield) extends Observable with Observer{
          case "nein" => response = false
          case "Nein" => response = false
          case "n "=> response = false
-         case _ => println("Keine korrekte Antwort. ja/nein ?"); loopBreak= false
+         case _ => println("Keine korrekte Antwort.\nWeiter Angreifen ja/nein ?"); loopBreak= false
        }
        
      }
@@ -391,17 +389,18 @@ class TUI (var game: Gamefield) extends Observable with Observer{
    }
    
    
-   def showAllMap() 
+   def showAllMapSample() 
    {
      printM1;
      printM2;
      printM3;
      printM4;
    }
-   def startTUI()
+   def menueProcess()
    {
      showMenu
-     while(!processInputLine(readLine())) {}  
+     while(!menueProcessInputLine(readLine())) {}
+
    }
    
    def showMenu()
@@ -473,18 +472,32 @@ class TUI (var game: Gamefield) extends Observable with Observer{
    {
      notification.typ match
 	   {
+       	  case Notification.Menu => menueProcess
+       	  case Notification.Help => helpProcess
+       	  case Notification.MapSample => mapSampleProcess
 		  case Notification.Reinforcement => reinforcementProcess(notification)
-		  case Notification.Battle => battleProcess(notification)
-		  case Notification.Attack => attackProcess
+		  case Notification.BattleAssign => battleAssignProcess(notification)
+		  case Notification.BattleAttack => battleAttackProcess
 		  case Notification.Message => messageProcess(notification)
 		  case Notification.Question => questionProcess(notification)
-		  case Notification.Tactic => tacticProcess(notification)
-		  case Notification.Army => armyProcess(notification)
+		  case Notification.TacticAssign => tacticProcess(notification)
+		  case Notification.TacticArmy => armyProcess(notification)
 		  case Notification.UI => showField
 		  case _ => println("Debug: Falsche Notification")
 	   }
    }
    
+   
+   def mapSampleProcess
+   {
+     showAllMapSample
+     mapProcess
+   }
+   
+   def helpProcess
+   {
+     helpView
+   }
    
    def armyProcess(n:Notification)
    {
@@ -524,19 +537,20 @@ class TUI (var game: Gamefield) extends Observable with Observer{
    }
    
    
-   def battleProcess(notification:Notification)
+   def battleAssignProcess(notification:Notification)
    {
-     var notificationNew = new Notification(Notification.Battle)
+     var notificationNew = new Notification(Notification.BattleAssign) 
+  
      notificationNew.position = readPosition
      notificationNew.currentPlayer = notification.currentPlayer
-     notificationNew.isOwnLand = notification.isOwnLand
+     notificationNew.isFromLand = notification.isFromLand
      notifyObservers(notificationNew)
      
    }
    
-   def attackProcess
+   def battleAttackProcess
    {
-     var notification = new Notification(Notification.Attack)
+     var notification = new Notification(Notification.BattleAttack)
      notification.value = deliverArmyCount
      notifyObservers(notification)
      
