@@ -479,6 +479,47 @@ class Gamefield extends Observable{
 		 toLand.setArmy(toLand.getArmy + army)
 	}
 	
+	def checkHasEnemyNeighbour(player:Avatar,position:WorldPosition):Boolean =
+	{
+	  var ownLand = world(position.row)(position.column)
+	  
+	  var neighbourContainer = new ArrayBuffer[WorldPosition]()
+	  
+	  neighbourContainer += new WorldPosition(position.row, position.column-1)
+	  neighbourContainer += new WorldPosition(position.row, position.column+1)
+	  neighbourContainer += new WorldPosition(position.row+1, position.column)
+	  neighbourContainer += new WorldPosition(position.row-1, position.column)
+	  
+	  var hasNeighbour = false
+	  for(i <- 0 to neighbourContainer.length-1)
+	  {
+	    if(!checkPositionIsInWorld(neighbourContainer.apply(i)))
+	    	 neighbourContainer -= neighbourContainer.apply(i)
+	  }
+	  if(neighbourContainer.length != 0)
+	  {
+	    for(i <- 0 to neighbourContainer.length-1)
+	    {
+	      var neighbourLand = world(neighbourContainer.apply(i).row)(neighbourContainer.apply(i).column)
+	      if(neighbourLand.getHolder != ownLand.getHolder && neighbourLand.getFieldType)
+	      {
+	        hasNeighbour = true
+	      }
+	    }
+	  }else
+	    hasNeighbour = false
+	 
+	    hasNeighbour
+	}
+	
+	def checkPositionIsInWorld(position:WorldPosition):Boolean =
+	{
+	  if(position.row < 0 || position.row > height-1 || position.column < 0 || position.column > width -1)
+	    false
+	  else
+	    true
+	}
+	
 	/**
 	 * Validate whether the current player is owner of the land.
 	 * @param player. Should be the current player.
@@ -489,7 +530,7 @@ class Gamefield extends Observable{
 	{
 		var ownLand = world(position.row)(position.column)
 		var ok = false
-		if (ownLand.checkHolder(player))
+		if(ownLand.checkHolder(player))
 		{
 			ok = true
 					

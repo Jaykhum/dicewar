@@ -6,5 +6,6 @@ class Avatar(var id:Integer) {
 	var occupiedTerritory = 0		// lands holden by player
 	var fromLand:Land = null
 	var toLand:Land = null
+	var inputCorrect:Boolean = false
 	def getTerritories= occupiedTerritory
 }

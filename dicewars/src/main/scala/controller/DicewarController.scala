@@ -10,18 +10,18 @@ class DicewarController extends Observer {
     
     
     val tui= new TUI(game)
-    /*
+    
     tui.addObserver(this)
     game.addObserver(tui)
     
     tui.startTUI
     
     startGamePhase;
-    */
-    
+   
+    /*
     val gui= new GUI
     gui.startView(this)
-    
+     */
         
     override def updateObserver(notification:Notification)
     {
@@ -68,6 +68,10 @@ class DicewarController extends Observer {
     
     def delegateBattle(notification:Notification)
     {
+//      do
+//      {
+//        
+//      }while()
       game.setAttackOrDefenseLand(notification.currentPlayer, notification.position, notification.isOwnLand)
 
        

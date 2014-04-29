@@ -43,6 +43,8 @@ class WorldPosition(y: Int, x: Int){
   	 	  return false
   	}
   /* TODO: �berpr�fen ob �ber Spielfeld hinaus */
+  	
+  	
 }
 
 /*
@@ -52,6 +54,7 @@ abstract class Land{
 val position:WorldPosition
 var holder: Int 
 var permissionMoveArmy:Boolean = false
+var permissionSelectLand:Boolean = false
 def showImage = "00"
 def checkNeighbourhood(field1:Land): Boolean
 def checkHolder(player: Avatar):Boolean
