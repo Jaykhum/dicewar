@@ -66,7 +66,7 @@ class DicewarController extends Observer {
     
      def delegateTacticArmy(n:Notification)
     {
-        var from = n.currentPlayer.fromLand
+        var from = game.fromLand
         from.permissionMoveArmy = game.checkNumberOfUnitMove(from, n.value)
         if(from.permissionMoveArmy)
         n.currentPlayer.newUnitsTemporary = n.value
@@ -74,13 +74,14 @@ class DicewarController extends Observer {
     
     def delegateTacticAssign(notification:Notification)
     {
-      
+      println("test1")
         notification.currentPlayer.inputCorrect = game.checkTacticLandSelection(notification.currentPlayer, notification.position, notification.isFromLand)
-//        game.sendBattleAssignMessage(notification.currentPlayer, notification.position, notification.isOwnLand)
-        
+        game.sendTacticAssignMessage(notification.currentPlayer, notification.position, notification.isFromLand)
         var inputCorrect = notification.currentPlayer.inputCorrect
+        println("test2 inputCorrect" + inputCorrect)
         if(inputCorrect)
         {
+          println("test3 notification.isFromLand" + notification.isFromLand)
           game.setFromOrTo(notification.currentPlayer, notification.position, notification.isFromLand)
           game.sendNotificationUI
         }

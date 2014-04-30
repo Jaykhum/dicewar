@@ -212,7 +212,7 @@ class TUI (var game: Gamefield) extends Observable with Observer{
          case "nein" => response = false
          case "Nein" => response = false
          case "n "=> response = false
-         case _ => println("Keine korrekte Antwort.\nWeiter Angreifen ja/nein ?"); loopBreak= false
+         case _ => println("Keine korrekte Antwort.\n ja/nein ?"); loopBreak= false
        }
        
      }
@@ -350,10 +350,12 @@ class TUI (var game: Gamefield) extends Observable with Observer{
 	 def deliverArmyCount():Int =
    {
      var ok = false
-     var input = ""
+     var input:String = ""
      while(!ok)
      {
        input = readLine()
+       if(input.length() == 0)
+       input = "empty"
        ok = isNumber(input)
        if(!ok)
        {
@@ -482,7 +484,7 @@ class TUI (var game: Gamefield) extends Observable with Observer{
 		  case Notification.Question => questionProcess(notification)
 		  case Notification.TacticAssign => tacticProcess(notification)
 		  case Notification.TacticArmy => armyProcess(notification)
-		  case Notification.UI => showField
+		  case Notification.DrawUI => showField
 		  case _ => println("Debug: Falsche Notification")
 	   }
    }
