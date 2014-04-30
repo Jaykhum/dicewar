@@ -4,13 +4,10 @@ import main.scala.view._
 import main.scala.util._
 import main.scala.view.swing.GUI
 
-class DicewarController extends Observer {
-    val game =  new Gamefield
+class DicewarController(val game:Gamefield, val tui:TUI) extends Observer {
+   
     game.initWorld
-    
-    
-    val tui= new TUI(game)
-    
+
     tui.addObserver(this)
     game.addObserver(tui)
     

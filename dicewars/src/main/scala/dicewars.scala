@@ -1,6 +1,7 @@
 package main.scala
 import main.scala.controller.DicewarController
-
+import main.scala.model.Gamefield
+import main.scala.view.TUI
 
 
 // tests
@@ -8,7 +9,10 @@ import main.scala.model.Dice
 
 object dicewars {
     def main(args: Array[String]) {
-    val controller=new DicewarController()
+      
+    val game = new Gamefield
+    val tui= new TUI(game)
+    val controller=new DicewarController(game, tui)
    
       
      /*

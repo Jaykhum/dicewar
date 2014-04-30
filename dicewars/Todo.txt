@@ -1,17 +1,28 @@
-1. In Battle-Phase: Falls ausgewaehltes ownland keinen Nachbarn zu attackieren besitzt, abbruch und ownland neu setzen.
-2. TUI anzeige nach jedem Zug.
-3. While-Schleife statt Pseudo-Rekursion für Battle-Phase und Tatctical-Phase.
+Noch Offen:
+
 4. End-Game einbauen.
 5. Hart gesetzte Variablen zum testen muessen raus(z.b. player units).
 6. Player kennt seine Farbe. Player id in tui farblich kennzeichen.
-7. In Battle-Phase: Nach der Beendigung des singleangriffs müssen weitere Angriffe moeglich sein. 
 8. Exit einbauen. Bei Exit Prozess des Spiels beenden.
 9. Anzahl der Spieler Dynamisch halten(TUI Abfrage wieviel Spieler mitspielen). Höchstens 3 Spieler. D.h auch abfrage des Avatar Container anderst gestalten.
-10. Weiter Angreifen in Battlephase bricht nicht ab wenn der Verteidiger keine Einheiten mehr besitzt. Z.b. Attack = 0, Defense = 2 => Weiter angreifen?
-11. Fehler: in Rot ausgeben. Erfolge: in Grün ausgeben.
 12. Ki erstellen
 13. Dependency Injection bei Gelegenheit verwenden.
 14. TODO Kommentare anpassen (Englisch)
-15. Menu sowie Mapchoice bisher ohne Notifications erstellt, muss noch hinzugefuegt werden
+
+
+
+
+Fraglich:
 16. Im Gamefield flag setzen für mapSelected (mit der zugehörigen Notification)
-17. Nach einem erfolgreichen Angriff kann mit der eingabe 0 kein Spieler verschoben werden (Spiellogik: Fehler oder Korrekt?).
+
+
+
+Erüllt:
+1. In Battle-Phase: Falls ausgewaehltes ownland keinen Nachbarn zu attackieren besitzt, abbruch und ownland neu setzen.
+2. TUI anzeige nach jedem Zug.
+3. While-Schleife statt Pseudo-Rekursion für Battle-Phase und Tatctical-Phase.
+7. In Battle-Phase: Nach der Beendigung des singleangriffs müssen weitere Angriffe moeglich sein. 
+10. Weiter Angreifen in Battlephase bricht nicht ab wenn der Verteidiger keine Einheiten mehr besitzt. Z.b. Attack = 0, Defense = 2 => Weiter angreifen?
+11. Fehler: in Rot ausgeben. Erfolge: in Grün ausgeben.
+15. Menu sowie Mapchoice bisher ohne Notifications erstellt, muss noch hinzugefuegt werden
+17. Nach einem erfolgreichen Angriff kann mit der Eingabe 0 kein Spieler verschoben werden (Spiellogik: Fehler oder Korrekt?).
