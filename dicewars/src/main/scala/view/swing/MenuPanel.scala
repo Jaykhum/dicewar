@@ -1,22 +1,25 @@
 package main.scala.view.swing
 
 import scala.swing._
+import scala.swing.event.Event
 
+case class CloseEvent extends Event
+case class MapChoice extends Event
 
 class MenuPanel(headline:String) extends GridPanel(4,1)
 {
 	val menuPanel =this
 	val label = new Label(headline)
-	var mapSelect:MapChoicePanel = null
+
 	label.peer.setFont(new Font("Verdana", 1, 24))
 	contents += label
 	contents += new Button
 	{
 		menuPanel.listenTo(this)
+
 		action =  Action("Mapauswahl")
 		{
-			  mapSelect= new MapChoicePanel("Mapauswahl")
-			  doMapSelect(mapSelect)
+			  menuPanel.publish(new MapChoice)
 		}
 		
 	}
@@ -35,18 +38,7 @@ class MenuPanel(headline:String) extends GridPanel(4,1)
 		menuPanel.listenTo(this)
 		action =  Action("Quit")
 		{
-			  //this.publish(notification)
+			  menuPanel.publish(new CloseEvent)
 		}
 	}
-	
-	
-	def doMapSelect(panel:Panel)=
-	{
-		contents.clear
-		visible = false
-		//minimumSize = new Dimension(640, 480)
-		contents +=  panel
-		visible = true
-	}
-	
 }

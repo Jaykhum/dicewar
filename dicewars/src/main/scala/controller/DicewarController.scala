@@ -11,18 +11,13 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
     tui.addObserver(this)
     gui.addObserver(this)
     game.addObserver(tui)
-//    game.addObserver(gui)
+    game.addObserver(gui)
     
-//    gui.startView
+    gui.startView
     game.startShowGameMenu
     
     
     startGamePhase;
-   
-    /*
-    val gui= new GUI
-    gui.startView(this)
-     */
         
     override def updateObserver(notification:Notification)
     {

@@ -1,8 +1,6 @@
 package main.scala.view.swing
 
 import main.scala.model.Gamefield
-//import main.scala.view.swing.FieldPanel
-//import main.scala.view.swing.MenuPanel
 import main.scala.controller.DicewarController
 import scala.swing._
 import scala.swing.Swing.LineBorder
@@ -15,28 +13,47 @@ class GUI(val game:Gamefield) extends Frame with View {
 	title = "Dicewars"
 	var fieldPanel:FieldPanel =  null
 	var menuPanel:MenuPanel = null
-	private var controller:DicewarController = null
+	var mapPanel:MapChoicePanel = new MapChoicePanel("Mapauswahl")
+	{
+		def notification(mapName:String) = new MapSelectedEvent(mapName)
+	}
 	reactions +=
 	{
+	  case MapSelectedEvent(mapName) => sendMapChoice(mapName); selectPanel(fieldPanel)
+	  case MapChoice() => sendMapSample; listenTo(mapPanel); selectPanel(mapPanel)
+	  case CloseEvent() => closeView
 	  case WindowClosing(_) =>closeView
 	}
 	
-	def updateObserver(n:Notification)
+	def updateObserver(notification:Notification)
 	{
-	  
+//	       notification.typ match
+//	   {
+//       	  case Notification.Menu => menueProcess
+//       	  case Notification.Help => helpProcess
+//       	  case Notification.MapSample => mapSampleProcess
+//		  case Notification.Reinforcement => reinforcementProcess(notification)
+//		  case Notification.BattleAssign => battleAssignProcess(notification)
+//		  case Notification.BattleAttack => battleAttackProcess
+//		  case Notification.Message => messageProcess(notification)
+//		  case Notification.Question => questionProcess(notification)
+//		  case Notification.TacticAssign => tacticProcess(notification)
+//		  case Notification.TacticArmy => armyProcess(notification)
+//		  case Notification.DrawUI => showField
+//		  case _ => println("Debug: Falsche Notification" + notification.typ)
+//	   }
 	}
 	
 	def startView()
 	{
-		this controller = controller
-		fieldPanel = new FieldPanel(controller)
+		fieldPanel = new FieldPanel(game)
 		listenTo(fieldPanel)
 		menuPanel = new MenuPanel("Spiel Start")
 		listenTo(menuPanel)
-//		if(!controller.mapSelected)
-//			selectPanel(menuPanel)
-//		else
-//			selectPanel(fieldPanel)
+		if(!game.mapSelected)
+			selectPanel(menuPanel)
+		else
+			selectPanel(fieldPanel)
 		
 	}
 
@@ -99,4 +116,18 @@ class GUI(val game:Gamefield) extends Frame with View {
 	visible = true
 	*/
 	
+	def sendMapChoice(mapName:String) = 
+   {
+     var notify = new Notification(Notification.Map)
+     println(mapName)
+     notify.map = mapName
+     notifyObservers(notify)
+     //game.initGame(mapName)
+   }
+	
+   def sendMapSample
+   {
+     var notify = new Notification(Notification.MapSample)
+     notifyObservers(notify)
+   }
 }

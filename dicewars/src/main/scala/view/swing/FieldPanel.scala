@@ -1,6 +1,6 @@
 package main.scala.view.swing
 
-import main.scala.controller.DicewarController
+import main.scala.model.Gamefield
 import scala.swing._
 import scala.swing.event._
 import scala.swing.event.MouseReleased
@@ -17,7 +17,7 @@ import main.scala.model.WorldPosition
 import main.scala.model.WorldPosition
 import main.scala.model.WorldPosition
 
-class FieldPanel(controller:DicewarController) extends Panel  
+class FieldPanel(game:Gamefield) extends Panel  
 {
 	listenTo(mouse.clicks)
 	val image_land = ImageIO.read(new File("Symbols/land.png"))
@@ -35,7 +35,7 @@ class FieldPanel(controller:DicewarController) extends Panel
 	{
 		val col:Int = p.x / CellWidth
 		val row:Int = p.y / CellHeight
-		if(col > 0 && row > 0)
+		if(col >= 0 && row >= 0)
 			new WorldPosition(row, col)
 		else
 			null
@@ -46,6 +46,8 @@ class FieldPanel(controller:DicewarController) extends Panel
 	  if(e.peer.getButton() == MouseEvent.BUTTON1)
 	  {
 		  val landPosition:WorldPosition = findLand(e.point)
+		  println(e.point)
+		  println(landPosition.column + ","+ landPosition.row)
 		  if (landPosition != null)
 		  {
 		    // auswahl überprüfen Notif. versenden
@@ -61,8 +63,8 @@ class FieldPanel(controller:DicewarController) extends Panel
 			    controller.game.height * ImageHeight)
 			*/
 			preferredSize = new Dimension(
-			    controller.game.width * CellWidth,
-			    (controller.game.height +1) * CellHeight)
+			    game.width * CellWidth,
+			    (game.height +1) * CellHeight)
 	}
 	
 	override def paintComponent(g:Graphics2D):Unit =
@@ -70,13 +72,13 @@ class FieldPanel(controller:DicewarController) extends Panel
 		g.setColor(new Color(255, 255, 255))
 		g.fillRect(0, 0, size.width, size.height)
 		// TODO schleife um alle felder zu zeichnen.
-		for ( i <- 0 to controller.game.width-1; j <-0 to controller.game.height-1)
+		for ( i <- 0 to game.width-1; j <-0 to game.height-1)
 		{
-			drawLogo(g, controller.game.world(j)(i))
+			drawLogo(g, game.world(j)(i))
 		}
 		g.setColor(Color.RED)
 		g.setFont(new Font("Verdana", 1, 12))
-		g.drawString("Error Message", 0, (CellHeight * (controller.game.height+1)))
+		g.drawString("Error Message", 0, (CellHeight * (game.height+1)))
 		
 	}
 	
