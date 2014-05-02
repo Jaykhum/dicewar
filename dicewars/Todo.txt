@@ -7,6 +7,7 @@ Noch Offen:
 13. Dependency Injection bei Gelegenheit verwenden.
 14. TODO Kommentare anpassen (Englisch)
 16. Im Gamefield flag setzen für mapSelected (mit der zugehörigen Notification)
+17. Syndchronisation
 
 
 
@@ -26,3 +27,29 @@ Erüllt:
 17. Nach einem erfolgreichen Angriff kann mit der Eingabe 0 kein Spieler verschoben werden (Spiellogik: Fehler oder Korrekt?).
 4. End-Game einbauen.
 6. Player kennt seine Farbe. Player id in tui farblich kennzeichen.
+
+
+
+
+KI ideen:
+Reinforcement & Tactial Phase:
+Kandiadatenliste mit allen eigenen Ländern
+
+Reinforcementphase:
+1.Kandidatenliste mit Schwellenwert erstellen (z.b. alle Länder die mehr als 10 einheiten besitzen bleiben in der Kandidatenlist um anzugreifen)
+2.Nachbarn überprüfen ob weniger Einheiten als ki selbst besitzt wenn ja dann Angriff vormerkern sonst nächster Kandidat überpüfen, wenn nein dann keine Battlephase.
+3.Das Land aufstocken mit dem man einen Kampf vorhat.
+
+
+Battlephase:
+1.Kandidatenliste mit einem Schwellenwert holen
+2.Angriff oder auch nicht
+
+Tacticalphase:
+1.Kandidatenlise nach größe sortieren / evt. neue Kandidatenliste erstellen durch veränderungen
+2.Land unterhalb des Schwellenwerts aufstocken falls ein feindlicher Nachbar vorhanden ist.
+
+1.Kandidatenliste für alle eigene Länder der ki.
+2.Wo sind die wenigsten feindlichen Einheiten.
+
+Für Später: Angriffsprioritäten damit sind gegenerische player gemeint mit mehr als nur 2 spielern.
