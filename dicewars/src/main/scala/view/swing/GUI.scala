@@ -7,8 +7,10 @@ import main.scala.controller.DicewarController
 import scala.swing._
 import scala.swing.Swing.LineBorder
 import scala.swing.event.WindowClosing
+import main.scala.view._
+import main.scala.util.Notification
 
-class GUI extends Frame {
+class GUI(val game:Gamefield) extends Frame with View {
 
 	title = "Dicewars"
 	var fieldPanel:FieldPanel =  null
@@ -19,17 +21,22 @@ class GUI extends Frame {
 	  case WindowClosing(_) =>closeView
 	}
 	
-	def startView(controller: DicewarController)
+	def updateObserver(n:Notification)
+	{
+	  
+	}
+	
+	def startView()
 	{
 		this controller = controller
 		fieldPanel = new FieldPanel(controller)
 		listenTo(fieldPanel)
 		menuPanel = new MenuPanel("Spiel Start")
 		listenTo(menuPanel)
-		if(!controller.mapSelected)
-			selectPanel(menuPanel)
-		else
-			selectPanel(fieldPanel)
+//		if(!controller.mapSelected)
+//			selectPanel(menuPanel)
+//		else
+//			selectPanel(fieldPanel)
 		
 	}
 

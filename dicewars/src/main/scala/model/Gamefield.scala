@@ -12,7 +12,7 @@ class Gamefield extends Observable{
 	val divider = 3
 	val height = 10;
 	val width = 18;
-	val playercount = 2;
+	var playercount = 2;
 	val avatarContainer:Array[Avatar] = initPlayer(2)
 	// Gameboard with size 18x10 fields and each fields needs 4x3 (width/height) Signs
 	val world = Array.ofDim[Land](height,width)
@@ -22,6 +22,11 @@ class Gamefield extends Observable{
 
 	var fromLand:Land = null
 	var toLand:Land = null
+	var gameOver:Boolean = false
+	
+	var mapSelected:Boolean = false
+	//phase meaning 1 => Reinforcement, 2=>Battle, 3=>Tactic
+	var phase:Int = -1 
 	/**
 	 * Initialize number of players.
 	 * @param numberofPlayer. Number of player.
@@ -35,6 +40,21 @@ class Gamefield extends Observable{
 	  }
 	  avatarContainer
 	}
+	
+	def checkGameOver:Boolean =
+	{
+	 
+	  var numberOfActivePlayer = avatarContainer.filterNot(player=> player.lost).length
+	  if(numberOfActivePlayer == 1)
+	  {
+		
+	    true 
+	  }
+	    else
+	      false
+	}
+	
+//	def sendNotificationGameOver
 	
 	def startShowGameMenu
 	{
@@ -156,7 +176,7 @@ class Gamefield extends Observable{
 	 */
 	def startReinforcement(player: Avatar)={
 	    sendNotificationMessage(Message.Info, "Verstaerkungsphase!")
-	    
+	    sendNotificationUI
 		player.newUnitsTemporary = player.getTerritories/divider
 		if (player.newUnitsTemporary < 3) player.newUnitsTemporary = 3;
 		do{
@@ -195,6 +215,8 @@ class Gamefield extends Observable{
 	 * Set the new holder which is the attack land for the beaten land.
 	 */
 	def setNewHolderForBeatenLand = toLand.holder = fromLand.holder
+	  
+	  
 	
 	/**
 	 * Check whether the amount of unit to move for the assigned land is allowed.
@@ -368,7 +390,7 @@ class Gamefield extends Observable{
 			    }while(!player.inputCorrect)
 			      
 			    attack(player)
-			  }while(player.myTurn)
+			  }while(player.myTurn && !gameOver)
 		  }
 	  }else
 	  {
@@ -388,7 +410,7 @@ class Gamefield extends Observable{
 		if(ownLand)
 			sendNotificationMessage(Message.Info, "Waehle das Land, von welchem du aus Angreifen willst.")
 		else
-			sendNotificationMessage(Message.Info,"Waehle das Land aus welches du Angreifen willst.")
+			sendNotificationMessage(Message.Info,"Waehle das Land aus, welches du Angreifen willst.")
 	      
 		notification.currentPlayer = player
 		notification.isFromLand = ownLand
@@ -399,7 +421,7 @@ class Gamefield extends Observable{
 	
 	/**
 	 * Manage the count of the attacks and communicate with the user about it.
-	 * @param player. Should be the current player.
+	 * @param player. Should be the current player of the game.
 	 */
 	def attack (player:Avatar)
 	{
@@ -419,7 +441,8 @@ class Gamefield extends Observable{
 		    if(ownLand.getArmy > 1)
 		    {
 			    singleAttack(ownLand, otherLand)
-			    if(otherLand.checkHolder(player))
+			    
+			    if(otherLand.checkHolder(player) || gameOver)
 			    {
 			      println("Debug (attack): otherland holder == player " )
 			      outloop = true
@@ -450,16 +473,16 @@ class Gamefield extends Observable{
 		      outloop = true			  	
 		  }
 	    resetFromAndToLand
-	    if(checkPossibleToBattle(player))
+	    if(checkPossibleToBattle(player) && !gameOver)
 	    {
 	    	sendNotificationMessage(Message.Info,"Ein weiteres Land angreifen? (ja/nein)")
 	  		val notification = new Notification(Notification.Question)
 	      	notification.currentPlayer = player
 	      	notifyObservers(notification)
-	    }else
+	    }else if(!gameOver)
 	    {
 	      player.myTurn = false
-	      sendNotificationMessage(Message.Info,"Kein weiterer Zug mehr möglich.")
+	      sendNotificationMessage(Message.Info,"Kein weiterer Zug mehr moeglich.")
 	    }
 	      
 	}
@@ -502,7 +525,7 @@ class Gamefield extends Observable{
 	 * @param attack. Current player Land which is responsible for the attack.
 	 * @param defense. Foreign Land which try to defend.
 	 */
-	def singleAttack(attack: Land, defense: Land ) ={
+	def singleAttack(attack: Land, defense: Land ):Unit ={
 	  if(attack.checkNeighbourhood(defense))
 	  {
 	    if(attack.getFieldType && defense.getFieldType)
@@ -566,7 +589,14 @@ class Gamefield extends Observable{
 	     
 		    if(defense.getArmy == 0)
 		    {
-		    	moveUnit(attack,defense,attackCountDices)
+		        sendNotificationMessage(Message.Success,"Sieg!!")
+		        var lostPlayerid =  defense.getHolder
+		        setValueForAttackAndDefenseLand(attack, defense, attackCountDices)
+		        
+		        if(checkPlayerOutOfGame(lostPlayerid))
+		          gameOver = checkGameOver
+		          
+		       if(!gameOver)
 		    	sendNotificationUI
 		    }
 
@@ -582,6 +612,24 @@ class Gamefield extends Observable{
 	
 	
 	/**
+	 * Check whether the player with the given id has lost.
+	 * @param id. Id of the player.
+	 * @return the function return true when the player has lost.
+	 */
+	def checkPlayerOutOfGame(id:Int):Boolean =
+	{
+	  var player = avatarContainer(id)
+	  if(player.occupiedTerritory == 0)
+	  {
+	    player.lost = true
+	    true
+	  }
+	    else
+	      false
+	}
+	
+	
+	/**
 	 * Move the units from attack-land to the defense land with an assigned amount of units.
 	 * Inform the User about the status and rules of the move
 	 * @param attack. Current player Land which is responsible for the attack.
@@ -590,7 +638,7 @@ class Gamefield extends Observable{
 	 */
 	def moveUnit(attack: Land, defense: Land, attackCountDices:Int)
 	{  
-	    	 sendNotificationMessage(Message.Success,"Sieg!!")
+	    	 
 	    	 if(attack.getArmy > 3)
 	    	 {
 	    	   do
@@ -604,26 +652,36 @@ class Gamefield extends Observable{
 		    	 
 	    	 }
 	    	 else{ 
-	    	     attack.permissionMoveArmy = true
-		    	 setValueForAttackAndDefenseLand(attackCountDices)
+		    	 setArmyForAttackAndDefenseLand(attackCountDices)
 	    	 }
 	    	 
-	    
-	  attack.permissionMoveArmy = false
 	}
 	
 	
 	/**
-	 * Increase and decrease the units about the assigned amount for the attack- and defense-land.
-	 * Preconditioned it is allowed.
+	 * Set all requiered values after a successfully singleattack for  the defense and attack land.
+	 * @param attack. Current player Land which is responsible for the attack.
+	 * @param defense. Former Foreign Land which is now a new own land for the owner of the attack land.
+	 * @param attackCountDices. Number of Units to move.
 	 */
-	def setValueForAttackAndDefenseLand(army:Int)
+	def setValueForAttackAndDefenseLand(attack: Land, defense: Land, attackCountDices:Int)
 	{
-	   if(fromLand.permissionMoveArmy)
-      {
-        setArmyForAttackAndDefenseLand(army)
-        setNewHolderForBeatenLand
-      }
+		        setNewOccupiedTerritory(toLand, fromLand)
+		    	moveUnit(attack,defense,attackCountDices)
+		    	setNewHolderForBeatenLand
+
+	}
+	
+	
+	/**
+	 * Decrease and Increase the occupiedTerritory attribute for the players who hold this land.
+	 * @param decLand. Decrease the occupiedTerritory of the player about the amount 1
+	 * @param incLand. Increase the occupiedTerritory of the player about the amount 1
+	 */
+	def setNewOccupiedTerritory(decLand:Land, incLand:Land)
+	{
+	  avatarContainer(decLand.holder).occupiedTerritory -= 1
+	  avatarContainer(incLand.holder).occupiedTerritory += 1
 	}
 	
 	/**

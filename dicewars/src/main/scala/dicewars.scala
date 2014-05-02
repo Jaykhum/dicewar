@@ -2,6 +2,7 @@ package main.scala
 import main.scala.controller.DicewarController
 import main.scala.model.Gamefield
 import main.scala.view.TUI
+import main.scala.view.swing.GUI
 
 
 // tests
@@ -12,7 +13,8 @@ object dicewars {
       
     val game = new Gamefield
     val tui= new TUI(game)
-    val controller=new DicewarController(game, tui)
+    val gui = new GUI(game)
+    val controller=new DicewarController(game, tui, gui)
    
       
      /*

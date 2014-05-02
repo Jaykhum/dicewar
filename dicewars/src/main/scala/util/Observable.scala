@@ -5,7 +5,7 @@ trait Observer
 {
   def updateObserver(notification:Notification)
 }
-class Observable 
+trait Observable 
 {
   var subscriberContainer:ArrayBuffer[Observer] = new ArrayBuffer[Observer]()
   def addObserver(subscriber:Observer) = subscriberContainer+=subscriber

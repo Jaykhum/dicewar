@@ -6,13 +6,15 @@ import main.scala.util._
 import main.scala.model.Avatar
 import main.scala.model.WorldPosition
 
-class TUI (var game: Gamefield) extends Observable with Observer{
+class TUI (var game: Gamefield) extends View{
   
    val delimiterVertical = "|";
    val delimiterHorizontal: Char = '-';
    val labelHorizontal = Array[String] ("  A ", "  B ", "  C ", "  D ", "  E ", "  F ", "  G ", "  H ", "  I ", "  J ", "  K ", "  L ", "  M ", "  N ", "  O ", "  P ", "  Q ", "  R ")
    val labelVertical = Array[String] ("01", "02", "03", "04", "05", "06", "07", "08", "09","10")
   
+   // Exit Function
+   def closeView{}
    
    def showField = {
      // label top

@@ -4,13 +4,14 @@ import main.scala.view._
 import main.scala.util._
 import main.scala.view.swing.GUI
 
-class DicewarController(val game:Gamefield, val tui:TUI) extends Observer {
+class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Observer {
    
     game.initWorld
 
     tui.addObserver(this)
+    gui.addObserver(this)
     game.addObserver(tui)
-    
+    game.addObserver(gui)
     game.startShowGameMenu
     
     
@@ -98,7 +99,9 @@ class DicewarController(val game:Gamefield, val tui:TUI) extends Observer {
     def delegateBattleAttack(notification:Notification)
     {
       game.fromLand.permissionMoveArmy = game.checkNumberOfUnitMove(game.fromLand, notification.value)
-      game.setValueForAttackAndDefenseLand(notification.value)
+      
+      if(game.fromLand.permissionMoveArmy)
+      game.setArmyForAttackAndDefenseLand(notification.value)
          
     }
     
@@ -130,12 +133,21 @@ class DicewarController(val game:Gamefield, val tui:TUI) extends Observer {
      */
     def startGamePhase
     {
-      for(i <- 0 to game.avatarContainer.size -1)
+      
+      while(!game.gameOver)
       {
-        game.startReinforcement(game.avatarContainer(i))
-        game.startBattlePhase(game.avatarContainer(i))
-        game.startTacticPhase(game.avatarContainer(i))
+	      for(i <- 0 to game.avatarContainer.size -1)
+	      {
+	          if(!game.avatarContainer(i).lost)
+	          {
+	             game.startReinforcement(game.avatarContainer(i))
+	             game.startBattlePhase(game.avatarContainer(i))
+	             game.startTacticPhase(game.avatarContainer(i))
+	          }
+	      }
       }
+      
+      
     }
     
     
