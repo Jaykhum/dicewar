@@ -37,9 +37,12 @@ class Gamefield extends Observable{
 	  for(i <- 0 to numberofPlayer -1)
 	  {
 	    avatarContainer(i) = new Avatar(i)
+	    avatarContainer(i).color = Avatar.colorContainer(i)
 	  }
 	  avatarContainer
 	}
+	
+	
 	
 	def checkGameOver:Boolean =
 	{
@@ -54,7 +57,17 @@ class Gamefield extends Observable{
 	      false
 	}
 	
-//	def sendNotificationGameOver
+	
+	def sendNotificationGameOver(winner:Avatar)
+	{
+	  sendNotificationMessage(Message.Info, "Spiel Ende")
+	  sendNotificationPlayerMessage(avatarContainer(winner.id), "Spieler " + winner.id)
+	  sendNotificationMessage(Message.Success, " hat Gewonnen !!!")
+	  var nGameOver = new Notification(Notification.GameOver)
+	  nGameOver.currentPlayer = winner
+	  notifyObservers(nGameOver)
+	  
+	}
 	
 	def startShowGameMenu
 	{
@@ -64,8 +77,7 @@ class Gamefield extends Observable{
 	
 	def startShowHelp
 	{
-	  var notification = new Notification(Notification.Help)
-	  notifyObservers(notification);
+	  notifyObservers(new Notification(Notification.Help));
 	}
 	
 	def startShowMapExample
@@ -175,12 +187,23 @@ class Gamefield extends Observable{
 	 * @param player who makes a reinforcement.
 	 */
 	def startReinforcement(player: Avatar)={
-	    sendNotificationMessage(Message.Info, "Verstaerkungsphase!")
+	    sendNotificationMessage(Message.Info, "                    Verstaerkungsphase!")
 	    sendNotificationUI
+	    
+//	   Raus löschen nur zum testen gedacht
+	    sendNotificationMessage(Message.Info, "Moechtest du einen Verstärkung? (ja/nein)")
+		  var n = new Notification(Notification.Question)
+		  n.currentPlayer = player
+		  notifyObservers(n)
+	    if(player.myTurn)
+	    {
+	      
+	    
 		player.newUnitsTemporary = player.getTerritories/divider
 		if (player.newUnitsTemporary < 3) player.newUnitsTemporary = 3;
 		do{
-		    sendNotificationMessage(Message.Info,"Spieler: " + player.id + " ist dran.")
+		    sendNotificationPlayerMessage(player,"Spieler: " + player.id)
+		    sendNotificationMessage(Message.Info," ist dran.")
 		    sendNotificationMessage(Message.Info,"Zahl der Verstaerkung: "+ player.newUnitsTemporary)
 		    sendNotificationMessage(Message.Info,"Bitte Teritorium eingeben (Spalte,Zeile).")
 			var notification = new Notification(Notification.Reinforcement)
@@ -188,6 +211,7 @@ class Gamefield extends Observable{
 			notification.currentPlayer = player
 		    notifyObservers(notification);
 		}while(player.newUnitsTemporary != 0)
+	    }
 	}
 	
 	/**
@@ -253,6 +277,21 @@ class Gamefield extends Observable{
 	  notificationMessage.message = message
 	  notifyObservers(notificationMessage)
 	}
+	
+	/**
+	 * Send notifications to Inform the User.
+	 * @param player. Responsible for the color of the output.
+	 * @param messageContent. Informations for the user.
+	 */
+	def sendNotificationPlayerMessage(player:Avatar, messageContent:String)
+	{
+	  var notificationMessage = new Notification(Notification.Message)
+	  var message = new Message(Message.Player, messageContent)
+	  notificationMessage.message = message
+	  notificationMessage.currentPlayer = player 
+	  notifyObservers(notificationMessage)
+	}
+	
 	
 	/**
 	 * Check if the selected land for the battle process is valid.
@@ -448,8 +487,12 @@ class Gamefield extends Observable{
 			      outloop = true
 			    }
 			    else if (ownLand.getArmy != 1){
-			    	sendNotificationMessage(Message.Info,"Spieler " + player.id + ": Noch verbliebene Einheiten: " + ownLand.getArmy)
-			    	sendNotificationMessage(Message.Info,"Spieler " + otherLand.getHolder + ": Noch verbliebene Einheiten: " + otherLand.getArmy)
+			    	sendNotificationPlayerMessage(player, "Spieler " + player.id)
+			    	sendNotificationMessage(Message.Info, ": Noch verbliebene Einheiten: " + ownLand.getArmy)
+			    	
+			    	sendNotificationPlayerMessage(avatarContainer(otherLand.getHolder), "Spieler " + otherLand.getHolder)
+			    	sendNotificationMessage(Message.Info, ": Noch verbliebene Einheiten: " + otherLand.getArmy)
+
 			    	sendNotificationMessage(Message.Info,"Weiter angreifen? (ja/nein)")
 			    	val notification = new Notification(Notification.Question)
 			    	notification.currentPlayer = player
@@ -466,7 +509,8 @@ class Gamefield extends Observable{
 				}
 			    else 
 			    {
-			      sendNotificationMessage(Message.Error,"Spieler " + player.id + ": Angriff gescheitert")
+			      sendNotificationPlayerMessage(player,"Spieler " + player.id)
+			      sendNotificationMessage(Message.Info,": Angriff gescheitert")
 			    }
 		    }
 		    else
@@ -554,13 +598,15 @@ class Gamefield extends Observable{
 		     for(i <- 0 to attackDice.length -1)
 		     {
 		       attackDice(i) = dice.roll
-		       sendNotificationMessage(Message.Info,"Spieler " + attack.getHolder +" hat eine " + attackDice(i) + " gewuerfelt. ")
+		       sendNotificationPlayerMessage(avatarContainer(attack.getHolder), "Spieler " + attack.getHolder)
+		       sendNotificationMessage(Message.Info," hat eine " + attackDice(i) + " gewuerfelt. ")
 	//	       println("Wuerfel Augen: " + attackDice(i))
 		     }
 		     for(i <- 0 to defenseDice.length -1)
 		     {
 		       defenseDice(i) = dice.roll
-		       sendNotificationMessage(Message.Info,"Spieler " + defense.getHolder +" hat eine " + defenseDice(i) + " gewuerfelt. ")
+		       sendNotificationPlayerMessage(avatarContainer(defense.getHolder), "Spieler " + attack.getHolder)
+		       sendNotificationMessage(Message.Info," hat eine " + defenseDice(i) + " gewuerfelt. ")
 	//	       println("Wuerfel Augen: " + defenseDice(i))
 		     }
 		     Sorting.quickSort(attackDice)
@@ -590,14 +636,21 @@ class Gamefield extends Observable{
 		    if(defense.getArmy == 0)
 		    {
 		        sendNotificationMessage(Message.Success,"Sieg!!")
-		        var lostPlayerid =  defense.getHolder
-		        setValueForAttackAndDefenseLand(attack, defense, attackCountDices)
 		        
-		        if(checkPlayerOutOfGame(lostPlayerid))
-		          gameOver = checkGameOver
-		          
-		       if(!gameOver)
-		    	sendNotificationUI
+		        var lostPlayer =  defense.getHolder
+		        
+		        setValueForWinnerAndLoser(toLand, fromLand)
+		        
+		        if(checkPlayerOutOfGame(lostPlayer) && checkGameOver)
+		          gameOver = true
+		        else
+		        {
+		          moveUnit(attack, defense, attackCountDices)
+		          sendNotificationUI
+		        }
+		             
+		        	  
+		        
 		    }
 
 	    }else
@@ -645,7 +698,9 @@ class Gamefield extends Observable{
 	    	   {
 		    	   sendNotificationMessage(Message.Info,"Bitte waehle aus wieviele Einheiten du verschieben moechtest!")
 		    	   sendNotificationMessage(Message.Info,"Hinweis: Eine Einheit muss stationiert bleiben.")
-	    	       sendNotificationMessage(Message.Info,"Spieler "+ attack.getHolder + ":  Noch verbliebene Einheiten: " + attack.getArmy)
+		    	   
+		    	   sendNotificationPlayerMessage(avatarContainer(defense.getHolder), "Spieler " + attack.getHolder)
+	    	       sendNotificationMessage(Message.Info,":  Noch verbliebene Einheiten: " + attack.getArmy)
 	    	       var n = new Notification(Notification.BattleAttack)
 		    	   notifyObservers(n);
 	    	   }while (!attack.permissionMoveArmy)
@@ -659,16 +714,14 @@ class Gamefield extends Observable{
 	
 	
 	/**
-	 * Set all requiered values after a successfully singleattack for  the defense and attack land.
-	 * @param attack. Current player Land which is responsible for the attack.
-	 * @param defense. Former Foreign Land which is now a new own land for the owner of the attack land.
-	 * @param attackCountDices. Number of Units to move.
+	 * Set all requiered values after a successfully singleattack for  the loser and winner.
+	 * @param winLand. Current player Land which is responsible for the attack.
+	 * @param lostLand. Enemy Land which is now a new own land for the owner of the attack land.
 	 */
-	def setValueForAttackAndDefenseLand(attack: Land, defense: Land, attackCountDices:Int)
+	def setValueForWinnerAndLoser(winLand: Land, lostLand: Land)
 	{
-		        setNewOccupiedTerritory(toLand, fromLand)
-		    	moveUnit(attack,defense,attackCountDices)
-		    	setNewHolderForBeatenLand
+		    	setNewOccupiedTerritory(toLand, fromLand)
+		        setNewHolderForBeatenLand
 
 	}
 	

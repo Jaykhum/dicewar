@@ -6,6 +6,13 @@ class Avatar(var id:Integer) {
 	var occupiedTerritory = 0		// lands holden by player
 	var inputCorrect:Boolean = false
 	var lost:Boolean = false
-	val color:String ="" 
+	var color:Avatar.ColorTyp =null
 	def getTerritories= occupiedTerritory
+}
+
+object Avatar extends Enumeration 
+{
+    type ColorTyp = Value
+    val Yellow, Mangenta, Green  = Value
+    val colorContainer = Array[ColorTyp](Yellow,Mangenta,Green)
 }

@@ -11,7 +11,9 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
     tui.addObserver(this)
     gui.addObserver(this)
     game.addObserver(tui)
-    game.addObserver(gui)
+//    game.addObserver(gui)
+    
+//    gui.startView
     game.startShowGameMenu
     
     
@@ -125,7 +127,6 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
     {
        game.initWorld
        game.initGame(notification.map)
-       tui.showField
     }
     
     /**
@@ -133,7 +134,6 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
      */
     def startGamePhase
     {
-      
       while(!game.gameOver)
       {
 	      for(i <- 0 to game.avatarContainer.size -1)
@@ -142,11 +142,14 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
 	          {
 	             game.startReinforcement(game.avatarContainer(i))
 	             game.startBattlePhase(game.avatarContainer(i))
+	             if(!game.gameOver)
 	             game.startTacticPhase(game.avatarContainer(i))
 	          }
 	      }
       }
       
+      var winnerPlayer = game.avatarContainer.find(p => !p.lost).get
+      game.sendNotificationGameOver(winnerPlayer)
       
     }
     

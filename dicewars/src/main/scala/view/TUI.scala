@@ -125,8 +125,7 @@ class TUI (var game: Gamefield) extends View{
    
    def sendHelp
    {
-     var notify = new Notification(Notification.Help)
-     notifyObservers(notify)
+     notifyObservers(new Notification(Notification.Help))
    }
    
    def sendMapSample
@@ -487,6 +486,7 @@ class TUI (var game: Gamefield) extends View{
 		  case Notification.TacticAssign => tacticProcess(notification)
 		  case Notification.TacticArmy => armyProcess(notification)
 		  case Notification.DrawUI => showField
+		  case Notification.Help => helpView
 		  case _ => println("Debug: Falsche Notification")
 	   }
    }
@@ -500,7 +500,7 @@ class TUI (var game: Gamefield) extends View{
    
    def helpProcess
    {
-     helpView
+     notifyObservers(new Notification(Notification.Help))
    }
    
    def armyProcess(n:Notification)
@@ -527,17 +527,31 @@ class TUI (var game: Gamefield) extends View{
      var messageContent:String = messageNotification.message.content
      messageTyp match
 	   {
-		  case Message.Success => messageprint(Console.GREEN, messageContent)
-		  case Message.Error => messageprint(Console.RED, messageContent)
-		  case Message.Info => messageprint(Console.WHITE, messageContent)
+		  case Message.Success => messagePrintln(Console.GREEN, messageContent)
+		  case Message.Error => messagePrintln(Console.RED, messageContent)
+		  case Message.Info => messagePrintln(Console.WHITE, messageContent)
+		  case Message.Player => messagePrint(messageNotification.currentPlayer.color, messageContent)
 		  case _ => println("Debug: Falsche Notification")
 	   }
      
    }
    
-   def messageprint(color:String, messageContent:String)
+   def messagePrintln(color:String, messageContent:String)
    {
      println(color + messageContent + Console.RESET )
+   }
+   
+   def messagePrint(color:Avatar.ColorTyp, messageContent:String)
+   {
+     color match 
+     {
+       case Avatar.Yellow => print(Console.YELLOW + messageContent + Console.RESET )
+       case Avatar.Mangenta => print(Console.MAGENTA + messageContent + Console.RESET)
+       case Avatar.Green => print(Console.GREEN + messageContent + Console.RESET)
+       case _ => println("Color Fehler")
+     }
+     
+     
    }
    
    
