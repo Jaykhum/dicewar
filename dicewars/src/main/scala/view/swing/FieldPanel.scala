@@ -13,6 +13,7 @@ import java.awt.BorderLayout
 import java.awt.Color
 import main.scala.model.WorldPosition
 
+case class FieldSelectedEvent(val position:WorldPosition) extends Event
 
 class FieldPanel(game:Gamefield) extends Panel  
 {
@@ -43,11 +44,11 @@ class FieldPanel(game:Gamefield) extends Panel
 	  if(e.peer.getButton() == MouseEvent.BUTTON1)
 	  {
 		  val landPosition:WorldPosition = findLand(e.point)
-		  println(e.point)
-		  println(landPosition.column + ","+ landPosition.row)
+//		  println(e.point)
+//		  println(landPosition.column + ","+ landPosition.row)
 		  if (landPosition != null)
 		  {
-		    // auswahl überprüfen Notif. versenden
+		    publish(new FieldSelectedEvent(landPosition))
 		  }
 	  }
 	}

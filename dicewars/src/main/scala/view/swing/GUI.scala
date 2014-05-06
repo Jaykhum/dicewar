@@ -10,6 +10,9 @@ import main.scala.util.Notification
 import scala.swing.TextField
 import scala.swing.event.KeyPressed
 import scala.swing.event.Key
+import javax.swing.JOptionPane
+import main.scala.model.WorldPosition
+import main.scala.model.Avatar
 
 
 class GUI(val game:Gamefield) extends Frame with View {
@@ -17,6 +20,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	title = "Dicewars"
 	var fieldPanel:FieldPanel =  null
 	var menuPanel:MenuPanel = null
+	var position :WorldPosition = null
 	var mapPanel:MapChoicePanel = new MapChoicePanel("Mapauswahl")
 	{
 		def notification(mapName:String) = new MapSelectedEvent(mapName)
@@ -25,33 +29,35 @@ class GUI(val game:Gamefield) extends Frame with View {
 	{
 	  case MapSelectedEvent(mapName) => sendMapChoice(mapName); selectPanel(fieldPanel)
 	  case MapChoice() => sendMapSample; listenTo(mapPanel); selectPanel(mapPanel)
+	  case FieldSelectedEvent(position) => setPosition(position); println("in GUI: "+ position.column + ","+position.row)
 	  case CloseEvent() => closeView
 	  case WindowClosing(_) =>closeView
 	}
 	
 	def updateObserver(notification:Notification)
 	{
-//	       notification.typ match
-//	   {
-//       	  case Notification.Menu => menueProcess
+	       notification.typ match
+	   {
+       	  case Notification.Menu => startView
 //       	  case Notification.Help => helpProcess
-//       	  case Notification.MapSample => mapSampleProcess
-//		  case Notification.Reinforcement => reinforcementProcess(notification)
+       	  case Notification.MapSample => mapSampleProcess
+		  case Notification.Reinforcement => reinforcementProcess(notification)
 //		  case Notification.BattleAssign => battleAssignProcess(notification)
 //		  case Notification.BattleAttack => battleAttackProcess
 //		  case Notification.Message => messageProcess(notification)
-//		  case Notification.Question => questionProcess(notification)
-//		  case Notification.TacticAssign => tacticProcess(notification)
-//		  case Notification.TacticArmy => armyProcess(notification)
+		  case Notification.Question => questionProcess(notification)
+		  case Notification.TacticAssign => tacticProcess(notification)
+		  case Notification.TacticArmy => armyProcess(notification)
 //		  case Notification.DrawUI => showField
 //		  case _ => println("Debug: Falsche Notification" + notification.typ)
-//	   }
+	   }
 	}
 	
 	def deliverArmyCount:Int =
 	{		
-			val input= new DialogPanel().amount.getOrElse(throw new IllegalStateException("You should login!!!"))
+			val input= new DialogPanel().amount.getOrElse(throw new IllegalStateException("Wrong input!!"))
 			var response = input.amount
+			println(response)
 			response.toInt
 	}
 	
@@ -59,12 +65,31 @@ class GUI(val game:Gamefield) extends Frame with View {
     {
 		
 		var response = false
-
-
-		//val auth = new DialogPanel().auth.getOrElse(throw new IllegalStateException("You should login!!!"))
-		//println(auth)
+		var eingabe = JOptionPane.showConfirmDialog(null,
+                                                            "Fortfahren?",
+                                                            "",
+                                                            JOptionPane.YES_NO_OPTION);
+		println(eingabe)
+		if(eingabe == 0)
+		  response = true
 		response
     }
+ 
+   def setPosition(position :WorldPosition):WorldPosition = this.position
+	
+   def readPosition: WorldPosition =
+   {
+     println("in readPos: bla")
+     var loop = true
+     listenTo(fieldPanel)
+     //warten auf action !!! besser lösung finden?!!
+     while(loop){
+       if(position != null)
+         loop = false
+     }
+     println("in readPos: ende")
+     position
+   }
 	
 	def startView()
 	{
@@ -90,7 +115,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 			})
 			contents += new MenuItem(Action("Runde beenden")
 			{
-			  deliverArmyCount
+			  val input= new DialogMessagePanel("Error bla")
 			})
 			contents += new MenuItem(Action("Quit")
 			{
@@ -137,8 +162,12 @@ class GUI(val game:Gamefield) extends Frame with View {
 	
 	visible = true
 	*/
+   def mapSampleProcess
+   {
+     selectPanel(menuPanel)
+   }
 	
-	def sendMapChoice(mapName:String) = 
+   def sendMapChoice(mapName:String) = 
    {
      var notify = new Notification(Notification.Map)
      println(mapName)
@@ -153,7 +182,7 @@ class GUI(val game:Gamefield) extends Frame with View {
      notifyObservers(notify)
    }
    
-      def armyProcess(n:Notification)
+   def armyProcess(n:Notification)
    {
      n.value = deliverArmyCount
      notifyObservers(n)
@@ -161,8 +190,9 @@ class GUI(val game:Gamefield) extends Frame with View {
    
    def tacticProcess(n:Notification)
    {
-   //  n.position = readPosition
+     n.position = readPosition
      notifyObservers(n)
+     this.position = null 
    }
    
    def questionProcess(n:Notification)
@@ -170,5 +200,72 @@ class GUI(val game:Gamefield) extends Frame with View {
      n.question = readResponse
      notifyObservers(n)
    }
+//   
+//   
+//   def messageProcess(messageNotification:Notification)
+//   {
+//     var messageTyp:Message.MessageTyp = messageNotification.message.typ
+//     var messageContent:String = messageNotification.message.content
+//     messageTyp match
+//	   {
+//		  case Message.Success => messagePrintln(Console.GREEN, messageContent)
+//		  case Message.Error => messagePrintln(Console.RED, messageContent)
+//		  case Message.Info => messagePrintln(Console.WHITE, messageContent)
+//		  case Message.Player => messagePrint(messageNotification.currentPlayer.color, messageContent)
+//		  case _ => println("Debug: Falsche Notification")
+//	   }
+//     
+//   }
+//   
+//   def messagePrintln(color:String, messageContent:String)
+//   {
+//     println(color + messageContent + Console.RESET )
+//   }
+//   
+//   def messagePrint(color:Avatar.ColorTyp, messageContent:String)
+//   {
+//     color match 
+//     {
+//       case Avatar.Yellow => print(Console.YELLOW + messageContent + Console.RESET )
+//       case Avatar.Mangenta => print(Console.MAGENTA + messageContent + Console.RESET)
+//       case Avatar.Green => print(Console.GREEN + messageContent + Console.RESET)
+//       case _ => println("Color Fehler")
+//     }
+//     
+//     
+//   }
+//   
+//   
+//   def battleAssignProcess(notification:Notification)
+//   {
+//     var notificationNew = new Notification(Notification.BattleAssign) 
+//  
+//     notificationNew.position = readPosition
+//     notificationNew.currentPlayer = notification.currentPlayer
+//     notificationNew.isFromLand = notification.isFromLand
+//     notifyObservers(notificationNew)
+//     
+//   }
+//   
+//   def battleAttackProcess
+//   {
+//     var notification = new Notification(Notification.BattleAttack)
+//     notification.value = deliverArmyCount
+//     notifyObservers(notification)
+//     
+//   }
+//   
+   def reinforcementProcess(notification:Notification)
+   {
+	   sendReinforcementChoice(readPosition, notification.currentPlayer)
+   }
    
+   
+   def sendReinforcementChoice(position:WorldPosition, player:Avatar)
+   {
+     var notification = new Notification(Notification.Reinforcement)
+     notification.position = position
+     notification.currentPlayer = player
+     notifyObservers(notification)
+   } 
 }
