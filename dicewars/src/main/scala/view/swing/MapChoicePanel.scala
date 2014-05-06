@@ -28,14 +28,6 @@ abstract class MapChoicePanel(headline:String) extends GridPanel(5,1)
 		}
 		iconPath = path + "basicland.png"
 		icon = new ImageIcon(iconPath)
-		/*
-		var s = new Dimension(icon.getIconHeight(), icon.getIconWidth())
-		minimumSize = s
-		preferredSize = s
-		repaint
-		* 
-		*/
-		requestFocus
 		iconTextGap = 20
 		focusPainted = false
 	}

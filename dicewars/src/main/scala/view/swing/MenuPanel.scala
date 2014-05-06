@@ -24,14 +24,14 @@ class MenuPanel(headline:String) extends GridPanel(4,1)
 		
 	}
 	
-	contents += new Button
-	{
-		menuPanel.listenTo(this)
-		action =  Action("Hilfe")
-		{
-			  //this.publish(notification)
-		}
-	}
+//	contents += new Button
+//	{
+//		menuPanel.listenTo(this)
+//		action =  Action("Hilfe")
+//		{
+//			  //this.publish(notification)
+//		}
+//	}
 		
 	contents += new Button
 	{

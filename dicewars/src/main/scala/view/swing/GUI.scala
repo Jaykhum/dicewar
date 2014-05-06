@@ -7,6 +7,10 @@ import scala.swing.Swing.LineBorder
 import scala.swing.event.WindowClosing
 import main.scala.view._
 import main.scala.util.Notification
+import scala.swing.TextField
+import scala.swing.event.KeyPressed
+import scala.swing.event.Key
+
 
 class GUI(val game:Gamefield) extends Frame with View {
 
@@ -44,6 +48,24 @@ class GUI(val game:Gamefield) extends Frame with View {
 //	   }
 	}
 	
+	def deliverArmyCount:Int =
+	{		
+			val input= new DialogPanel().amount.getOrElse(throw new IllegalStateException("You should login!!!"))
+			var response = input.amount
+			response.toInt
+	}
+	
+	def readResponse:Boolean =
+    {
+		
+		var response = false
+
+
+		//val auth = new DialogPanel().auth.getOrElse(throw new IllegalStateException("You should login!!!"))
+		//println(auth)
+		response
+    }
+	
 	def startView()
 	{
 		fieldPanel = new FieldPanel(game)
@@ -64,11 +86,11 @@ class GUI(val game:Gamefield) extends Frame with View {
 		{
 			contents += new MenuItem(Action("Neues Spiel starten")
 			{
-			  
+			  readResponse
 			})
 			contents += new MenuItem(Action("Runde beenden")
 			{
-			  
+			  deliverArmyCount
 			})
 			contents += new MenuItem(Action("Quit")
 			{
@@ -130,4 +152,23 @@ class GUI(val game:Gamefield) extends Frame with View {
      var notify = new Notification(Notification.MapSample)
      notifyObservers(notify)
    }
+   
+      def armyProcess(n:Notification)
+   {
+     n.value = deliverArmyCount
+     notifyObservers(n)
+   }
+   
+   def tacticProcess(n:Notification)
+   {
+   //  n.position = readPosition
+     notifyObservers(n)
+   }
+   
+   def questionProcess(n:Notification)
+   {
+     n.question = readResponse
+     notifyObservers(n)
+   }
+   
 }

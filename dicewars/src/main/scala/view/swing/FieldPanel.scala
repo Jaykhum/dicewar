@@ -12,10 +12,7 @@ import javax.swing.border.EmptyBorder
 import java.awt.BorderLayout
 import java.awt.Color
 import main.scala.model.WorldPosition
-import main.scala.model.WorldPosition
-import main.scala.model.WorldPosition
-import main.scala.model.WorldPosition
-import main.scala.model.WorldPosition
+
 
 class FieldPanel(game:Gamefield) extends Panel  
 {

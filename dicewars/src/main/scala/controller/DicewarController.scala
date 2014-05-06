@@ -8,9 +8,9 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
    
     game.initWorld
 
-    tui.addObserver(this)
+    //tui.addObserver(this)
     gui.addObserver(this)
-    game.addObserver(tui)
+    //game.addObserver(tui)
     game.addObserver(gui)
     
     gui.startView
