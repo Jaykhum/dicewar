@@ -105,6 +105,7 @@ class Gamefield extends Observable{
 	{
 	  fieldContainer = initFieldInWorld(map)
 	  initFieldHolder(fieldContainer)
+	  mapSelected = true
 	}
 	
 	
