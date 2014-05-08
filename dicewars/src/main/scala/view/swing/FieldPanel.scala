@@ -44,8 +44,8 @@ class FieldPanel(game:Gamefield) extends Panel
 	  if(e.peer.getButton() == MouseEvent.BUTTON1)
 	  {
 		  val landPosition:WorldPosition = findLand(e.point)
-//		  println(e.point)
-//		  println(landPosition.column + ","+ landPosition.row)
+//		  println(in FP: e.point)
+//		  println(in FP: landPosition.column + ","+ landPosition.row)
 		  if (landPosition != null)
 		  {
 		    publish(new FieldSelectedEvent(landPosition))
@@ -62,21 +62,20 @@ class FieldPanel(game:Gamefield) extends Panel
 			*/
 			preferredSize = new Dimension(
 			    game.width * CellWidth,
-			    (game.height +1) * CellHeight)
+			    (game.height) * CellHeight)
 	}
 	
 	override def paintComponent(g:Graphics2D):Unit =
 	{
 		g.setColor(new Color(255, 255, 255))
 		g.fillRect(0, 0, size.width, size.height)
-		// TODO schleife um alle felder zu zeichnen.
 		for ( i <- 0 to game.width-1; j <-0 to game.height-1)
 		{
 			drawLogo(g, game.world(j)(i))
 		}
-		g.setColor(Color.RED)
-		g.setFont(new Font("Verdana", 1, 12))
-		g.drawString("Error Message", 0, (CellHeight * (game.height+1)))
+//		g.setColor(Color.RED)
+//		g.setFont(new Font("Verdana", 1, 12))
+//		g.drawString("Error Message", 0, (CellHeight * (game.height+1)))
 		
 	}
 	

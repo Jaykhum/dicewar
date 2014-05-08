@@ -22,15 +22,17 @@ class GUI(val game:Gamefield) extends Frame with View {
 	var fieldPanel:FieldPanel =  null
 	var menuPanel:MenuPanel = null
 	var position :WorldPosition = null
+	var mapChoosenFlag:Boolean = false
+	var fieldFlag:Boolean = false
 	var mapPanel:MapChoicePanel = new MapChoicePanel("Mapauswahl")
 	{
 		def notification(mapName:String) = new MapSelectedEvent(mapName)
 	}
 	reactions +=
 	{
-	  case MapSelectedEvent(mapName) => sendMapChoice(mapName); selectPanel(fieldPanel)
+	  case MapSelectedEvent(mapName) => sendMapChoice(mapName); mapChoosenFlag = true; selectPanel(fieldPanel)
 	  case MapChoice() => sendMapSample; listenTo(mapPanel); selectPanel(mapPanel)
-	  case FieldSelectedEvent(position) => setPosition(position); println("in GUI: "+ position.column + ","+position.row)
+	  case FieldSelectedEvent(position) => setPosition(position); fieldFlag = true; println("in GUI: Selected "+ position.column + ","+position.row)
 	  case CloseEvent() => closeView
 	  case WindowClosing(_) =>closeView
 	}
@@ -77,17 +79,17 @@ class GUI(val game:Gamefield) extends Frame with View {
     }
  
    def setPosition(position :WorldPosition):WorldPosition = this.position
+   
 	
    def readPosition: WorldPosition =
    {
      println("in readPos: bla")
      var loop = true
-     listenTo(fieldPanel)
      //warten auf action !!! besser lösung finden?!!
-     while(loop){
-       if(position != null)
-         loop = false
+     while(!fieldFlag){
+       listenTo(fieldPanel)
      }
+     fieldFlag = false
      println("in readPos: ende")
      position
    }
@@ -97,17 +99,19 @@ class GUI(val game:Gamefield) extends Frame with View {
 		fieldPanel = new FieldPanel(game)
 		listenTo(fieldPanel)
 		menuPanel = new MenuPanel("Spiel Start")
-		listenTo(menuPanel)
-		if(!game.mapSelected)
+		if(!mapChoosenFlag)
 			selectPanel(menuPanel)
 		else
 			selectPanel(fieldPanel)
-		var loopFlag:Boolean =  true
+//		var loopFlag:Boolean =  true
 //		while(loopFlag)
 //		{
-//			if(game.mapSelected)
+//			if(mapChoosenFlag)
 //			  loopFlag =  false
 //		}
+		while(!mapChoosenFlag){
+		  listenTo(menuPanel)
+		}
 	}
 
 	val swingView = this
@@ -263,15 +267,22 @@ class GUI(val game:Gamefield) extends Frame with View {
    
    def reinforcementProcess(notification:Notification)
    {
-	   sendReinforcementChoice(readPosition, notification.currentPlayer)
+	 println("in GUI-rfP: start")  
+     sendReinforcementChoice(readPosition, notification.currentPlayer)
+     println("in GUI-rfP: ende")
    }
    
    
    def sendReinforcementChoice(position:WorldPosition, player:Avatar)
    {
+     println("in GUI-sRC:" + player.id + ";"+ player.myTurn)
+     println("in GUI-sRC: start")
      var notification = new Notification(Notification.Reinforcement)
      notification.position = position
      notification.currentPlayer = player
+     println("in GUI-sRC: pos "+ position.column +"," + position.row)
+     println("in GUI-sRC:" + player.id)
      notifyObservers(notification)
+     println("in GUI-sRC: ende")
    } 
 }

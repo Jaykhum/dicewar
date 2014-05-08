@@ -13,13 +13,14 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
     //game.addObserver(tui)
     game.addObserver(gui)
  
-    var gui_thread = new Thread(new Runnable {
-		  def run() {
-		    gui.startView
-		  }
-		})
-    gui_thread.start()
-    //gui.startView
+//    var gui_thread = new Thread(new Runnable {
+//		  def run() {
+//		    gui.startView
+//		  }
+//    })
+//    gui_thread.start()
+    gui.startView
+    
     game.startShowGameMenu
 
     startGamePhase;
@@ -156,6 +157,8 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
     
     def delegateReinforcement(notification:Notification)
     {
+      println("in DC-delReinf: start ")
+      println("in DC-delReinf: " + notification.currentPlayer.id)
       game.handleReinforcement(notification.currentPlayer, notification.position)
     }
 

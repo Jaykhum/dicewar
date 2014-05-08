@@ -222,6 +222,7 @@ class Gamefield extends Observable{
 	 */
 	def handleReinforcement(player:Avatar,position:WorldPosition) 
 	{
+	  println("in GF-handleReinf: selected "+ position.column +","+ position.row)
 	  // Spielfeld Land durch Pos bestimmen und checken ob seins
 	  if(world(position.row)(position.column).checkHolder(player) && world(position.row)(position.column).getFieldType)
 			{
