@@ -1093,7 +1093,6 @@ class Gamefield extends Observable{
 	    	       from.decArmy
 	    	       to.incArmy
 	    	     }
-	    	 player.newUnitsTemporary = 0    
-	    	 
-	     }
+	    	 player.newUnitsTemporary = 0       	 
+	 }
 }

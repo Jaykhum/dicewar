@@ -1,45 +1,59 @@
 package main.scala.view.swing
 
-import main.scala.model.Gamefield
+// own packages
 import main.scala.controller.DicewarController
+import main.scala.model._
+import main.scala.util.Message
+import main.scala.util.Notification
+import main.scala.view._
+
+// standard packages
 import scala.swing._
 import scala.swing.Swing.LineBorder
 import scala.swing.event.WindowClosing
-import main.scala.view._
-import main.scala.util.Notification
 import scala.swing.TextField
 import scala.swing.event.KeyPressed
 import scala.swing.event.Key
 import javax.swing.JOptionPane
-import main.scala.model.WorldPosition
-import main.scala.model.Avatar
-import main.scala.util.Message
 
 
 class GUI(val game:Gamefield) extends Frame with View {
-
+	// frametitel
 	title = "Dicewars"
+	// panel inits.
 	var fieldPanel:FieldPanel =  null
 	var menuPanel:MenuPanel = null
+	// selected fieldposition
 	var position :WorldPosition = null
+	// flag to beckon to send a notification to the observer
 	var mapChoosenFlag:Boolean = false
 	var fieldFlag:Boolean = false
+	/*
+	 * MapChoicePanel is a abstract class, so to define a normal object with new is forbidden
+	 * Solution: case Classes used 
+	 * */
 	var mapPanel:MapChoicePanel = new MapChoicePanel("Mapauswahl")
 	{
 		def notification(mapName:String) = new MapSelectedEvent(mapName)
 	}
+	
+	/*
+	 * actions corresponding the actions form the panels 
+	 * */
 	reactions +=
 	{
-	  case MapSelectedEvent(mapName) => sendMapChoice(mapName); mapChoosenFlag = true; selectPanel(fieldPanel)
+	  case MapSelectedEvent(mapName) => sendMapChoice(mapName); mapChoosenFlag = true; listenTo(fieldPanel);selectPanel(fieldPanel)
 	  case MapChoice() => sendMapSample; listenTo(mapPanel); selectPanel(mapPanel)
 	  case FieldSelectedEvent(position) => setPosition(position); fieldFlag = true; println("in GUI: Selected "+ position.column + ","+position.row)
 	  case CloseEvent() => closeView
 	  case WindowClosing(_) =>closeView
 	}
-	
+	/*
+	 * reactions corresponding to notifictions form the other pattern
+	 * */
 	def updateObserver(notification:Notification)
 	{
-	       notification.typ match
+	   notification.typ match
 	   {
        	  case Notification.Menu => println("in GUI: menu")
 //       	  case Notification.Help => helpProcess
@@ -65,8 +79,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	}
 	
 	def readResponse:Boolean =
-    {
-		
+    {	
 		var response = false
 		var eingabe = JOptionPane.showConfirmDialog(null,
                                                             "Fortfahren?",
@@ -78,19 +91,21 @@ class GUI(val game:Gamefield) extends Frame with View {
 		response
     }
  
-   def setPosition(position :WorldPosition):WorldPosition = this.position
+   def setPosition(pos :WorldPosition):WorldPosition = 
+   {
+     this.position = pos
+     position
+   }
    
 	
    def readPosition: WorldPosition =
    {
-     println("in readPos: bla")
      var loop = true
      //warten auf action !!! besser lösung finden?!!
      while(!fieldFlag){
        listenTo(fieldPanel)
      }
      fieldFlag = false
-     println("in readPos: ende")
      position
    }
 	
@@ -103,12 +118,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 			selectPanel(menuPanel)
 		else
 			selectPanel(fieldPanel)
-//		var loopFlag:Boolean =  true
-//		while(loopFlag)
-//		{
-//			if(mapChoosenFlag)
-//			  loopFlag =  false
-//		}
 		while(!mapChoosenFlag){
 		  listenTo(menuPanel)
 		}
@@ -135,6 +144,11 @@ class GUI(val game:Gamefield) extends Frame with View {
 		contents += new Menu("Actions"){}
 	}
 
+	/*
+	 * close this view
+	 * 1. send message to observer to detach this object
+	 * 2. close GUI
+	 * */
 	def closeView 
 	{
 	    // dieses View aus der Liste entfernen.
@@ -142,6 +156,10 @@ class GUI(val game:Gamefield) extends Frame with View {
 	    dispose
 	}
 	
+	/*
+	 * display the selected Panel (Field/Menu/Dialog)
+	 * standard Framesize with width = 280 and height = 340   
+	 * */
 	def selectPanel(panel:Panel)
 	{
 		visible = false
@@ -149,140 +167,110 @@ class GUI(val game:Gamefield) extends Frame with View {
 		contents =  panel
 		visible = true
 	}
+	
 	/*
-	val name:String = "Dicewars"
-	val cells = Array.ofDim[CellPanel](game.height, game.width)
-	
-	def gridPanel = new GridPanel(game.height, game.width){
-	  border = LineBorder(java.awt.Color.BLACK,2)
-	  background = java.awt.Color.BLACK
-	  for (i <- 0 to game.height; j <- 9 to game.width)
-	  { 
-		  contents += new Button(i.toString + " "+ j.toString)
-	  }
+	 * shows choice of maps
+	 * */
+	def mapSampleProcess
+	{
+		selectPanel(menuPanel)
 	}
 	
-	//val statusline = new TextField(controller.statusText, 20)
-
-	contents = new BorderPanel {
-    //add(highlightpanel, BorderPanel.Position.North)
-    add(gridPanel, BorderPanel.Position.Center)
-    //add(statusline, BorderPanel.Position.South)
+	/*
+	 * 
+	 * */
+	def sendMapChoice(mapName:String) = 
+	{
+		var notify = new Notification(Notification.Map)
+		notify.map = mapName
+		notifyObservers(notify)
 	}
 	
-	visible = true
-	*/
-   def mapSampleProcess
-   {
-     //println("in GUI:mapwahl")
-     selectPanel(menuPanel)
-
-   }
-	
-   def sendMapChoice(mapName:String) = 
-   {
-     var notify = new Notification(Notification.Map)
-     println(mapName)
-     notify.map = mapName
-     notifyObservers(notify)
-     //game.initGame(mapName)
-   }
-	
-   def sendMapSample
-   {
-     var notify = new Notification(Notification.MapSample)
-     notifyObservers(notify)
-   }
+	def sendMapSample
+	{
+		var notify = new Notification(Notification.MapSample)
+		notifyObservers(notify)
+	}
    
-   def armyProcess(n:Notification)
-   {
-     n.value = deliverArmyCount
-     notifyObservers(n)
-   }
+	def armyProcess(n:Notification)
+	{
+		n.value = deliverArmyCount
+		notifyObservers(n)
+	}
    
-   def tacticProcess(n:Notification)
-   {
-     n.position = readPosition
-     notifyObservers(n)
-     this.position = null 
-   }
+	def tacticProcess(n:Notification)
+	{
+		n.position = readPosition
+		notifyObservers(n)
+	}
    
-   def questionProcess(n:Notification)
-   {
-     n.question = readResponse
-     notifyObservers(n)
-   }
+	def questionProcess(n:Notification)
+	{
+		n.question = readResponse
+		notifyObservers(n)
+	}
    
    
-   def messageProcess(messageNotification:Notification)
-   {
-     var messageTyp:Message.MessageTyp = messageNotification.message.typ
-     var messageContent:String = messageNotification.message.content
-     messageTyp match
-	   {
-		  case Message.Success => messagePrintln(Console.GREEN, messageContent)
-		  case Message.Error => messagePrintln(Console.RED, messageContent)
-		  case Message.Info => messagePrintln(Console.WHITE, messageContent)
-		  case Message.Player => messagePrint(messageNotification.currentPlayer.color, messageContent)
-		  case _ => println("Debug: Falsche Notification")
-	   }
+	def messageProcess(messageNotification:Notification)
+	{
+		var messageTyp:Message.MessageTyp = messageNotification.message.typ
+		var messageContent:String = messageNotification.message.content
+		messageTyp match
+		{
+			case Message.Success => messagePrintln(Console.GREEN, messageContent)
+			case Message.Error => messagePrintln(Console.RED, messageContent)
+			case Message.Info => messagePrintln(Console.WHITE, messageContent)
+			case Message.Player => messagePrint(messageNotification.currentPlayer.color, messageContent)
+			case _ => println("Debug: Falsche Notification")
+		}
      
-   }
+	}
    
-   def messagePrintln(color:String, messageContent:String)
-   {
-     println(color + messageContent + Console.RESET )
-     new DialogMessagePanel(messageContent)
-   }
+	def messagePrintln(color:String, messageContent:String)
+	{
+		//println(color + messageContent + Console.RESET )
+		new DialogMessagePanel(messageContent)
+	}
    
-   def messagePrint(color:Avatar.ColorTyp, messageContent:String)
-   {
-     color match 
-     {
-       case Avatar.Yellow => print(Console.YELLOW + messageContent + Console.RESET )
-       case Avatar.Mangenta => print(Console.MAGENTA + messageContent + Console.RESET)
-       case Avatar.Green => print(Console.GREEN + messageContent + Console.RESET)
-       case _ => println("Color Fehler")
-     }
-   }
-   
-   
-   def battleAssignProcess(notification:Notification)
-   {
-     var notificationNew = new Notification(Notification.BattleAssign) 
-  
-     notificationNew.position = readPosition
-     notificationNew.currentPlayer = notification.currentPlayer
-     notificationNew.isFromLand = notification.isFromLand
-     notifyObservers(notificationNew)
-   }
-   
-   def battleAttackProcess
-   {
-     var notification = new Notification(Notification.BattleAttack)
-     notification.value = deliverArmyCount
-     notifyObservers(notification)
-     
-   }
-   
-   def reinforcementProcess(notification:Notification)
-   {
-	 println("in GUI-rfP: start")  
-     sendReinforcementChoice(readPosition, notification.currentPlayer)
-     println("in GUI-rfP: ende")
-   }
+	def messagePrint(color:Avatar.ColorTyp, messageContent:String)
+	{
+		color match 
+		{
+			case Avatar.Yellow => print(Console.YELLOW + messageContent + Console.RESET )
+			case Avatar.Mangenta => print(Console.MAGENTA + messageContent + Console.RESET)
+			case Avatar.Green => print(Console.GREEN + messageContent + Console.RESET)
+			case _ => println("Color Fehler")
+		}
+	}
    
    
-   def sendReinforcementChoice(position:WorldPosition, player:Avatar)
-   {
-     println("in GUI-sRC:" + player.id + ";"+ player.myTurn)
-     println("in GUI-sRC: start")
-     var notification = new Notification(Notification.Reinforcement)
-     notification.position = position
-     notification.currentPlayer = player
-     println("in GUI-sRC: pos "+ position.column +"," + position.row)
-     println("in GUI-sRC:" + player.id)
-     notifyObservers(notification)
-     println("in GUI-sRC: ende")
-   } 
+	def battleAssignProcess(notification:Notification)
+	{
+		var notificationNew = new Notification(Notification.BattleAssign) 
+		notificationNew.position = readPosition
+		notificationNew.currentPlayer = notification.currentPlayer
+		notificationNew.isFromLand = notification.isFromLand
+		notifyObservers(notificationNew)
+	}
+   
+	def battleAttackProcess
+	{
+		var notification = new Notification(Notification.BattleAttack)
+		notification.value = deliverArmyCount
+		notifyObservers(notification)
+    }
+   
+	def reinforcementProcess(notification:Notification)
+	{
+		sendReinforcementChoice(readPosition, notification.currentPlayer)
+	}
+	
+	
+	def sendReinforcementChoice(position:WorldPosition, player:Avatar)
+	{
+		var notification = new Notification(Notification.Reinforcement)
+		notification.position = position
+		notification.currentPlayer = player
+		notifyObservers(notification)
+	} 
 }

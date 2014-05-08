@@ -1,24 +1,31 @@
 package main.scala.view.swing
 
 import scala.swing._
-import javax.swing.ImageIcon
-import main.scala.util.Notification
-import main.scala.util.Observable
 import scala.swing.event.Event
+import javax.swing.ImageIcon
 
 
+// event class
 case class MapSelectedEvent(val mapName:String) extends Event
 
+/*
+ * 
+ * 
+ * */
 abstract class MapChoicePanel(headline:String) extends GridPanel(5,1)
 {
-	val menuPanel = this
+	// header
 	val label = new Label(headline)
+	val menuPanel = this
+	// directory path for all icons-images
 	val path:String = "Symbols/"
+	// spe. path for one icon
 	var iconPath:String = ""
 	label.peer.setFont(new Font("Verdana", 1, 24))
 	
-
+	// Panel contents
 	contents += label
+	// button for map basic 
 	contents += new Button("basic")
 	{
 		menuPanel .listenTo(this)
@@ -32,6 +39,7 @@ abstract class MapChoicePanel(headline:String) extends GridPanel(5,1)
 		focusPainted = false
 	}
 	
+	// button for map land 2
 	contents += new Button("land2")
 	{
 		this.listenTo(this)
@@ -44,7 +52,8 @@ abstract class MapChoicePanel(headline:String) extends GridPanel(5,1)
 		iconTextGap = 20
 		focusPainted = false
 	}
-		
+	
+	// button for map land 3
 	contents += new Button("land3")
 	{
 		this.listenTo(this)
@@ -59,6 +68,7 @@ abstract class MapChoicePanel(headline:String) extends GridPanel(5,1)
 		focusPainted = false
 	}
 
+	// button for map land 4
 	contents += new Button("land4")
 	{
 		this.listenTo(this)
@@ -72,6 +82,7 @@ abstract class MapChoicePanel(headline:String) extends GridPanel(5,1)
 		focusPainted = false
 	}
 	
-	 def notification(mapName:String) : Event
+	// event
+	def notification(mapName:String) : Event
 	
 }
