@@ -18,28 +18,29 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
 //		    gui.startView
 //		  }
 //    })
-//    gui_thread.start()
+//    gui_thread.run()
     gui.startView
     
     game.startShowGameMenu
+    
+    startGamePhase
 
-    startGamePhase;
-        
     override def updateObserver(notification:Notification)
     {
      notification.typ match
 	   {
-       	  case Notification.Menu => delegateMenu
-       	  case Notification.MapSample =>delegateMapExample
+       	  case Notification.Menu => delegateMenu 
+       	  case Notification.MapSample => delegateMapExample
+       	  case Notification.NewGame => delegateNewGame
        	  case Notification.Help => delegateHelp
        	  case Notification.Exit => delegateExit
-		  case Notification.Map => initGame(notification)
-		  case Notification.Reinforcement=>delegateReinforcement(notification)
-		  case Notification.BattleAssign=>delegateBattleAssign(notification)
-		  case Notification.BattleAttack=>delegateBattleAttack(notification)
-		  case Notification.Question=>delegateQuestion(notification)
-		  case Notification.TacticAssign=>delegateTacticAssign(notification)
-		  case Notification.TacticArmy=>delegateTacticArmy(notification)
+		  case Notification.Map =>  initGame(notification)
+		  case Notification.Reinforcement=> delegateReinforcement(notification)
+		  case Notification.BattleAssign=> delegateBattleAssign(notification)
+		  case Notification.BattleAttack=> delegateBattleAttack(notification)
+		  case Notification.Question=> delegateQuestion(notification)
+		  case Notification.TacticAssign=> delegateTacticAssign(notification)
+		  case Notification.TacticArmy=> delegateTacticArmy(notification)
 		  case _ => println("Falsche Notification")
 	   }
     }
@@ -63,6 +64,7 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
     def delegateExit
     {
       //TODO exit function
+      System.exit(0)
     }
     
      def delegateTacticArmy(n:Notification)
@@ -70,7 +72,7 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
         var from = game.fromLand
         from.permissionMoveArmy = game.checkNumberOfUnitMove(from, n.value)
         if(from.permissionMoveArmy)
-        n.currentPlayer.newUnitsTemporary = n.value
+        	n.currentPlayer.newUnitsTemporary = n.value
     }
     
     def delegateTacticAssign(notification:Notification)
@@ -86,10 +88,6 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
           game.setFromOrTo(notification.currentPlayer, notification.position, notification.isFromLand)
           game.sendNotificationUI
         }
-      
-      
-      
-     
     }
     
     def delegateQuestion(notification:Notification)
@@ -104,8 +102,7 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
       game.fromLand.permissionMoveArmy = game.checkNumberOfUnitMove(game.fromLand, notification.value)
       
       if(game.fromLand.permissionMoveArmy)
-      game.setArmyForAttackAndDefenseLand(notification.value)
-         
+    	  game.setArmyForAttackAndDefenseLand(notification.value)         
     }
     
     def delegateBattleAssign(notification:Notification)
@@ -119,7 +116,6 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
           game.setAttackOrDefenseLand(notification.position, notification.isFromLand)
           game.sendNotificationUI
         }
-    
     }
     
     
@@ -151,15 +147,18 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
       
       var winnerPlayer = game.avatarContainer.find(p => !p.lost).get
       game.sendNotificationGameOver(winnerPlayer)
-      
     }
     
     
     def delegateReinforcement(notification:Notification)
     {
-      println("in DC-delReinf: start ")
-      println("in DC-delReinf: " + notification.currentPlayer.id)
       game.handleReinforcement(notification.currentPlayer, notification.position)
     }
 
-}
+    def delegateNewGame
+    {
+    	game.newGame
+    	game.initWorld
+    	game.startShowGameMenu
+    }
+   }

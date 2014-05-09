@@ -9,6 +9,9 @@ import main.scala.util._
 import main.scala.util.Message
 
 class Gamefield extends Observable{
+  
+  	// path to Maps
+	val mapDir:String = "Maps/"
 	val divider = 3
 	val height = 10;
 	val width = 18;
@@ -17,16 +20,12 @@ class Gamefield extends Observable{
 	// Gameboard with size 18x10 fields and each fields needs 4x3 (width/height) Signs
 	val world = Array.ofDim[Land](height,width)
 	var fieldContainer:Array[Field] = null
-	// path to Maps
-	val mapDir:String = "Maps/"
-
 	var fromLand:Land = null
 	var toLand:Land = null
 	var gameOver:Boolean = false
 	
-	var mapSelected:Boolean = false
 	//phase meaning 1 => Reinforcement, 2=>Battle, 3=>Tactic
-	var phase:Int = -1 
+	//var phase:Int = -1 
 	/**
 	 * Initialize number of players.
 	 * @param numberofPlayer. Number of player.
@@ -105,7 +104,6 @@ class Gamefield extends Observable{
 	{
 	  fieldContainer = initFieldInWorld(map)
 	  initFieldHolder(fieldContainer)
-	  mapSelected = true
 	}
 	
 	
@@ -222,7 +220,6 @@ class Gamefield extends Observable{
 	 */
 	def handleReinforcement(player:Avatar,position:WorldPosition) 
 	{
-	  println("in GF-handleReinf: selected "+ position.column +","+ position.row)
 	  // Spielfeld Land durch Pos bestimmen und checken ob seins
 	  if(world(position.row)(position.column).checkHolder(player) && world(position.row)(position.column).getFieldType)
 			{
@@ -1095,4 +1092,12 @@ class Gamefield extends Observable{
 	    	     }
 	    	 player.newUnitsTemporary = 0       	 
 	 }
+	
+	def newGame
+	{
+	  	fieldContainer= null
+		fromLand = null
+		toLand = null
+		gameOver = false
+	}
 }

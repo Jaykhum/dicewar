@@ -4,8 +4,6 @@ package main.scala.view.swing
 import main.scala.model.Gamefield
 import main.scala.model.Land
 import main.scala.model.WorldPosition
-
-// standard packages
 import scala.swing._
 import scala.swing.event._
 import scala.swing.event.MouseReleased
@@ -15,6 +13,7 @@ import java.io.File
 import javax.swing.border.EmptyBorder
 import java.awt.BorderLayout
 import java.awt.Color
+
 
 // event class
 case class FieldSelectedEvent(val position:WorldPosition) extends Event
@@ -28,6 +27,7 @@ class FieldPanel(game:Gamefield) extends Panel
 	// paths to imagefiles for the field labels 
 	val image_land = ImageIO.read(new File("Symbols/land.png"))
 	val image_water = ImageIO.read(new File("Symbols/water1.png"))
+	val image_selected = ImageIO.read(new File("Symbols/selected.png"))
 	
 	// size of one field
 	val CellWidth:Int = 36
@@ -43,6 +43,7 @@ class FieldPanel(game:Gamefield) extends Panel
 	  case e: MouseReleased => mouseReleasedHandler(e)
 	}
 	
+
 	/*
 	 * compute field index
 	 * */
@@ -50,10 +51,14 @@ class FieldPanel(game:Gamefield) extends Panel
 	{
 		val col:Int = p.x / CellWidth
 		val row:Int = p.y / CellHeight
-		if(col >= 0 && row >= 0)
-			new WorldPosition(row, col)
-		else
-			null
+		val rect = new Rectangle(p.x, p.y, CellWidth, CellHeight)
+      	if (rect.contains(p)) {
+      		if(col >= 0 && row >= 0)
+      		{
+      			return new WorldPosition(row, col)
+      		}
+      	}
+		return null
 	}
 	
 	/*
@@ -115,14 +120,21 @@ class FieldPanel(game:Gamefield) extends Panel
 		 *  if it's a land draw a land-logo else draw the water-logo
 		 */
 		if(land.getFieldType){
-		  g.drawImage(image_land, x, y, null)
-		  g.setColor(setPlayerColor(land))
-		  g.setFont(new Font("Verdana", 1, 12))
-		  g.drawString(land.getArmy.toString, (x+(CellWidth/2+ offset_x)), (y+(CellHeight/2+offset_y)))
+			if (land == game.fromLand || land == game.toLand)
+				g.drawImage(image_land, x, y, 1, 1, null)
+//			{
+//				g.drawImage(image_selected, x, y, null)
+//				selectedLand == null
+//			}
+			else
+				//g.drawImage(image_land, x, y, CellWidth, CellHeight, null)
+				g.drawImage(image_land, x, y, null)
+		  	g.setColor(setPlayerColor(land))
+		  	g.setFont(new Font("Verdana", 1, 12))
+		  	g.drawString(land.getArmy.toString, (x+(CellWidth/2+ offset_x)), (y+(CellHeight/2+offset_y)))
 		}
 		else
-		  g.drawImage(image_water, x, y, null)
-		
+			g.drawImage(image_water, x, y, null)
 	}
 	
 	/*

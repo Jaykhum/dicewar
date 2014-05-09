@@ -12,7 +12,7 @@ class TUI (var game: Gamefield) extends View{
    val delimiterHorizontal: Char = '-';
    val labelHorizontal = Array[String] ("  A ", "  B ", "  C ", "  D ", "  E ", "  F ", "  G ", "  H ", "  I ", "  J ", "  K ", "  L ", "  M ", "  N ", "  O ", "  P ", "  Q ", "  R ")
    val labelVertical = Array[String] ("01", "02", "03", "04", "05", "06", "07", "08", "09","10")
-  
+   var incomingInput:Boolean = false
    // Exit Function
    def closeView{}
    
@@ -146,10 +146,11 @@ class TUI (var game: Gamefield) extends View{
    {
      
      var isInputCorrect=false
-      while(!isInputCorrect)
+      while(!isInputCorrect && !incomingInput)
      {
        isInputCorrect = mapProcessInputLine(readLine())
      }
+     incomingInput = false
      true
    }
    
@@ -201,7 +202,7 @@ class TUI (var game: Gamefield) extends View{
    {
      var loopBreak = false
      var response = false
-     while(!loopBreak)
+     while(!loopBreak && !incomingInput)
      {
        var input = readLine()
        loopBreak = true
@@ -217,6 +218,7 @@ class TUI (var game: Gamefield) extends View{
        }
        
      }
+     incomingInput = false
      response
    }
    
@@ -227,7 +229,7 @@ class TUI (var game: Gamefield) extends View{
      var position:WorldPosition = null
      var isMessage = false
      var permissionMatch = true
-     while(loop)
+     while(loop && !incomingInput)
      {
          loop = false
          isMessage = false
@@ -338,7 +340,7 @@ class TUI (var game: Gamefield) extends View{
 		     }
 		 
      }
-     
+     incomingInput = false
       position
      	
    }
@@ -352,7 +354,7 @@ class TUI (var game: Gamefield) extends View{
    {
      var ok = false
      var input:String = ""
-     while(!ok)
+     while(!ok && !incomingInput)
      {
        input = readLine()
        if(input.length() == 0)
@@ -364,6 +366,7 @@ class TUI (var game: Gamefield) extends View{
          println("Bitte wiederhole die Eingabe korrekt.")
        }
      }
+     incomingInput = false
      input.toInt  
    }
    
@@ -402,8 +405,8 @@ class TUI (var game: Gamefield) extends View{
    def menueProcess()
    {
      showMenu
-     while(!menueProcessInputLine(readLine())) {}
-
+     while(!menueProcessInputLine(readLine())&& !incomingInput) {}
+     incomingInput = false
    }
    
    def showMenu()
@@ -475,18 +478,17 @@ class TUI (var game: Gamefield) extends View{
    {
      notification.typ match
 	   {
-       	  case Notification.Menu => menueProcess
-       	  case Notification.Help => helpProcess
-       	  case Notification.MapSample => mapSampleProcess
-		  case Notification.Reinforcement => reinforcementProcess(notification)
-		  case Notification.BattleAssign => battleAssignProcess(notification)
-		  case Notification.BattleAttack => battleAttackProcess
-		  case Notification.Message => messageProcess(notification)
-		  case Notification.Question => questionProcess(notification)
-		  case Notification.TacticAssign => tacticProcess(notification)
-		  case Notification.TacticArmy => armyProcess(notification)
-		  case Notification.DrawUI => showField
-		  case Notification.Help => helpView
+       	  case Notification.Menu => incomingInput = true; menueProcess
+       	  case Notification.Help => incomingInput = true; helpView
+       	  case Notification.MapSample => incomingInput = true; mapSampleProcess
+		  case Notification.Reinforcement => incomingInput = true; reinforcementProcess(notification)
+		  case Notification.BattleAssign => incomingInput = true; battleAssignProcess(notification)
+		  case Notification.BattleAttack => incomingInput = true; battleAttackProcess
+		  case Notification.Message => incomingInput = true; messageProcess(notification)
+		  case Notification.Question => incomingInput = true; questionProcess(notification)
+		  case Notification.TacticAssign => incomingInput = true; tacticProcess(notification)
+		  case Notification.TacticArmy => incomingInput = true; armyProcess(notification)
+		  case Notification.DrawUI => incomingInput = true; showField
 		  case _ => println("Debug: Falsche Notification")
 	   }
    }

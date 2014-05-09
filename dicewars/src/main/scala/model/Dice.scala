@@ -19,13 +19,12 @@ class Dice {
 // Random 
 
 class Dice {
-  //TODO Richtiges Random momentan keine Zufallszahl
 	var dice = new Random()
 	var rnd:Int = 0
 	
 	def roll:Int = 
 	{
-	 rnd = dice.nextInt(6)
+	 rnd = dice.nextInt(5)+1
 	 rnd
 	}
 }
