@@ -9,17 +9,17 @@ import main.scala.util._
 import main.scala.util.Message
 
 class Gamefield extends Observable{
-  
-  	// path to Maps
-	val mapDir:String = "Maps/"
-	val divider = 3
-	val height = 10;
-	val width = 18;
+	
 	var playercount = 2;
-	val avatarContainer:Array[Avatar] = initPlayer(2)
+	val mapDir:String = "Maps/"
+	
+	//val avatarContainer:Array[Avatar] = initPlayer(2)
+	val avatarContainer:Array[Avatar] = testBotInitPlayer
 	// Gameboard with size 18x10 fields and each fields needs 4x3 (width/height) Signs
-	val world = Array.ofDim[Land](height,width)
+	val world = Array.ofDim[Land](World.height,World.width)
 	var fieldContainer:Array[Field] = null
+	// path to Maps
+	
 	var fromLand:Land = null
 	var toLand:Land = null
 	var gameOver:Boolean = false
@@ -33,12 +33,25 @@ class Gamefield extends Observable{
 	def initPlayer(numberofPlayer:Integer):Array[Avatar] =
 	{
 	  var avatarContainer = new Array[Avatar](numberofPlayer) 
-	  for(i <- 0 to numberofPlayer -1)
+	  for(i <- 0 until numberofPlayer)
 	  {
 	    avatarContainer(i) = new Avatar(i)
 	    avatarContainer(i).color = Avatar.colorContainer(i)
 	  }
 	  avatarContainer
+	}
+	
+	def testBotInitPlayer():Array[Avatar] =
+	{
+		var avatarContainer = new Array[Avatar](2) 
+
+	    avatarContainer(0) = new Avatar(0)
+	    avatarContainer(0).color = Avatar.colorContainer(0)
+	    
+	    avatarContainer(1) = new Bot(1, this)
+	    avatarContainer(1).color = Avatar.colorContainer(1)
+	  
+	    avatarContainer
 	}
 	
 	
@@ -76,7 +89,8 @@ class Gamefield extends Observable{
 	
 	def startShowHelp
 	{
-	  notifyObservers(new Notification(Notification.Help));
+	  var notification = new Notification(Notification.Help)
+	  notifyObservers(notification);
 	}
 	
 	def startShowMapExample
@@ -90,7 +104,7 @@ class Gamefield extends Observable{
 	 * */
 	def initWorld
 	{
-	  for(i <- 0 to height-1; j <- 0 to width-1)
+	  for(i <- 0 until World.height; j <- 0 until World.width)
 	  {
 	    world(i)(j) = new Water(i,j)
 	  }
@@ -129,7 +143,7 @@ class Gamefield extends Observable{
 	  var fieldCount:Int = fieldContainer.size
 	  playerFieldCount(0) = 0
 	  playerFieldCount(1) = 0
-	  for(i <- 0 to fieldContainer.size -1)
+	  for(i <- 0 until fieldContainer.size)
 	  {
 		 playerID =  rnd.nextInt(playercount)
 		  
@@ -144,7 +158,7 @@ class Gamefield extends Observable{
 		  world(fieldContainer(i).position.row) (fieldContainer(i).position.column).setHolder(playerID)
 		  playerFieldCount(playerID) += 1
 	  }
-	  for(i <- 0 to avatarContainer.size -1)
+	  for(i <- 0 until avatarContainer.size)
 	  {
 	    avatarContainer(i).occupiedTerritory = playerFieldCount(i) 
 	  }
@@ -163,7 +177,7 @@ class Gamefield extends Observable{
 		var outArray = fu.readData(file)
 		var Position = new Array[Int](2)
 		var fieldContainer = new Array[Field](outArray.size)
-		for(a <- 0 to outArray.size-1)
+		for(a <- 0 until outArray.size)
 		{
 		  var s = outArray.apply(a)
 		  var charArray = s.toCharArray
@@ -180,12 +194,18 @@ class Gamefield extends Observable{
 		
 	}
 	
+	def exitGame
+	{
+	  sys.exit
+	}
+	
 	
 	/**
 	 * Set a chose amount of Unit to chose field and to an assigned player.
 	 * @param player who makes a reinforcement.
 	 */
-	def startReinforcement(player: Avatar)={
+	def startReinforcement(player: Avatar)=
+	{
 	    sendNotificationMessage(Message.Info, "                    Verstaerkungsphase!")
 	    sendNotificationUI
 	    
@@ -198,7 +218,7 @@ class Gamefield extends Observable{
 	    {
 	      
 	    
-		player.newUnitsTemporary = player.getTerritories/divider
+		player.newUnitsTemporary = player.getTerritories/Avatar.divider
 		if (player.newUnitsTemporary < 3) player.newUnitsTemporary = 3;
 		do{
 		    sendNotificationPlayerMessage(player,"Spieler: " + player.id)
@@ -237,7 +257,7 @@ class Gamefield extends Observable{
 	/**
 	 * Set the new holder which is the attack land for the beaten land.
 	 */
-	def setNewHolderForBeatenLand = toLand.holder = fromLand.holder
+	def setNewHolderForBeatenLand(winLand:Land, lostLand:Land) = lostLand.holder = winLand.holder
 	  
 	  
 	
@@ -246,17 +266,22 @@ class Gamefield extends Observable{
 	 * When the amount is too high, the user will be informed about it.
 	 * @param land. The army of this land be checked. 
 	 * @param army. Number of desired units.
+	 * @param minArmy. Minimum Units that have to be move.
 	 * @return when the assigned values is allowed the function will return true otherwise false.
 	 */
-	def checkNumberOfUnitMove(land:Land, army:Int):Boolean =
+	def checkNumberOfUnitMove(land:Land, army:Int, minArmy:Int):Boolean =
 	{
 		if(land.getArmy - army < 1)
 		{
 			sendNotificationMessage(Message.Error,"Zuviele Einheiten gewaehlt. Bitte erneut eingeben.")
 			return false
+		}else if(army < minArmy)
+		{
+		  sendNotificationMessage(Message.Error,"Es muessen mindestens " + minArmy + "  Einheiten verschoben werden, da mit sovielen Einheiten auch angegriffen wurde. Bitte erneut eingeben.")
+		  return false
 		}else if(army == 0)
 		{
-		  sendNotificationMessage(Message.Error,"Mindestens eine Einheit muss verschoben werden. Bitte erneut eingeben.")
+		  sendNotificationMessage(Message.Error,"Zu wenige Einheiten die verschoben werden sollen. Bitte erneut eingeben.")
 		  return false
 		}
 	    else
@@ -412,8 +437,7 @@ class Gamefield extends Observable{
 		  n.currentPlayer = player
 		  notifyObservers(n)
 		  if(player.myTurn)
-		  {
-		    
+		  {	    
 			  do
 			  {
 			    sendNotificationUI
@@ -427,7 +451,7 @@ class Gamefield extends Observable{
 			      sendBattleNotification(player,false)
 			    }while(!player.inputCorrect)
 			      
-			    attack(player)
+			    attack(player, fromLand, toLand)
 			  }while(player.myTurn && !gameOver)
 		  }
 	  }else
@@ -461,10 +485,9 @@ class Gamefield extends Observable{
 	 * Manage the count of the attacks and communicate with the user about it.
 	 * @param player. Should be the current player of the game.
 	 */
-	def attack (player:Avatar)
+	def attack (player:Avatar, ownLand:Land, otherLand:Land)
 	{
-	  var ownLand = fromLand
-	  var otherLand = toLand
+
 	  var outloop = false
 	  
 	  sendNotificationMessage(Message.Info,"Angreifen? (ja/nein)")
@@ -533,7 +556,7 @@ class Gamefield extends Observable{
 	/**
 	 * Check if the player achieve the conditions to Battle
 	 * @param player. player to validate.
-	 * * @return Is it possible to battle the function return true. 
+	 * @return Is it possible to battle the function return true. 
 	 */
 	def checkPossibleToBattle(player:Avatar):Boolean =
 	{
@@ -562,6 +585,8 @@ class Gamefield extends Observable{
 	  fromLand = null
 	  toLand = null
 	}
+	
+
 	
 	/**
 	 * Execute a single Attack. In case the chose lands was invalid the user will get an appropriate message.
@@ -594,18 +619,18 @@ class Gamefield extends Observable{
 		      var attackDice = new Array[Int](attackCountDices)
 		      var defenseDice = new Array[Int](defenseCountDices)
 		      var dice = new Dice
-		     for(i <- 0 to attackDice.length -1)
+		     for(i <- 0 until attackDice.length)
 		     {
 		       attackDice(i) = dice.roll
 		       sendNotificationPlayerMessage(avatarContainer(attack.getHolder), "Spieler " + attack.getHolder)
-		       sendNotificationMessage(Message.Info," hat eine " + attackDice(i) + " gewuerfelt. ")
+		       sendNotificationMessage(Message.Info,": hat eine " + attackDice(i) + " gewuerfelt. ")
 	//	       println("Wuerfel Augen: " + attackDice(i))
 		     }
-		     for(i <- 0 to defenseDice.length -1)
+		     for(i <- 0 until defenseDice.length)
 		     {
 		       defenseDice(i) = dice.roll
 		       sendNotificationPlayerMessage(avatarContainer(defense.getHolder), "Spieler " + attack.getHolder)
-		       sendNotificationMessage(Message.Info," hat eine " + defenseDice(i) + " gewuerfelt. ")
+		       sendNotificationMessage(Message.Info,": hat eine " + defenseDice(i) + " gewuerfelt. ")
 	//	       println("Wuerfel Augen: " + defenseDice(i))
 		     }
 		     Sorting.quickSort(attackDice)
@@ -638,7 +663,7 @@ class Gamefield extends Observable{
 		        
 		        var lostPlayer =  defense.getHolder
 		        
-		        setValueForWinnerAndLoser(toLand, fromLand)
+		        setValueForWinnerAndLoser(attack, defense)
 		        
 		        if(checkPlayerOutOfGame(lostPlayer) && checkGameOver)
 		          gameOver = true
@@ -688,7 +713,7 @@ class Gamefield extends Observable{
 	 * @param defense. Former Foreign Land which is now a new own land for the owner of the attack land.
 	 * @param attackCountDices. Number of Units to move.
 	 */
-	def moveUnit(attack: Land, defense: Land, attackCountDices:Int)
+	def moveUnit(attack: Land, defense: Land, minimumMove:Int)
 	{  
 	    	 
 	    	 if(attack.getArmy > 3)
@@ -701,12 +726,13 @@ class Gamefield extends Observable{
 		    	   sendNotificationPlayerMessage(avatarContainer(defense.getHolder), "Spieler " + attack.getHolder)
 	    	       sendNotificationMessage(Message.Info,":  Noch verbliebene Einheiten: " + attack.getArmy)
 	    	       var n = new Notification(Notification.BattleAttack)
+		    	   n.minMove = minimumMove
 		    	   notifyObservers(n);
 	    	   }while (!attack.permissionMoveArmy)
 		    	 
 	    	 }
 	    	 else{ 
-		    	 setArmyForAttackAndDefenseLand(attackCountDices)
+		    	 setArmyForAttackAndDefenseLand(attack, defense, minimumMove)
 	    	 }
 	    	 
 	}
@@ -719,8 +745,8 @@ class Gamefield extends Observable{
 	 */
 	def setValueForWinnerAndLoser(winLand: Land, lostLand: Land)
 	{
-		    	setNewOccupiedTerritory(toLand, fromLand)
-		        setNewHolderForBeatenLand
+		    	setNewOccupiedTerritory(winLand, lostLand)
+		        setNewHolderForBeatenLand(winLand, lostLand)
 
 	}
 	
@@ -730,7 +756,7 @@ class Gamefield extends Observable{
 	 * @param decLand. Decrease the occupiedTerritory of the player about the amount 1
 	 * @param incLand. Increase the occupiedTerritory of the player about the amount 1
 	 */
-	def setNewOccupiedTerritory(decLand:Land, incLand:Land)
+	def setNewOccupiedTerritory(incLand:Land, decLand:Land )
 	{
 	  avatarContainer(decLand.holder).occupiedTerritory -= 1
 	  avatarContainer(incLand.holder).occupiedTerritory += 1
@@ -740,10 +766,10 @@ class Gamefield extends Observable{
 	 * Increase and decrease the units about the assigned amount for the attack- and defense-land.
 	 * @param army. Number of units
 	 */
-	def setArmyForAttackAndDefenseLand(army:Int) 
+	def setArmyForAttackAndDefenseLand(from:Land , to:Land, army:Int) 
 	{
-		 fromLand.setArmy(fromLand.getArmy - army)
-		 toLand.setArmy(toLand.getArmy + army)
+		 from.setArmy(from.getArmy - army)
+		 to.setArmy(to.getArmy + army)
 	}
 	
 	/**
@@ -764,14 +790,12 @@ class Gamefield extends Observable{
 	  neighbourContainer += new WorldPosition(position.row-1, position.column)
 	  
 	  var hasEnemyNeighbour = false
-	  for(i <- 0 to neighbourContainer.length-1)
-	  {
-	    if(!checkPositionIsInWorld(neighbourContainer.apply(i)))
-	    	 neighbourContainer -= neighbourContainer.apply(i)
-	  }
+
+	  neighbourContainer = neighbourContainer.filter(position => checkPositionIsInWorld(position))
+	  
 	  if(neighbourContainer.length != 0)
 	  {
-	    for(i <- 0 to neighbourContainer.length-1)
+	    for(i <- 0 until neighbourContainer.length)
 	    {
 	      var neighbourLand = world(neighbourContainer.apply(i).row)(neighbourContainer.apply(i).column)
 	      if(neighbourLand.getHolder != ownLand.getHolder && neighbourLand.getFieldType)
@@ -787,7 +811,7 @@ class Gamefield extends Observable{
 	
 	def checkPositionIsInWorld(position:WorldPosition):Boolean =
 	{
-	  if(position.row < 0 || position.row > height-1 || position.column < 0 || position.column > width -1)
+	  if(position.row < 0 || position.row > World.height-1 || position.column < 0 || position.column > World.width -1)
 	    false
 	  else
 	    true
@@ -1044,14 +1068,11 @@ class Gamefield extends Observable{
 	  neighbourContainer += new WorldPosition(position.row-1, position.column)
 	  
 	  var hasOwnNeighbour = false
-	  for(i <- 0 to neighbourContainer.length-1)
-	  {
-	    if(!checkPositionIsInWorld(neighbourContainer.apply(i)))
-	    	 neighbourContainer -= neighbourContainer.apply(i)
-	  }
+	  neighbourContainer = neighbourContainer.filter(pos => World.checkPositionIsInWorld(pos))
+
 	  if(neighbourContainer.length != 0)
 	  {
-	    for(i <- 0 to neighbourContainer.length-1)
+	    for(i <- 0 until neighbourContainer.length)
 	    {
 	      var neighbourLand = world(neighbourContainer.apply(i).row)(neighbourContainer.apply(i).column)
 	      if(neighbourLand.getHolder == ownLand.getHolder && neighbourLand.getFieldType)
@@ -1085,19 +1106,25 @@ class Gamefield extends Observable{
 		    	   notifyObservers(n);
 	    	   }while (!from.permissionMoveArmy)
 		    	 
-	    	     for(i <- 0 to player.newUnitsTemporary -1)
+	    	     for(i <- 0 until player.newUnitsTemporary)
 	    	     {
 	    	       from.decArmy
 	    	       to.incArmy
 	    	     }
-	    	 player.newUnitsTemporary = 0       	 
-	 }
-	
-	def newGame
-	{
-	  	fieldContainer= null
-		fromLand = null
-		toLand = null
-		gameOver = false
-	}
+	    	 player.newUnitsTemporary = 0    
+	    	 
+	     }
+	     
+	     	
+ 	def newGame
+ 	{
+ 	  	fieldContainer= null
+ 		fromLand = null
+ 		toLand = null
+ 		gameOver = false
+ 	}
+ 	
+  }
+	     
+	     
 }
