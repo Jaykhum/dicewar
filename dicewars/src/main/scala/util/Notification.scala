@@ -9,6 +9,7 @@ class Notification(var typ: Notification.NotificationTyp)
   var map: String = ""
   var position: WorldPosition = null
   var value = 0;
+  var minMove = 0
   var currentPlayer:Avatar = null
   var message:Message = null
   var isFromLand:Boolean = false

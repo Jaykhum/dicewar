@@ -5,6 +5,7 @@ import scala.io.Source._
 import main.scala.util._
 import main.scala.model.Avatar
 import main.scala.model.WorldPosition
+import main.scala.model.World
 
 class TUI (var game: Gamefield) extends View{
   
@@ -19,7 +20,7 @@ class TUI (var game: Gamefield) extends View{
    def showField = {
      // label top
      print("    ")
-     for(h <- 0 to game.width-1)
+     for(h <- 0 until World.width)
      {
        print(labelHorizontal(h))
      }
@@ -34,7 +35,7 @@ class TUI (var game: Gamefield) extends View{
      println()
      // field
      
-      for( j <- 0 to game.height-1; k <- 0  to game.width+1){
+      for( j <- 0 until World.height; k <- 0  to World.width+1){
 
         if(k == 0)
         {
@@ -96,7 +97,7 @@ class TUI (var game: Gamefield) extends View{
        }     
       // Label bottom
        print("    ")
-     for(h <- 0 to game.width-1)
+     for(h <- 0 until World.width)
      {
        print(labelHorizontal(h))
      }
@@ -110,6 +111,7 @@ class TUI (var game: Gamefield) extends View{
 	   {
 		  case "1" => sendMapSample
 		  case "2" => sendHelp; isCorrect = false
+		  case "3" => sendExit; 
 		  case "Basicland" => sendMapChoice("basicland")
 		  case "basicland" => sendMapChoice("basicland")
 		  case "Land 2" => sendMapChoice("land2")
@@ -126,6 +128,11 @@ class TUI (var game: Gamefield) extends View{
    def sendHelp
    {
      notifyObservers(new Notification(Notification.Help))
+   }
+   
+      def sendExit
+   {
+     notifyObservers(new Notification(Notification.Exit))
    }
    
    def sendMapSample
@@ -168,7 +175,7 @@ class TUI (var game: Gamefield) extends View{
 		  case "Land 4" => sendMapChoice("land4")
 		  case "land 4" => sendMapChoice("land4")
 		  case "2" => sendHelp; isCorrect = false
-//		  case "3" => showMenu; return true
+		  case "3" => sendExit; 
 		  case _ => println("Falsche Eingabe, bitte korrekt Wiederholen");isCorrect = false
 	   }
 	   isCorrect
@@ -214,6 +221,8 @@ class TUI (var game: Gamefield) extends View{
          case "nein" => response = false
          case "Nein" => response = false
          case "n "=> response = false
+         case "2" => helpProcess; loopBreak= false
+         case "3" => sendExit; 
          case _ => println("Keine korrekte Antwort.\n ja/nein ?"); loopBreak= false
        }
        
@@ -246,10 +255,9 @@ class TUI (var game: Gamefield) extends View{
 		 {
 		   input match
 		   {
-		       case "2" => helpView; permissionMatch = false
+		       case "2" => helpProcess; loop = true; permissionMatch = false
+		       case "3" => sendExit; 
 		       case _ => isMessage = true; loop = true; permissionMatch = false
-		//	       case "3" => return true
-		 
 		   }
 		 }
 		 if(permissionMatch)
@@ -483,7 +491,7 @@ class TUI (var game: Gamefield) extends View{
        	  case Notification.MapSample => incomingInput = true; mapSampleProcess
 		  case Notification.Reinforcement => incomingInput = true; reinforcementProcess(notification)
 		  case Notification.BattleAssign => incomingInput = true; battleAssignProcess(notification)
-		  case Notification.BattleAttack => incomingInput = true; battleAttackProcess
+		  case Notification.BattleAttack => incomingInput = true; battleAttackProcess(notification)
 		  case Notification.Message => incomingInput = true; messageProcess(notification)
 		  case Notification.Question => incomingInput = true; questionProcess(notification)
 		  case Notification.TacticAssign => incomingInput = true; tacticProcess(notification)
@@ -568,9 +576,8 @@ class TUI (var game: Gamefield) extends View{
      
    }
    
-   def battleAttackProcess
+   def battleAttackProcess(notification:Notification)
    {
-     var notification = new Notification(Notification.BattleAttack)
      notification.value = deliverArmyCount
      notifyObservers(notification)
      

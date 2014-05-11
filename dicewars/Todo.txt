@@ -1,18 +1,13 @@
 Noch Offen:
 
 5. Hart gesetzte Variablen zum testen muessen raus(z.b. player units).
-8. Exit einbauen. Bei Exit Prozess des Spiels beenden.
 9. Anzahl der Spieler Dynamisch halten(TUI Abfrage wieviel Spieler mitspielen). Höchstens 3 Spieler. D.h auch abfrage des Avatar Container anderst gestalten.
-12. Ki erstellen
 13. Dependency Injection bei Gelegenheit verwenden.
 14. TODO Kommentare anpassen (Englisch)
 16. Im Gamefield flag setzen für mapSelected (mit der zugehörigen Notification)
-17. Syndchronisation
-
-
-
-Fraglich:
-
+18. Synchronisation
+19. Unit Tests erstellen
+20. Neustart eines Spiels (InitGame und Flags zurücksetzen, Notification dafür erstellen)
 
 
 
@@ -27,6 +22,8 @@ Erüllt:
 17. Nach einem erfolgreichen Angriff kann mit der Eingabe 0 kein Spieler verschoben werden (Spiellogik: Fehler oder Korrekt?).
 4. End-Game einbauen.
 6. Player kennt seine Farbe. Player id in tui farblich kennzeichen.
+8. Exit einbauen. Bei Exit Prozess des Spiels beenden.
+12. Ki erstellen
 
 
 
@@ -46,10 +43,15 @@ Battlephase:
 2.Angriff oder auch nicht
 
 Tacticalphase:
-1.Kandidatenlise nach größe sortieren / evt. neue Kandidatenliste erstellen durch veränderungen
-2.Land unterhalb des Schwellenwerts aufstocken falls ein feindlicher Nachbar vorhanden ist.
+1. Kandidatenliste mit allen Länder die Verbündetenachbarn sowie Feindlichenachbarn besitzen.
+2. Bedingung: Verbündetenachbarn dürfen keine eigenen Feindlichenachbarn besitzen
+Falls Erfüllt: 
+3. Land wählen dessen Verbündetesnachbarbland die meißten Einheiten besitzt.
+4. Zum aufstocken das Verbündetenachbarland wählen mit den meißten Einheiten.
+Falls Nicht:
+3.Kandidatenliste aus schwächeren Feindlichennachbarn und aus eigene Nachbarn mit Einheiten unterhalb des Schwellwertes die Feindlichenachbarn besitzen,  erstellen
 
-1.Kandidatenliste für alle eigene Länder der ki.
-2.Wo sind die wenigsten feindlichen Einheiten.
 
-Für Später: Angriffsprioritäten damit sind gegenerische player gemeint mit mehr als nur 2 spielern.
+3.Neue Kandidatenlise nach größe sortieren (nach Einheiten).
+4.Land unterhalb des Schwellenwerts aufstocken falls ein feindlicher Nachbar vorhanden ist.
+

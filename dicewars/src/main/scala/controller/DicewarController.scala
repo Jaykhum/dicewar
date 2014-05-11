@@ -63,28 +63,24 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
     
     def delegateExit
     {
-      //TODO exit function
-      System.exit(0)
+     game.exitGame
     }
     
      def delegateTacticArmy(n:Notification)
     {
         var from = game.fromLand
-        from.permissionMoveArmy = game.checkNumberOfUnitMove(from, n.value)
+        from.permissionMoveArmy = game.checkNumberOfUnitMove(from, n.value, n.minMove)
         if(from.permissionMoveArmy)
         	n.currentPlayer.newUnitsTemporary = n.value
     }
     
     def delegateTacticAssign(notification:Notification)
     {
-      println("test1")
         notification.currentPlayer.inputCorrect = game.checkTacticLandSelection(notification.currentPlayer, notification.position, notification.isFromLand)
         game.sendTacticAssignMessage(notification.currentPlayer, notification.position, notification.isFromLand)
         var inputCorrect = notification.currentPlayer.inputCorrect
-        println("test2 inputCorrect" + inputCorrect)
         if(inputCorrect)
         {
-          println("test3 notification.isFromLand" + notification.isFromLand)
           game.setFromOrTo(notification.currentPlayer, notification.position, notification.isFromLand)
           game.sendNotificationUI
         }
@@ -92,17 +88,17 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
     
     def delegateQuestion(notification:Notification)
     {
-     //(avatarContainer )Moegliche Fehlerquelle durch id auf zugriff array index, funkt nur weil index und id synchron sind
+     //(avatarContainer )Moegliche Fehlerquelle durch id auf zugriff array index, funkt nur weil index und id synchron sind=> Hash-Map besser
      var player = game.avatarContainer(notification.currentPlayer.id) 
      player.myTurn = notification.question
     }
     
     def delegateBattleAttack(notification:Notification)
     {
-      game.fromLand.permissionMoveArmy = game.checkNumberOfUnitMove(game.fromLand, notification.value)
+      game.fromLand.permissionMoveArmy = game.checkNumberOfUnitMove(game.fromLand, notification.value,notification.minMove)
       
-      if(game.fromLand.permissionMoveArmy)
-    	  game.setArmyForAttackAndDefenseLand(notification.value)         
+      if(game.fromLand.permissionMoveArmy)         
+      game.setArmyForAttackAndDefenseLand(game.fromLand, game.toLand, notification.value)
     }
     
     def delegateBattleAssign(notification:Notification)
@@ -135,12 +131,19 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
       {
 	      for(i <- 0 to game.avatarContainer.size -1)
 	      {
-	          if(!game.avatarContainer(i).lost)
+	          if(!game.avatarContainer(i).lost && !game.avatarContainer(i).isInstanceOf[Bot] )
 	          {
 	             game.startReinforcement(game.avatarContainer(i))
 	             game.startBattlePhase(game.avatarContainer(i))
 	             if(!game.gameOver)
 	             game.startTacticPhase(game.avatarContainer(i))
+	          }else if(!game.avatarContainer(i).lost && game.avatarContainer(i).isInstanceOf[Bot] )
+	          {
+	        	 var bot:Bot =  game.avatarContainer(i).asInstanceOf[Bot]
+	        	 bot.startReinforcementPhase(game.fieldContainer, game.world)
+	        	 bot.startBattlePhase(game.fieldContainer, game.world)
+	        	 if(!game.gameOver)
+	        	 bot.startTacticPhase(game.fieldContainer, game.world)
 	          }
 	      }
       }

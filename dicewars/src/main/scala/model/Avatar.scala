@@ -1,6 +1,6 @@
 package main.scala.model
 
-class Avatar(var id:Integer) {
+class Avatar(val id:Integer) {
 	var myTurn = false				// turn?
 	var newUnitsTemporary:Integer = 0	//amount of army to assign to a land
 	var occupiedTerritory = 0		// lands holden by player
@@ -13,6 +13,7 @@ class Avatar(var id:Integer) {
 object Avatar extends Enumeration 
 {
     type ColorTyp = Value
+    val divider = 3
     val Yellow, Mangenta, Green  = Value
     val colorContainer = Array[ColorTyp](Yellow,Mangenta,Green)
 }

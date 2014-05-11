@@ -1113,7 +1113,7 @@ class Gamefield extends Observable{
 	    	     }
 	    	 player.newUnitsTemporary = 0    
 	    	 
-	     }
+	 }
 	     
 	     	
  	def newGame
@@ -1124,7 +1124,7 @@ class Gamefield extends Observable{
  		gameOver = false
  	}
  	
-  }
+  
 	     
 	     
 }

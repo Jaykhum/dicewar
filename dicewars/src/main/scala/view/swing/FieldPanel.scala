@@ -4,6 +4,7 @@ package main.scala.view.swing
 import main.scala.model.Gamefield
 import main.scala.model.Land
 import main.scala.model.WorldPosition
+import main.scala.model.World
 import scala.swing._
 import scala.swing.event._
 import scala.swing.event.MouseReleased
@@ -13,6 +14,7 @@ import java.io.File
 import javax.swing.border.EmptyBorder
 import java.awt.BorderLayout
 import java.awt.Color
+
 
 
 // event class
@@ -82,8 +84,8 @@ class FieldPanel(game:Gamefield) extends Panel
 	def updateSize = 
 	{
 			preferredSize = new Dimension(
-			    game.width * CellWidth,
-			    (game.height) * CellHeight)
+			    World.width * CellWidth,
+			    (World.height) * CellHeight)
 	}
 	
 	/*
@@ -93,7 +95,7 @@ class FieldPanel(game:Gamefield) extends Panel
 	{
 		g.setColor(new Color(255, 255, 255))
 		g.fillRect(0, 0, size.width, size.height)
-		for ( i <- 0 to game.width-1; j <-0 to game.height-1)
+		for ( i <- 0 to World.width-1; j <-0 to World.height-1)
 		{
 			drawLogo(g, game.world(j)(i))
 		}
