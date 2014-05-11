@@ -343,14 +343,13 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
 				   {
 				     fromLand = targetLand._2
 				     toLand = targetLand._1
+				     
 				     setSelectedLand(fromLand, toLand)
 				     game.sendNotificationUI
 				     
-				  if(fromLand != null && toLand != null )
-				  {
-			          moveUnit(fromLand, toLand, fromLand.army -1)
-			          game.sendNotificationUI
-				  }
+			         moveUnit(fromLand, toLand, fromLand.army -1)
+			         game.sendNotificationUI
+
 				     
 				   }else
 				     game.sendNotificationMessage(Message.Info,"Taktischephase ausgesetzt.")
@@ -382,17 +381,19 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
 			      }
 			    }
 			    
-			    var targetUnit = candidateUnitsMap.maxBy((field:(Land,Int)) => field._2)
-			    
-			    fromLand = targetUnit._1.asInstanceOf[Field]
-			    toLand = candidateMap.get(targetUnit._1).get.asInstanceOf[Field] 
-			    setSelectedLand(fromLand, toLand)
-			    game.sendNotificationUI
-
-			    if(fromLand != null && toLand != null && targetUnit != null)
+			    if(candidateUnitsMap.size != 0)
 			    {
-		          moveUnit(fromLand, toLand, targetUnit._2)
-		          game.sendNotificationUI
+				    var targetUnit = candidateUnitsMap.maxBy((field:(Land,Int)) => field._2)
+				    
+				    fromLand = targetUnit._1.asInstanceOf[Field]
+				    toLand = candidateMap.get(targetUnit._1).get.asInstanceOf[Field] 
+				    
+				    setSelectedLand(fromLand, toLand)
+				    game.sendNotificationUI
+				    
+				    moveUnit(fromLand, toLand, targetUnit._2)
+				    game.sendNotificationUI
+				    
 			    }
 			    
 			   }
