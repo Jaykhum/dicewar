@@ -29,7 +29,7 @@ class FieldPanel(game:Gamefield) extends Panel
 	// paths to imagefiles for the field labels 
 	val image_land = ImageIO.read(new File("Symbols/land.png"))
 	val image_water = ImageIO.read(new File("Symbols/water1.png"))
-	val image_selected = ImageIO.read(new File("Symbols/selected.png"))
+//	val image_selected = ImageIO.read(new File("Symbols/selected.png"))
 	
 	// size of one field
 	val CellWidth:Int = 36

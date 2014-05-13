@@ -8,6 +8,7 @@ Noch Offen:
 18. Synchronisation
 19. Unit Tests erstellen
 20. Neustart eines Spiels (InitGame und Flags zurücksetzen, Notification dafür erstellen)
+21. Thread für einige Sekunden pausieren lassen in Bot damit Spieler die Züge der KI erkennt.
 
 
 

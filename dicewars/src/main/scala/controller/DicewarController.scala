@@ -8,10 +8,10 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
    
     game.initWorld
 
-    tui.addObserver(this)
-    //gui.addObserver(this)
-    game.addObserver(tui)
-    //game.addObserver(gui)
+    //tui.addObserver(this)
+    gui.addObserver(this)
+    //game.addObserver(tui)
+    game.addObserver(gui)
  
 //    var gui_thread = new Thread(new Runnable {
 //		  def run() {
@@ -19,7 +19,7 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
 //		  }
 //    })
 //    gui_thread.run()
-    //gui.startView
+    gui.startView
     
     game.startShowGameMenu
     

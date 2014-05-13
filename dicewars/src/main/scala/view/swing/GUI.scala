@@ -300,7 +300,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	{
 	   notification.typ match
 	   {
-       	  case Notification.Menu => incomingInput = true; //sendMenu
+       	  case Notification.Menu => incomingInput = false; //sendMenu
 //       	  case Notification.Help => helpProcess
        	  case Notification.MapSample => incomingInput = true; mapSampleProcess
        	  case Notification.NewGame => incomingInput = true; resetGame
