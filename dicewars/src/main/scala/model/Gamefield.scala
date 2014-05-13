@@ -23,7 +23,8 @@ class Gamefield extends Observable{
 	var fromLand:Land = null
 	var toLand:Land = null
 	var gameOver:Boolean = false
-	
+	var newGameFlag: Boolean = false
+	var inputFlag:String = ""
 	//phase meaning 1 => Reinforcement, 2=>Battle, 3=>Tactic
 	//var phase:Int = -1 
 	/**
@@ -96,6 +97,7 @@ class Gamefield extends Observable{
 	def startShowMapExample
 	{
 	  var notification = new Notification(Notification.MapSample)
+	  inputFlag = "true"
 	  notifyObservers(notification);
 	}
 	
@@ -216,8 +218,6 @@ class Gamefield extends Observable{
 		  notifyObservers(n)
 	    if(player.myTurn)
 	    {
-	      
-	    
 		player.newUnitsTemporary = player.getTerritories/Avatar.divider
 		if (player.newUnitsTemporary < 3) player.newUnitsTemporary = 3;
 		do{
@@ -229,7 +229,7 @@ class Gamefield extends Observable{
 			notification.value = player.newUnitsTemporary
 			notification.currentPlayer = player
 		    notifyObservers(notification);
-		}while(player.newUnitsTemporary != 0)
+		}while(player.newUnitsTemporary != 0 && !newGameFlag)
 	    }
 	}
 	
@@ -251,6 +251,7 @@ class Gamefield extends Observable{
 			  sendNotificationMessage(Message.Error,"Ein Wasserfeld hat kein besitzer")
 			else
 			  sendNotificationMessage(Message.Error,"Das Teritorium ist nicht dein Land.")
+		inputFlag = "true"
 	}
 	
 	
@@ -444,15 +445,15 @@ class Gamefield extends Observable{
 			    do
 			    {
 			      sendBattleNotification(player,true)
-			    }while(!player.inputCorrect)
+			    }while(!player.inputCorrect && !newGameFlag)
 			      
 			    do
 			    {
 			      sendBattleNotification(player,false)
-			    }while(!player.inputCorrect)
+			    }while(!player.inputCorrect && !newGameFlag)
 			      
 			    attack(player, fromLand, toLand)
-			  }while(player.myTurn && !gameOver)
+			  }while(player.myTurn && !gameOver && !newGameFlag)
 		  }
 	  }else
 	  {
@@ -495,7 +496,7 @@ class Gamefield extends Observable{
 	  n.currentPlayer = player
 	  notifyObservers(n)
 	  
-	  while(!outloop && player.myTurn)
+	  while(!outloop && player.myTurn && !newGameFlag)
 		  {
 		  	
 	    
@@ -538,19 +539,19 @@ class Gamefield extends Observable{
 		    else
 		      outloop = true			  	
 		  }
+	    
 	    resetFromAndToLand
-	    if(checkPossibleToBattle(player) && !gameOver)
+	    if(checkPossibleToBattle(player) && !gameOver && !newGameFlag)
 	    {
 	    	sendNotificationMessage(Message.Info,"Ein weiteres Land angreifen? (ja/nein)")
 	  		val notification = new Notification(Notification.Question)
 	      	notification.currentPlayer = player
 	      	notifyObservers(notification)
-	    }else if(!gameOver)
+	    }else if(!gameOver && !newGameFlag)
 	    {
 	      player.myTurn = false
 	      sendNotificationMessage(Message.Info,"Kein weiterer Zug mehr moeglich.")
 	    }
-	      
 	}
 	
 	/**
@@ -728,7 +729,7 @@ class Gamefield extends Observable{
 	    	       var n = new Notification(Notification.BattleAttack)
 		    	   n.minMove = minimumMove
 		    	   notifyObservers(n);
-	    	   }while (!attack.permissionMoveArmy)
+	    	   }while (!attack.permissionMoveArmy && !newGameFlag)
 		    	 
 	    	 }
 	    	 else{ 
@@ -1096,22 +1097,24 @@ class Gamefield extends Observable{
 	 */
 	def setArmyToMove(from: Land, to: Land, player:Avatar)
 	{  
-	    	   do
-	    	   {
+	    	do
+	    	{
 		    	   sendNotificationMessage(Message.Info,"Bitte waehle aus wieviele Einheiten du verschieben moechtest!")
 		    	   sendNotificationMessage(Message.Info,"Hinweis: Eine Einheit muss stationiert bleiben.")
 	    	       sendNotificationMessage(Message.Info,"Einheiten: " + from.getArmy)
 	    	       var n = new Notification(Notification.TacticArmy)
 		    	   n.currentPlayer = player
 		    	   notifyObservers(n);
-	    	   }while (!from.permissionMoveArmy)
-		    	 
+	    	}while (!from.permissionMoveArmy && !newGameFlag)
+	    	if(!newGameFlag)
+	    	{
 	    	     for(i <- 0 until player.newUnitsTemporary)
 	    	     {
 	    	       from.decArmy
 	    	       to.incArmy
 	    	     }
-	    	 player.newUnitsTemporary = 0    
+	    	 player.newUnitsTemporary = 0 
+	    	}
 	    	 
 	 }
 	     
@@ -1122,6 +1125,7 @@ class Gamefield extends Observable{
  		fromLand = null
  		toLand = null
  		gameOver = false
+ 		newGameFlag = true
  	}
  	
   

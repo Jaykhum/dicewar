@@ -6,24 +6,24 @@ import main.scala.view.swing.GUI
 
 class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Observer {
    
+	var newGame: Boolean = false
     game.initWorld
-
+    gui.addObserver(this)
     tui.addObserver(this)
-    //gui.addObserver(this)
+    game.addObserver(gui)
     game.addObserver(tui)
-    //game.addObserver(gui)
+
  
-//    var gui_thread = new Thread(new Runnable {
-//		  def run() {
-//		    gui.startView
-//		  }
-//    })
-//    gui_thread.run()
+    var gui_thread = new Thread(new Runnable {
+		  def run() {
+		    gui.startView
+		  }
+    })
+    gui_thread.run()
     //gui.startView
     
     game.startShowGameMenu
-    
-    startGamePhase
+
 
     override def updateObserver(notification:Notification)
     {
@@ -71,7 +71,10 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
         var from = game.fromLand
         from.permissionMoveArmy = game.checkNumberOfUnitMove(from, n.value, n.minMove)
         if(from.permissionMoveArmy)
+        {
         	n.currentPlayer.newUnitsTemporary = n.value
+        	game.inputFlag = "true"
+        }
     }
     
     def delegateTacticAssign(notification:Notification)
@@ -83,6 +86,7 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
         {
           game.setFromOrTo(notification.currentPlayer, notification.position, notification.isFromLand)
           game.sendNotificationUI
+          game.inputFlag = "true"
         }
     }
     
@@ -91,14 +95,18 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
      //(avatarContainer )Moegliche Fehlerquelle durch id auf zugriff array index, funkt nur weil index und id synchron sind=> Hash-Map besser
      var player = game.avatarContainer(notification.currentPlayer.id) 
      player.myTurn = notification.question
+     game.inputFlag = "true"
     }
     
     def delegateBattleAttack(notification:Notification)
     {
       game.fromLand.permissionMoveArmy = game.checkNumberOfUnitMove(game.fromLand, notification.value,notification.minMove)
       
-      if(game.fromLand.permissionMoveArmy)         
-      game.setArmyForAttackAndDefenseLand(game.fromLand, game.toLand, notification.value)
+      if(game.fromLand.permissionMoveArmy)
+      {  
+    	  game.setArmyForAttackAndDefenseLand(game.fromLand, game.toLand, notification.value)
+    	  game.inputFlag = "true"
+      }
     }
     
     def delegateBattleAssign(notification:Notification)
@@ -111,6 +119,7 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
         {
           game.setAttackOrDefenseLand(notification.position, notification.isFromLand)
           game.sendNotificationUI
+          game.inputFlag = "true"
         }
     }
     
@@ -120,6 +129,8 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
     {
        game.initWorld
        game.initGame(notification.map)
+
+       startGamePhase
     }
     
     /**
@@ -127,29 +138,37 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
      */
     def startGamePhase
     {
-      while(!game.gameOver)
+      while(!game.gameOver && !newGame)
       {
 	      for(i <- 0 to game.avatarContainer.size -1)
 	      {
 	          if(!game.avatarContainer(i).lost && !game.avatarContainer(i).isInstanceOf[Bot] )
 	          {
+	        	 game.inputFlag = "false"
 	             game.startReinforcement(game.avatarContainer(i))
+	             game.inputFlag = "false"
 	             game.startBattlePhase(game.avatarContainer(i))
+	             game.inputFlag = "false"
 	             if(!game.gameOver)
 	             game.startTacticPhase(game.avatarContainer(i))
 	          }else if(!game.avatarContainer(i).lost && game.avatarContainer(i).isInstanceOf[Bot] )
 	          {
 	        	 var bot:Bot =  game.avatarContainer(i).asInstanceOf[Bot]
+	        	 game.inputFlag = "false"
 	        	 bot.startReinforcementPhase(game.fieldContainer, game.world)
+	        	 game.inputFlag = "false"
 	        	 bot.startBattlePhase(game.fieldContainer, game.world)
+	        	 game.inputFlag = "false"
 	        	 if(!game.gameOver)
 	        	 bot.startTacticPhase(game.fieldContainer, game.world)
 	          }
 	      }
       }
-      
-      var winnerPlayer = game.avatarContainer.find(p => !p.lost).get
-      game.sendNotificationGameOver(winnerPlayer)
+      if (!newGame)
+      {
+	      var winnerPlayer = game.avatarContainer.find(p => !p.lost).get
+	      game.sendNotificationGameOver(winnerPlayer)
+      }
     }
     
     
@@ -160,8 +179,12 @@ class DicewarController(val game:Gamefield, val tui:TUI, val gui:GUI) extends Ob
 
     def delegateNewGame
     {
+    	newGame = true
     	game.newGame
     	game.initWorld
+    	game.newGameFlag = false
     	game.startShowGameMenu
+    	startGamePhase
+
     }
    }

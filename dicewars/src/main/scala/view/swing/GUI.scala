@@ -75,7 +75,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 	{
 		n.value = deliverArmyCount
 		notifyObservers(n)
-		incomingInput = false
 	}
    
 	def battleAssignProcess(notification:Notification)
@@ -85,7 +84,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 		notificationNew.currentPlayer = notification.currentPlayer
 		notificationNew.isFromLand = notification.isFromLand
 		notifyObservers(notificationNew)
-		incomingInput = false
 	}
    
 	def battleAttackProcess
@@ -93,7 +91,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 		var notification = new Notification(Notification.BattleAttack)
 		notification.value = deliverArmyCount
 		notifyObservers(notification)
-		incomingInput = false
     }
 	
 	/*
@@ -121,8 +118,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	 * */
 	def mapSampleProcess
 	{
-		selectPanel(menuPanel)
-		incomingInput = false
+		selectPanel(mapPanel)
 	}
    
 	def messagePrint(color:Avatar.ColorTyp, messageContent:String)
@@ -154,21 +150,19 @@ class GUI(val game:Gamefield) extends Frame with View {
 			case Message.Player => messagePrint(messageNotification.currentPlayer.color, messageContent)
 			case _ => println("Debug: Falsche Notification")
 		}
-     	incomingInput = false
 	}
 	   
 	def questionProcess(n:Notification)
 	{
 		n.question = readResponse
 		notifyObservers(n)
-		incomingInput = false
 	}
 	
 	def readPosition: WorldPosition =
 	{
 		var loop = true
 		//warten auf action !!! besser lösung finden?!!
-		while(!fieldFlag  && incomingInput)
+		while(!fieldFlag  && game.inputFlag.equals("false"))
 		{
 			listenTo(fieldPanel)
 		}
@@ -193,7 +187,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 	def reinforcementProcess(notification:Notification)
 	{
 		sendReinforcementChoice(readPosition, notification.currentPlayer)
-		
 	}
    
 	def resetGame
@@ -203,7 +196,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 		mapChoosenFlag = false
 		fieldFlag = false
 		sendNewGame
-		incomingInput = false
 	}
 	
 	/*
@@ -216,7 +208,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 		minimumSize = new Dimension(340, 280)
 		contents =  panel
 		visible = true
-		incomingInput = false
 	}
 	
 	/*
@@ -227,27 +218,23 @@ class GUI(val game:Gamefield) extends Frame with View {
 		var notify = new Notification(Notification.Map)
 		notify.map = mapName
 		notifyObservers(notify)
-		incomingInput = false
 	}
 	def sendMapSample
 	{
 		var notify = new Notification(Notification.MapSample)
 		notifyObservers(notify)
-		incomingInput = false
 	}
 	
 	def sendMenu
 	{
 		var notify = new Notification(Notification.Menu)
 		notifyObservers(notify)
-		incomingInput = false
 	}
 
 	def sendNewGame
 	{
 		var notify = new Notification(Notification.NewGame)
 		notifyObservers(notify)
-		incomingInput = false
 	}
 	
 	def sendReinforcementChoice(position:WorldPosition, player:Avatar)
@@ -256,7 +243,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 		notification.position = position
 		notification.currentPlayer = player
 		notifyObservers(notification)
-		incomingInput = false
 	} 
 	
 	def setPosition(pos :WorldPosition):WorldPosition = 
@@ -275,22 +261,18 @@ class GUI(val game:Gamefield) extends Frame with View {
 		if(!mapChoosenFlag)
 		{
 			selectPanel(menuPanel)
-
 		}
 		else
 			selectPanel(fieldPanel)
-		while(!mapChoosenFlag && !incomingInput){
+		while(!mapChoosenFlag ){
 		  listenTo(menuPanel)
-		  sendMenu
 		}
-		incomingInput = false
 	}
    
 	def tacticProcess(n:Notification)
 	{
 		n.position = readPosition
 		notifyObservers(n)
-		incomingInput = false
 	}
 	
 	/*
@@ -300,18 +282,18 @@ class GUI(val game:Gamefield) extends Frame with View {
 	{
 	   notification.typ match
 	   {
-       	  case Notification.Menu => incomingInput = true; //sendMenu
+       	  case Notification.Menu => //sendMenu
 //       	  case Notification.Help => helpProcess
-       	  case Notification.MapSample => incomingInput = true; mapSampleProcess
-       	  case Notification.NewGame => incomingInput = true; resetGame
-		  case Notification.Reinforcement => incomingInput = true; reinforcementProcess(notification)
-		  case Notification.BattleAssign => incomingInput = true; battleAssignProcess(notification)
-		  case Notification.BattleAttack => incomingInput = true; battleAttackProcess
-		  case Notification.Message => incomingInput = true; messageProcess(notification)
-		  case Notification.Question => incomingInput = true; questionProcess(notification)
-		  case Notification.TacticAssign => incomingInput = true; tacticProcess(notification)
-		  case Notification.TacticArmy => incomingInput = true; armyProcess(notification)
-		  case Notification.DrawUI => incomingInput = true; selectPanel(fieldPanel)
+       	  case Notification.MapSample => mapSampleProcess
+       	  case Notification.NewGame => resetGame
+		  case Notification.Reinforcement => reinforcementProcess(notification)
+		  case Notification.BattleAssign => battleAssignProcess(notification)
+		  case Notification.BattleAttack => battleAttackProcess
+		  case Notification.Message => messageProcess(notification)
+		  case Notification.Question => questionProcess(notification)
+		  case Notification.TacticAssign => tacticProcess(notification)
+		  case Notification.TacticArmy => armyProcess(notification)
+		  case Notification.DrawUI => selectPanel(fieldPanel)
 		  case _ => println("Debug: Falsche Notification" + notification.typ)
 	   }
 	}
