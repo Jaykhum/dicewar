@@ -31,24 +31,27 @@ object dicewars {
     val gui = new GUI(game)
     val controller = new DicewarController(game)
     
-    var run = true
-    showMenu
-    while(run)
-    {
-      println("Bitte waehlen Sie eine UserInterface-Variante aus!")
-
-      readLine match
-      {
-        	case ("m"|"menu") => showMenu
-			case ("t"| "tui") => controller.joinView(tui); run = false	
-//			case ("g"| "gui") => controller.joinView(gui); run = false
-			//case ("w"| "wui") =>
-			case ("q"| "quit") => run = false
-			case _ => println("Fehlerhafte Eingabe, bitte wiederholen!")
-      }
-    }
-  	}
+    controller.joinView(tui)
+    controller.joinView(gui)
+    
+//    var run = true
+//    showMenu
+//    while(run)
+//    {
+//      println("Bitte waehlen Sie eine UserInterface-Variante aus!")
+//
+//      readLine match
+//      {
+//        	case ("m"|"menu") => showMenu
+//			case ("t"| "tui") => controller.joinView(tui); run = false	
+////			case ("g"| "gui") => controller.joinView(gui); run = false
+//			//case ("w"| "wui") =>
+//			case ("q"| "quit") => run = false
+//			case _ => println("Fehlerhafte Eingabe, bitte wiederholen!")
+//      }
+//    }
   }
+}
     //controller.joinView(tui)
     //controller.joinView(gui)
    
