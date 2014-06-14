@@ -48,6 +48,7 @@ class TUI (var game: Gamefield) extends View
    	{
    	  	val playRegex = new Regex("^([a-rA-R]) (\\d)$", "col", "row")
    	  	val startRegex = new Regex("^start ([basicland|Basicland|land2|Land2|land 2|Land 2|land3|Land3|land 3|Land 3|land4|Land4|land 4|Land 4]+?)$", "map")
+   	  	val playerRegex = new Regex("^spieler (\\d), bot (\\d)$", "playerCount", "botCount")
    	  	val answerRegex = new Regex("(j|J|n|N|ja|Ja|nein|Nein)", "response")
    	  	val amountRegex = new Regex("^(\\d+)$", "amount")
    	  	var continue = true
@@ -56,6 +57,7 @@ class TUI (var game: Gamefield) extends View
 			case ("m"| "map") => sendMapSelctionMenu
 			case ("q"| "quit") => stop ; continue = false;
    	  	  	case answerRegex(response) => questionResponse(response)
+   	  	  	case playerRegex (playerCount, botCount) => sendPlayerInit(playerCount.toInt, botCount.toInt)
 			case startRegex(mapName) => checkMapName(mapName)
 			case playRegex(col, row) => sendPosition(replaceColData(col), row.toInt)
 			case amountRegex(amount) => sendAmountOfUnit(amount.toInt)
@@ -95,13 +97,23 @@ class TUI (var game: Gamefield) extends View
 	
 	
    	 def sendMapChoice(mapName:String) = 
-   {
+   	{
      var notify = new Notification(Notification.Map)
      notify.map = mapName
      notify.inputType = "map"
      notifyObservers(notify)
    }
    	 
+   	 
+   	def sendPlayerInit(playerCount:Int, botCount:Int)
+    {
+      var n = new Notification(Notification.PlayerInit)
+      n.playerCount = playerCount
+      n.botCount = botCount
+      n.inputType = "playerInit"
+      notifyObservers(n)
+    }
+   	
    	 
    	def sendPosition(col:Int, row:Int)
     {
@@ -110,6 +122,8 @@ class TUI (var game: Gamefield) extends View
       n.inputType = "position"
       notifyObservers(n)
     }
+   	
+
 	
    	
    	/*
@@ -250,49 +264,49 @@ class TUI (var game: Gamefield) extends View
         }else
         {
         	// ohne Farben
-        	print(delimiterVertical + game.world(j)(k-1).showImage + delimiterVertical)
+//        	print(delimiterVertical + game.world(j)(k-1).showImage + delimiterVertical)
           
-//          if(game.fromLand != null && game.fromLand == game.world(j)(k-1))
-//          {
-//            
-//            
-//        	if(game.world(j)(k-1).getHolder == -1)
-//        		print(delimiterVertical + Console.CYAN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//        	else if(game.world(j)(k-1).getHolder == 0)
-//        		print(delimiterVertical + Console.YELLOW + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//        	else if(game.world(j)(k-1).getHolder == 1)
-//        		print(delimiterVertical + Console.MAGENTA + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//        	else if(game.world(j)(k-1).getHolder == 2)
-//        		print(delimiterVertical + Console.GREEN + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//        		
-//        		
-//          }else if(game.toLand != null && game.toLand == game.world(j)(k-1))
-//          {
-//            
-//            
-//        	if(game.world(j)(k-1).getHolder == -1)
-//        		print(delimiterVertical + Console.CYAN + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//        	else if(game.world(j)(k-1).getHolder == 0)
-//        		print(delimiterVertical + Console.YELLOW + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//        	else if(game.world(j)(k-1).getHolder == 1)
-//        		print(delimiterVertical + Console.MAGENTA + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//        	else if(game.world(j)(k-1).getHolder == 2)
-//        		print(delimiterVertical + Console.GREEN + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//        		
-//        		
-//          }else
-//          {
-//            
-//        	// mit Farben
-//        	if(game.world(j)(k-1).getHolder == -1)
-//        		print(delimiterVertical + Console.CYAN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//        	else if(game.world(j)(k-1).getHolder == 0)
-//        		print(delimiterVertical + Console.YELLOW + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//        	else if(game.world(j)(k-1).getHolder == 1)
-//        		print(delimiterVertical + Console.MAGENTA + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//        	else if(game.world(j)(k-1).getHolder == 2)
-//        		print(delimiterVertical + Console.GREEN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
-//          }
+          if(game.fromLand != null && game.fromLand == game.world(j)(k-1))
+          {
+            
+            
+        	if(game.world(j)(k-1).getHolder == -1)
+        		print(delimiterVertical + Console.CYAN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 0)
+        		print(delimiterVertical + Console.YELLOW + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 1)
+        		print(delimiterVertical + Console.MAGENTA + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 2)
+        		print(delimiterVertical + Console.GREEN + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        		
+        		
+          }else if(game.toLand != null && game.toLand == game.world(j)(k-1))
+          {
+            
+            
+        	if(game.world(j)(k-1).getHolder == -1)
+        		print(delimiterVertical + Console.CYAN + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 0)
+        		print(delimiterVertical + Console.YELLOW + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 1)
+        		print(delimiterVertical + Console.MAGENTA + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 2)
+        		print(delimiterVertical + Console.GREEN + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        		
+        		
+          }else
+          {
+            
+        	// mit Farben
+        	if(game.world(j)(k-1).getHolder == -1)
+        		print(delimiterVertical + Console.CYAN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 0)
+        		print(delimiterVertical + Console.YELLOW + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 1)
+        		print(delimiterVertical + Console.MAGENTA + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        	else if(game.world(j)(k-1).getHolder == 2)
+        		print(delimiterVertical + Console.GREEN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+          }
         }
        }     
       // Label bottom

@@ -10,9 +10,9 @@ import main.scala.util.Message
 
 class Gamefield extends Observable
 {
-  	val avatarContainer:Array[Avatar] = initPlayer(2)
+  	var avatarContainer:Array[Avatar] = null //initPlayer(2)
   	var fieldContainer:Array[Field] = null
-  	//	val avatarContainer:Array[Avatar] = testBotInitPlayer
+
 	var playercount = 2
 	
 	var fromLand:Land = null
@@ -37,7 +37,6 @@ class Gamefield extends Observable
 	
 	def initPhase
 	{
-		playercount = 2
 		fromLand = null
 		toLand = null
 		gameOver = false
@@ -45,7 +44,7 @@ class Gamefield extends Observable
 		fieldContainer = null
 		moveOption = 1
 		currentPlayer = null
-		currentInputType = ""
+		currentInputType = "playerInit"
 		currentRequestedPositionType = 0
 	}
 	
@@ -142,16 +141,38 @@ class Gamefield extends Observable
 	 * Initialize number of players.
 	 * @param numberofPlayer. Number of player.
 	 */
-	def initPlayer(numberofPlayer:Integer):Array[Avatar] =
+	def initPlayer(allPlayer:Integer, botPlayer:Integer):Array[Avatar] =
 	{
-	  var avatarContainer = new Array[Avatar](numberofPlayer) 
-	  for(i <- 0 until numberofPlayer)
+	  val avatarContainer = new Array[Avatar](allPlayer)
+	  val humanPlayer = allPlayer - botPlayer
+	  for(i <- 0 until allPlayer)
 	  {
-	    avatarContainer(i) = new Avatar(i)
-	    avatarContainer(i).color = Avatar.colorContainer(i)
+	    if(i < humanPlayer)
+	    {
+		      avatarContainer(i) = new Avatar(i)
+		      avatarContainer(i).color = Avatar.colorContainer(i)
+	    }else
+	    {
+		    avatarContainer(i) = new Bot(i, this)
+		    avatarContainer(i).color = Avatar.colorContainer(i)
+	    }
 	  }
+	 
 	  avatarContainer
 	}
+	
+//	def testBotInitPlayer():Array[Avatar] =
+//	{
+//		var avatarContainer = new Array[Avatar](2) 
+//
+//	    avatarContainer(0) = new Bot(0, this)
+//	    avatarContainer(0).color = Avatar.colorContainer(0)
+//	    
+//	    avatarContainer(1) = new Avatar(1)
+//	    avatarContainer(1).color = Avatar.colorContainer(1)
+//	  
+//	    avatarContainer
+//	}
 	
 	
 	/**
@@ -424,10 +445,11 @@ class Gamefield extends Observable
 	  if(nextPlayer >= avatarContainer.length )
 	    nextPlayer = 0
 	  currentPlayer = avatarContainer(nextPlayer)
-	  
 	  currentPhase = 1
 	  gameHandler
 	}
+	
+	
 	
 		/**
 	 * Check if the player has to the declared position a neighbour which belongs to him.
@@ -519,11 +541,15 @@ class Gamefield extends Observable
     	  {
     		 exitGame  
     	  }
+    	  else if(currentPlayer.isInstanceOf[Bot])
+    	  {
+			 activateBotMove
+    	  }
     	  else
     	  {
     	    currentPhase match
     	    {
-    	      case 0 	=>
+    	      case 0 	=> configPlayer
     	      case 1 	=> startReinforcement
     	      case 2 	=> reinforcementPhase
     	      case 3 	=> handleReinforcement
@@ -544,12 +570,33 @@ class Gamefield extends Observable
     	      case 18	=> tacticPhaseChooseFirstLand
     	      case 19	=> tacticPhaseChooseSecondLand
     	      case 20	=> tacticMoveHandler
-    	      case 21	=> newRound
-    	      
-    	      //case 4 	=> //
+    	      case 21	=> newRound  	      
     	    }
     	  }
     }
+  	
+  	def activateBotMove 
+  	{
+  	  var bot:Bot =  currentPlayer.asInstanceOf[Bot]
+		     bot.startReinforcementPhase
+		     bot.startBattlePhase
+			 if(!this.gameOver)
+				 bot.startTacticPhase
+			 else
+			 {
+			   exitGame
+			 }
+  	  newRound
+  	}
+  	
+  	
+  	def configPlayer
+  	{	  
+  	  currentInputType = "playerInit"
+  	  var n = new Notification(Notification.PlayerInit)  
+      notifyObservers(n)
+      sendNotificationMessage(Message.Info, "Bitte die Anzahl aller Spieler vergeben, sowie die Anzahl ihrer Bots")
+  	}
   	
   	
   	/**
@@ -628,8 +675,9 @@ class Gamefield extends Observable
 	 * @param attackCountDices. Number of Units to move.
 	 */
 	def battleMoveUnit(attack: Land, defense: Land, minimumMove:Int)
-	{  
-	    	 if(attack.getArmy > 3)
+	{  		 
+	  var protectLandUnit = 1
+	    	 if(attack.getArmy - protectLandUnit > minimumMove)
 	    	 {
 		    	   sendNotificationMessage(Message.Info,"Bitte waehle aus wieviele Einheiten du verschieben moechtest!")
 		    	   sendNotificationMessage(Message.Info,"Hinweis: Eine Einheit muss stationiert bleiben.")
@@ -644,6 +692,7 @@ class Gamefield extends Observable
 	    	 }
 	    	 else{ 
 		    	 setArmyForAttackAndDefenseLand(fromLand, toLand, minimumMove)
+		    	 sendNotificationUI
 		    	 currentPhase = 14
 		    	 gameHandler
 	    	 }
@@ -1222,7 +1271,17 @@ class Gamefield extends Observable
 	  var notificationMessage = new Notification(Notification.Message)
 	  var message = new Message(messageType, messageContent)
 	  notificationMessage.message = message
-	  notifyObservers(notificationMessage)
+	  wait(() => 
+	  {
+		notifyObservers(notificationMessage)
+	  }, 500)
+	  
+	}
+	
+	def wait(callback: () => Unit, milliSeconds:Long) {
+		callback()
+		Thread sleep milliSeconds
+		
 	}
 	
 	/**
@@ -1259,6 +1318,23 @@ class Gamefield extends Observable
 	{
 	  avatarContainer(decLand.holder).occupiedTerritory -= 1
 	  avatarContainer(incLand.holder).occupiedTerritory += 1
+	}
+	
+	def sendPlayerConfigMessage(playerCount:Int, botCount:Int):Boolean = 
+	{
+	  var correct = false
+	  if(playerCount > 3)
+    	    sendNotificationMessage(Message.Error,"Es koennen hoechsten drei Spieler mitspielen.")
+    	  else if(playerCount < 2)
+    	     sendNotificationMessage(Message.Error,"Es werden mindestens zwei Spieler benoetigt. ")
+    	  else if(botCount > playerCount)
+    	    sendNotificationMessage(Message.Error,"Die Anzahl der gesamten Spieler darf nicht kleiner sein als die Anzahl der Bots.")
+    	  else if(botCount == playerCount)
+    	    sendNotificationMessage(Message.Error,"Zu viele Bots ausgewaehlt, es muss mindestens eine Person mitspielen.")
+    	  else
+    	    correct = true
+    	 
+    correct
 	}
 	
 	/**
