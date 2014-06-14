@@ -40,7 +40,6 @@ class TUI (var game: Gamefield) extends View
 	{
 		helpView
 		inputThread.start
-   	  	//readConsoleInput 
 	}
        	
 	
@@ -61,7 +60,7 @@ class TUI (var game: Gamefield) extends View
 			case startRegex(mapName) => checkMapName(mapName)
 			case playRegex(col, row) => sendPosition(replaceColData(col), row.toInt)
 			case amountRegex(amount) => sendAmountOfUnit(amount.toInt)
-			case _ => println("Fehlerhafte Eingabe. Bitte versuchen Sie es erneut!"); readConsoleInput
+			case _ => println("Fehlerhafte Eingabe. Bitte versuchen Sie es erneut!")
 	   	}
    	  	continue 
    	}
@@ -151,8 +150,7 @@ class TUI (var game: Gamefield) extends View
 	def displayMapSelection
     {
    	  printM1; printM2; printM3; printM4;
-   	  helpView
-   	  readConsoleInput
+//   	  helpView
     }
 	
 	

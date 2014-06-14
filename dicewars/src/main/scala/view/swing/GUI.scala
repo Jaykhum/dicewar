@@ -3,19 +3,14 @@ package main.scala.view.swing
 // own packages
 //import main.scala.controller.DicewarController
 import main.scala.model._
-//import main.scala.util.Message
-//import main.scala.util.Notification
 import main.scala.util._
 import main.scala.view._
-
-// standard packages
 import scala.swing._
-//import scala.swing.Swing.LineBorder
 import scala.swing.event.WindowClosing
-//import scala.swing.TextField
-//import scala.swing.event.KeyPressed
-//import scala.swing.event.Key
 import javax.swing.JOptionPane
+
+
+object messages extends TextArea(rows = 5, columns = 80)
 
 
 class GUI(val game:Gamefield) extends Frame with View {
@@ -76,7 +71,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	}
 	
 	
-	def InputUnitAmount =
+	def inputUnitAmount =
 	{		
 		val input= new DialogPanel().amount.getOrElse(throw new IllegalStateException("Wrong input!!"))
 		var response = input.amount
@@ -114,25 +109,12 @@ class GUI(val game:Gamefield) extends Frame with View {
 	{
 		if(fieldPanel == null)
     		fieldPanel = new FieldPanel(game)
-		listenTo(fieldPanel)
 		if(menuPanel == null)
 			menuPanel = new MenuPanel("Spiel Start")
-		listenTo(menuPanel)
+		listenTo(fieldPanel)
 		listenTo(mapPanel)
+		listenTo(menuPanel)
 		showCoverMenu
-
-//		if(!mapChoosenFlag)
-//		{
-//			
-//
-//		}
-//		else
-//			selectPanel(fieldPanel)
-//		while(!mapChoosenFlag && !incomingInput){
-//		  listenTo(menuPanel)
-//		  sendMenu
-//		}
-//		incomingInput = false
 	}
 
 	
@@ -192,7 +174,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	   {
 	     case Notification.MapSample => displayMapSelection
 	     case Notification.Input => 
-	     case Notification.Move => 
+	     case Notification.Move => inputUnitAmount
 	     case Notification.Question => questionResponse
 	     case Notification.Message => messageProcess(notification)
 	     case Notification.DrawUI => showField
@@ -210,7 +192,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	 * */
 	def displayMapSelection
     {
-		selectPanel(menuPanel)
+		selectPanel(mapPanel)
     }
 	
 	
@@ -218,18 +200,22 @@ class GUI(val game:Gamefield) extends Frame with View {
 	{
 		color match 
 		{
-			case Avatar.Yellow => print(Console.YELLOW + messageContent + Console.RESET )
-			case Avatar.Mangenta => print(Console.MAGENTA + messageContent + Console.RESET)
-			case Avatar.Green => print(Console.GREEN + messageContent + Console.RESET)
+			case Avatar.Yellow => fieldPanel.showMsg(messageContent,3) //print(Console.YELLOW + messageContent + Console.RESET )
+			case Avatar.Mangenta => fieldPanel.showMsg(messageContent,4) //print(Console.MAGENTA + messageContent + Console.RESET)
+			case Avatar.Green => fieldPanel.showMsg(messageContent,5)//print(Console.GREEN + messageContent + Console.RESET)
 			case _ => println("Color Fehler")
 		}
+		selectPanel(fieldPanel)
 	}
 	
 	
-	def messagePrintln(color:String, messageContent:String)
+	def messagePrintln(outType:Int, messageContent:String)
 	{
-		//println(color + messageContent + Console.RESET )
+	  //println(color + messageContent + Console.RESET )
 		//new DialogMessagePanel(messageContent)
+	  //println("frabe :"+ color + ", " + messageContent)
+	  fieldPanel.showMsg(messageContent, outType)
+	  selectPanel(fieldPanel)
 	}
    
 	
@@ -239,9 +225,9 @@ class GUI(val game:Gamefield) extends Frame with View {
 		var messageContent:String = messageNotification.message.content
 		messageTyp match
 		{
-			case Message.Success => messagePrintln(Console.GREEN, messageContent)
-			case Message.Error => messagePrintln(Console.RED, messageContent)
-			case Message.Info => messagePrintln(Console.WHITE, messageContent)
+			case Message.Success => messagePrintln(2, messageContent)
+			case Message.Error => messagePrintln(1, messageContent)
+			case Message.Info => messagePrintln(0, messageContent)
 			case Message.Player => messagePrint(messageNotification.currentPlayer.color, messageContent)
 			case _ => println("Debug: Falsche Notification")
 		}
@@ -286,14 +272,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 		selectPanel(menuPanel)
 	}
 }
-
-//	
-//	def armyProcess(n:Notification)
-//	{
-//		n.value = deliverArmyCount
-//		notifyObservers(n)
-//		incomingInput = false
-//	}
 //   
 //	def battleAssignProcess(notification:Notification)
 //	{
