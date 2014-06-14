@@ -9,12 +9,48 @@ import main.scala.view.swing.GUI
 import main.scala.model.Dice
 
 object dicewars {
-    def main(args: Array[String]) {
+
+      
+  def showMenu =
+  {
+    println("m|menu: menu")
+    println("Zeigt das Auswahlmenu an.")
+    println("--------------------------------------------------------------------------------")
+    println("t|tui: Textual User-Interface")
+    println("Runoption mit TUI.")
+    println("--------------------------------------------------------------------------------")
+    println("g|gui: Graphical User-Interface")
+    println("Runoption mit GUI.")
+    println("--------------------------------------------------------------------------------")
+  }
+  
+  def main(args: Array[String]) {
       
     val game = new Gamefield
     val tui= new TUI(game)
     val gui = new GUI(game)
-    val controller=new DicewarController(game, tui, gui)
+    val controller = new DicewarController(game)
+    
+    var run = true
+    showMenu
+    while(run)
+    {
+      println("Bitte waehlen Sie eine UserInterface-Variante aus!")
+
+      readLine match
+      {
+        	case ("m"|"menu") => showMenu
+			case ("t"| "tui") => controller.joinView(tui); run = false	
+//			case ("g"| "gui") => controller.joinView(gui); run = false
+			//case ("w"| "wui") =>
+			case ("q"| "quit") => run = false
+			case _ => println("Fehlerhafte Eingabe, bitte wiederholen!")
+      }
+    }
+  	}
+  }
+    //controller.joinView(tui)
+    //controller.joinView(gui)
    
       
      /*
@@ -76,5 +112,5 @@ object dicewars {
 //    
 //    game.reinforcement(p1)
 //    tui.showTUI
-  }
-}
+//  }
+//}

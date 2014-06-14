@@ -6,19 +6,20 @@ import main.scala.model.WorldPosition
 
 class Notification(var typ: Notification.NotificationTyp) 
 {
-  var map: String = ""
-  var position: WorldPosition = null
-  var value = 0;
-  var minMove = 0
-  var currentPlayer:Avatar = null
-  var message:Message = null
-  var isFromLand:Boolean = false
-  var question:Boolean = false
-  var land:Land = null
+	var map: String = ""
+	var position: WorldPosition = null
+	var amount = 0
+	var currentPlayer:Avatar = null
+	var message:Message = null
+//  var isFromLand:Boolean = false
+	var answer:Boolean = false
+//  var land:Land = null
+	var inputType:String = ""
 
 }
 object Notification extends Enumeration 
 {
     type NotificationTyp = Value
-    val Menu, Help, MapSample, Map, NewGame, Exit, Reinforcement, BattleAssign, BattleAttack, Message, Question, TacticAssign, TacticArmy, DrawUI, GameOver = Value
+    val Answer, DrawUI, GameOver, Input, Map, MapSample, Message, Move, Position, Question= Value
+    //val Input, , , Answer, Menu, Help, NewGame, Exit, Reinforcement, BattleAssign, BattleAttack, Question, TacticAssign, TacticArmy = Value
 }
