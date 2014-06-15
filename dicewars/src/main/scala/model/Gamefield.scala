@@ -12,8 +12,6 @@ class Gamefield extends Observable
 {
   	var avatarContainer:Array[Avatar] = null //initPlayer(2)
   	var fieldContainer:Array[Field] = null
-
-	var playercount = 2
 	
 	var fromLand:Land = null
 	var toLand:Land = null
@@ -35,25 +33,25 @@ class Gamefield extends Observable
   	
 	initWorld
 	
-	def initPhase
-	{
-		fromLand = null
-		toLand = null
-		gameOver = false
-		currentPhase = 0
-		fieldContainer = null
-		moveOption = 1
-		currentPlayer = null
-		currentInputType = "playerInit"
-		currentRequestedPositionType = 0
-	}
+//	def initPhase
+//	{
+//		fromLand = null
+//		toLand = null
+//		gameOver = false
+//		currentPhase = 0
+//		fieldContainer = null
+//		moveOption = 1
+//		currentPlayer = null
+//		currentInputType = "playerInit"
+//		currentRequestedPositionType = 0
+//	}
 	
   	
 	def endInitPhase 
  	{
- 	  currentPhase = 1
+// 	  currentPhase = 1
  	  currentPlayer = avatarContainer(0)
- 	  gameHandler
+// 	  gameHandler
  	}
 	
   	
@@ -80,30 +78,50 @@ class Gamefield extends Observable
 	 */
 	def initFieldHolder(fieldContainer:Array[Field])
 	{
-	  val rnd = new Random(playercount)
-	  var playerID =  0
-	  var playerFieldCount = new Array[Int](2)
+	  val playerCount = avatarContainer.size
+	  val rnd = new Random(playerCount)
+	  var tempFieldHolderID =  0
+	  var playerFieldCount = new Array[Int](playerCount)
 	  var fieldCount:Int = fieldContainer.size
-	  playerFieldCount(0) = 0
-	  playerFieldCount(1) = 0
+	  for(i <- 0 until playerFieldCount.size)
+		  playerFieldCount(i) = 0
+
 	  for(i <- 0 until fieldContainer.size)
 	  {
-		 playerID =  rnd.nextInt(playercount)
-		  
-		  if( (playerFieldCount(0)+1) > (fieldCount/2) )
-		  {
-		    playerID = 1  
-		  }else if( (playerFieldCount(1)+1) > (fieldCount/2) )
-		  {
-		    playerID = 0 
-		  }
-		  
-		  world(fieldContainer(i).position.row) (fieldContainer(i).position.column).setHolder(playerID)
-		  playerFieldCount(playerID) += 1
+		 tempFieldHolderID =  rnd.nextInt(playerCount)
+		 var chosePlayer = false
+		 var nextPlayerCounter = 0
+		 println("anzahl felder: " + fieldCount/playerCount)
+		 while(!chosePlayer)
+		 {
+			 if( (playerFieldCount(tempFieldHolderID)) < (fieldCount/playerCount) )
+			  {
+			    tempFieldHolderID
+			    chosePlayer = true
+			  }
+			 else if((playerFieldCount(tempFieldHolderID)) >= (fieldCount/playerCount) && nextPlayerCounter != playerCount)
+			 {
+			   nextPlayerCounter += 1
+			   tempFieldHolderID += 1
+			   if(tempFieldHolderID == playerCount)
+			   {
+			     tempFieldHolderID = 0
+			   }
+			     
+			 }
+			else if((playerFieldCount(tempFieldHolderID)+1) >= (fieldCount/playerCount) && nextPlayerCounter == playerCount)
+			     chosePlayer = true   
+
+		 } 
+		
+		  world(fieldContainer(i).position.row) (fieldContainer(i).position.column).setHolder(tempFieldHolderID)
+		  playerFieldCount(tempFieldHolderID) += 1
+		  		  
 	  }
+	  
 	  for(i <- 0 until avatarContainer.size)
 	  {
-	    avatarContainer(i).occupiedTerritory = playerFieldCount(i) 
+	    avatarContainer(i).occupiedTerritory = playerFieldCount(avatarContainer(i).id) 
 	  }
 	}
   	
@@ -157,22 +175,9 @@ class Gamefield extends Observable
 		    avatarContainer(i).color = Avatar.colorContainer(i)
 	    }
 	  }
-	 
+	 this.avatarContainer = avatarContainer
 	  avatarContainer
 	}
-	
-//	def testBotInitPlayer():Array[Avatar] =
-//	{
-//		var avatarContainer = new Array[Avatar](2) 
-//
-//	    avatarContainer(0) = new Bot(0, this)
-//	    avatarContainer(0).color = Avatar.colorContainer(0)
-//	    
-//	    avatarContainer(1) = new Avatar(1)
-//	    avatarContainer(1).color = Avatar.colorContainer(1)
-//	  
-//	    avatarContainer
-//	}
 	
 	
 	/**
@@ -220,12 +225,12 @@ class Gamefield extends Observable
 		{
 			sendNotificationMessage(Message.Info,"Moechtest du ein anderes Land Angreifen? (ja/nein)")
 			currentInputType = "question"
-			currentPhase = 15
+			currentPhase = 16
 	   		sendAnswerRequest 
 		}
 		else
 		{
-			currentPhase = 16
+			currentPhase = 17
 			gameHandler
 		}
 	}
@@ -234,10 +239,10 @@ class Gamefield extends Observable
 	{
 	  	if(currentPlayer.answer)
 		{
-			currentPhase = 6
+			currentPhase = 7
 		}else
 		{
-			currentPhase = 16
+			currentPhase = 17
 		}
 	  	resetFromAndToLand
   		gameHandler
@@ -254,7 +259,7 @@ class Gamefield extends Observable
 			    resetFromAndToLand
 			    notifyObservers(new Notification(Notification.DrawUI))
 			    sendNotificationMessage(Message.Info, "Angriff wurde abgebrochen.")
-			    currentPhase = 14
+			    currentPhase = 15
 			  }
   		gameHandler
 	}
@@ -267,7 +272,7 @@ class Gamefield extends Observable
 		    singleAttack(fromLand, toLand)
 		}
 		else
-			currentPhase = 12
+			currentPhase = 13
 	}
 	
 	
@@ -278,18 +283,18 @@ class Gamefield extends Observable
 			   	sendNotificationPlayerMessage(currentPlayer, "Spieler " + currentPlayer.id)
 			   	sendNotificationMessage(Message.Info, ": Noch verbliebene Einheiten: " + fromLand.getArmy)
 			
-			   	sendNotificationPlayerMessage(avatarContainer(toLand.getHolder), "Spieler " + toLand.getHolder)
+			   	sendNotificationPlayerMessage(getAvatar(toLand.getHolder), "Spieler " + toLand.getHolder)
 			    sendNotificationMessage(Message.Info, ": Noch verbliebene Einheiten: " + toLand.getArmy)
 			    sendNotificationMessage(Message.Info,"Weiter angreifen? (ja/nein)")
 			    currentInputType = "question"
-			    currentPhase = 12
+			    currentPhase = 13
 			    sendAnswerRequest
 			}
 	  		else 
 		    {
 	  		  sendNotificationPlayerMessage(currentPlayer,"Spieler " + currentPlayer.id)
 	  		  sendNotificationMessage(Message.Info,": Angriff gescheitert")
-	  		  currentPhase = 14
+	  		  currentPhase = 15
 	  		  gameHandler
 			}
 	}
@@ -299,10 +304,10 @@ class Gamefield extends Observable
 	{
 	    if(currentPlayer.answer)
 		{
-			currentPhase = 10
+			currentPhase = 11
 		}else
 		{
-			currentPhase = 14
+			currentPhase = 15
 		}
   		gameHandler
 	}
@@ -338,10 +343,10 @@ class Gamefield extends Observable
   	{
   		if(currentPlayer.answer)
 		{
-			currentPhase = 6
+			currentPhase = 7
 		}else
 		{
-			currentPhase = 16
+			currentPhase = 17
 		}
   		gameHandler
   	}
@@ -361,11 +366,11 @@ class Gamefield extends Observable
 		  {   
 			  sendNotificationMessage(Message.Info,"Taktische Phase!\nMoechtest du Einheiten verschieben? (ja/nein)")
 			  currentInputType = "question"
-			  currentPhase = 17
+			  currentPhase = 18
 			  sendAnswerRequest
 		  }else
 		  {
-		    currentPhase = 21
+		    currentPhase = 22
 		    gameHandler
 		  }
 	  
@@ -411,10 +416,10 @@ class Gamefield extends Observable
 	{
 	  if(currentPlayer.answer)
 		{
-			currentPhase = 18
+			currentPhase = 19
 		}else
 		{
-			currentPhase = 21
+			currentPhase = 22
 		}
   		gameHandler
 	}
@@ -432,8 +437,7 @@ class Gamefield extends Observable
 	def tacticPhaseChooseSecondLand
 	{
 	  sendNotificationUI
-	  sendNotificationMessage(Message.Info,"Bitte waehle ein weiteres eigenes Land aus um Truppen darauf zu verschieben")
-	  
+	  sendNotificationMessage(Message.Info,"Bitte waehle ein weiteres eigenes Land aus um Truppen darauf zu verschieben")	  
 	  currentInputType = "position"
 	  currentRequestedPositionType = 3
 	  //sendInputRequest
@@ -441,12 +445,17 @@ class Gamefield extends Observable
 	
 	def newRound
 	{
-	  var nextPlayer = currentPlayer.id + 1
-	  if(nextPlayer >= avatarContainer.length )
-	    nextPlayer = 0
-	  currentPlayer = avatarContainer(nextPlayer)
-	  currentPhase = 1
-	  gameHandler
+	  var indexOfNextPlayer = avatarContainer.indexOf(currentPlayer)+1
+	  if(indexOfNextPlayer == avatarContainer.size)
+	    indexOfNextPlayer = 0
+	  
+	  currentPlayer = avatarContainer(indexOfNextPlayer)
+	  currentPhase = 2
+	  
+	  if(currentPlayer.lost)
+		  newRound
+	  else
+		gameHandler
 	}
 	
 	
@@ -546,31 +555,32 @@ class Gamefield extends Observable
 			 activateBotMove
     	  }
     	  else
-    	  {
+    	  {// noch eine Phase hinzuzufuegen nach Phase 0 fuer das Mapsample
     	    currentPhase match
     	    {
     	      case 0 	=> configPlayer
-    	      case 1 	=> startReinforcement
-    	      case 2 	=> reinforcementPhase
-    	      case 3 	=> handleReinforcement
-    	      case 4 	=> startBattle
-    	      case 5 	=> battlePhaseContinue
-    	      case 6 	=> battlePhaseChooseOwnLand
-    	      case 7 	=> battlePhaseChooseEnemyLand
-    	      case 8 	=> attack
-    	      case 9  	=> attackContinue
-    	      case 10	=> attackHandler
-    	      case 11	=> attackSameLand
-    	      case 12	=> attackSameLandContinue
-    	      case 13	=> moveHandler
-    	      case 14	=> attackAOtherLand
-    	      case 15	=> attackAOtherLandContinue
-    	      case 16	=> startTactic
-    	      case 17	=> tacticPhaseContinue
-    	      case 18	=> tacticPhaseChooseFirstLand
-    	      case 19	=> tacticPhaseChooseSecondLand
-    	      case 20	=> tacticMoveHandler
-    	      case 21	=> newRound  	      
+    	      case 1	=> sendMapSample
+    	      case 2 	=> startReinforcement
+    	      case 3 	=> reinforcementPhase
+    	      case 4 	=> handleReinforcement
+    	      case 5 	=> startBattle
+    	      case 6 	=> battlePhaseContinue
+    	      case 7 	=> battlePhaseChooseOwnLand
+    	      case 8 	=> battlePhaseChooseEnemyLand
+    	      case 9 	=> attack
+    	      case 10  	=> attackContinue
+    	      case 11	=> attackHandler
+    	      case 12	=> attackSameLand
+    	      case 13	=> attackSameLandContinue
+    	      case 14	=> moveHandler
+    	      case 15	=> attackAOtherLand
+    	      case 16	=> attackAOtherLandContinue
+    	      case 17	=> startTactic
+    	      case 18	=> tacticPhaseContinue
+    	      case 19	=> tacticPhaseChooseFirstLand
+    	      case 20	=> tacticPhaseChooseSecondLand
+    	      case 21	=> tacticMoveHandler
+    	      case 22	=> newRound  	      
     	    }
     	  }
     }
@@ -591,11 +601,18 @@ class Gamefield extends Observable
   	
   	
   	def configPlayer
-  	{	  
+  	{
   	  currentInputType = "playerInit"
   	  var n = new Notification(Notification.PlayerInit)  
+      notifyObservers(n)     
+  	}
+  	
+  	def sendMapSample
+  	{
+  	  currentInputType = "map"
+  	  var n = new Notification(Notification.MapSample)  
       notifyObservers(n)
-      sendNotificationMessage(Message.Info, "Bitte die Anzahl aller Spieler vergeben, sowie die Anzahl ihrer Bots")
+      sendNotificationMessage(Message.Info, "Bitte Map auswaehlen")
   	}
   	
   	
@@ -610,9 +627,9 @@ class Gamefield extends Observable
 		  currentPlayer.newUnitsTemporary -= 1
 		  sendNotificationUI
 		  if(currentPlayer.newUnitsTemporary == 0)
-			  currentPhase = 4
+			  currentPhase = 5
 		  else
-			  currentPhase = 2
+			  currentPhase = 3
 		resetFromAndToLand
 		gameHandler
 	}
@@ -659,7 +676,7 @@ class Gamefield extends Observable
 		sendNotificationMessage(Message.Info,"Bitte waehle aus wieviele Einheiten du verschieben moechtest!")
 		sendNotificationMessage(Message.Info,"Hinweis: Eine Einheit muss stationiert bleiben.")
 		   
-		sendNotificationPlayerMessage(avatarContainer(toLand.getHolder), "Spieler " + fromLand.getHolder)
+		sendNotificationPlayerMessage(getAvatar(toLand.getHolder), "Spieler " + fromLand.getHolder)
 	 	sendNotificationMessage(Message.Info,":  Noch verbliebene Einheiten: " + fromLand.getArmy)
 	   	currentInputType = "amount"
 	   	moveOption = 1
@@ -682,18 +699,18 @@ class Gamefield extends Observable
 		    	   sendNotificationMessage(Message.Info,"Bitte waehle aus wieviele Einheiten du verschieben moechtest!")
 		    	   sendNotificationMessage(Message.Info,"Hinweis: Eine Einheit muss stationiert bleiben.")
 		    	   
-		    	   sendNotificationPlayerMessage(avatarContainer(defense.getHolder), "Spieler " + attack.getHolder)
+		    	   sendNotificationPlayerMessage(getAvatar(defense.getHolder), "Spieler " + attack.getHolder)
 	    	       sendNotificationMessage(Message.Info,":  Noch verbliebene Einheiten: " + attack.getArmy)
 	    	       currentPlayer.minimumMove = minimumMove
 	    	       moveOption = 1
 	    	       currentInputType = "amount"
-	    	       currentPhase = 13
+	    	       currentPhase = 14
 	    	       sendUnitAmountRequest    	      
 	    	 }
 	    	 else{ 
 		    	 setArmyForAttackAndDefenseLand(fromLand, toLand, minimumMove)
 		    	 sendNotificationUI
-		    	 currentPhase = 14
+		    	 currentPhase = 15
 		    	 gameHandler
 	    	 }
 	}
@@ -745,14 +762,14 @@ class Gamefield extends Observable
 		     for(i <- 0 until attackDice.length)
 		     {
 		       attackDice(i) = dice.roll
-		       sendNotificationPlayerMessage(avatarContainer(attack.getHolder), "Spieler " + attack.getHolder)
+		       sendNotificationPlayerMessage(getAvatar(attack.getHolder), "Spieler " + attack.getHolder)
 		       sendNotificationMessage(Message.Info,": hat eine " + attackDice(i) + " gewuerfelt. ")
 	//	       println("Wuerfel Augen: " + attackDice(i))
 		     }
 		     for(i <- 0 until defenseDice.length)
 		     {
 		       defenseDice(i) = dice.roll
-		       sendNotificationPlayerMessage(avatarContainer(defense.getHolder), "Spieler " + defense.getHolder)
+		       sendNotificationPlayerMessage(getAvatar(defense.getHolder), "Spieler " + defense.getHolder)
 		       sendNotificationMessage(Message.Info,": hat eine " + defenseDice(i) + " gewuerfelt. ")
 		     }
 		     Sorting.quickSort(attackDice)
@@ -824,13 +841,13 @@ class Gamefield extends Observable
 		  {   
 			  sendNotificationMessage(Message.Info, "Battle Phase!\nMoechtest du einen Kampf? (ja/nein)")
 			  currentInputType = "question"
-			  currentPhase = 5
+			  currentPhase = 6
 			  sendAnswerRequest			  
 		  }else
 		  {
 		    sendNotificationMessage(Message.Info, "Battle Phase wird ausgesetzt, da nicht genug Einheiten auf eigene Laender stationiert sind die an feindliche Nachbarn grenzen .")
 		    // Taktische phase
-		    currentPhase = 16
+		    currentPhase = 17
 		    gameHandler
 		  }
 	}
@@ -846,7 +863,7 @@ class Gamefield extends Observable
     	sendNotificationUI
     	currentPlayer.newUnitsTemporary = currentPlayer.getTerritories/Avatar.divider
 		if (currentPlayer.newUnitsTemporary < 3) currentPlayer.newUnitsTemporary = 3
-		currentPhase = 2
+		currentPhase = 3
 		gameHandler
 	}
 	
@@ -1023,7 +1040,7 @@ class Gamefield extends Observable
 	 */
 	def checkPlayerOutOfGame(id:Int):Boolean =
 	{
-	  var player = avatarContainer(id)
+	  var player = getAvatar(id)
 	  if(player.occupiedTerritory == 0)
 	  {
 	    player.lost = true
@@ -1216,6 +1233,18 @@ class Gamefield extends Observable
 	}
 	
 	
+	def getAvatar(id:Int):Avatar =
+	{
+	  val player = avatarContainer.find(avatar => avatar.id == id)
+	  var avatar:Avatar = null
+	  player match
+	  {
+	     case Some(foundAvatar) => avatar = foundAvatar
+	     case None => println("Debug Game.getAvatar: Kein Avatar gefunden")
+	  }
+	  avatar
+	}
+	
 	/**
 	 * Reset the attribute fromLand and toLand.
 	 */
@@ -1253,7 +1282,7 @@ class Gamefield extends Observable
 	def sendNotificationGameOver(winner:Avatar)
 	{
 	  sendNotificationMessage(Message.Info, "Spiel Ende")
-	  sendNotificationPlayerMessage(avatarContainer(winner.id), "Spieler " + winner.id)
+	  sendNotificationPlayerMessage(getAvatar(winner.id), "Spieler " + winner.id)
 	  sendNotificationMessage(Message.Success, " hat Gewonnen !!!")
 	  var nGameOver = new Notification(Notification.GameOver)
 	  nGameOver.currentPlayer = winner
@@ -1316,8 +1345,8 @@ class Gamefield extends Observable
 	 */
 	def setNewOccupiedTerritory(incLand:Land, decLand:Land )
 	{
-	  avatarContainer(decLand.holder).occupiedTerritory -= 1
-	  avatarContainer(incLand.holder).occupiedTerritory += 1
+	  getAvatar(decLand.holder).occupiedTerritory -= 1
+	  getAvatar(incLand.holder).occupiedTerritory += 1
 	}
 	
 	def sendPlayerConfigMessage(playerCount:Int, botCount:Int):Boolean = 

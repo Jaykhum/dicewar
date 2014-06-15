@@ -28,8 +28,9 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
     {
       setReinforcementAndBattleCandidate(barrierCandidate)
       if(fromLand != null)
-      {       
+      { 
         fromLand.setArmy(fromLand.getArmy + newUnits)
+        game.sendNotificationUI
       }else{
         var ownLandContainer = game.fieldContainer.filter(field => ((field.getHolder == id)))
         var ownLandWithEnemyNeighbour = ownLandContainer.filter(field => field.checkHasEnemyNeighbour(game.world))
@@ -43,22 +44,13 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
     	toLand = null
         var ownLandContainer = game.fieldContainer.filter(field => ((field.getHolder == id)))
         var ownLandWithEnemyNeighbour = ownLandContainer.filter(field => field.checkHasEnemyNeighbour(game.world))
-        if(ownLandWithEnemyNeighbour.length != 0){
+        if(ownLandWithEnemyNeighbour.length != 0)
         	shareUnitToLand(ownLandWithEnemyNeighbour, newUnits)
-        println("Debug: Anzahl Einheiten zu verteilen " + newUnits)
-        println("Debug: Anzahl Laender " + ownLandWithEnemyNeighbour.length)
-        }
         else
         	shareUnitToLand(ownLandContainer, newUnits)
     }
     
-    
-    if(fromLand != null)
-      println("Debug: Reinforcment Land: Row: " + fromLand.position.row +  "Column: "+ fromLand.position.column)
-      
-     if(toLand != null)
-       println("Debug: Battle Land: Row: " + toLand.position.row + "Column: " + toLand.position.column)
-        
+    game.fromLand = null    
     game.sendNotificationUI
   }
   
@@ -73,7 +65,9 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
 		    if(army != 0)
 		    {
 		    	army  -= 1
+		    	game.fromLand = landContainer(i)
 		    	landContainer(i).incArmy
+		    	game.sendNotificationUI
 		    }else
 		      return
 		}
@@ -110,7 +104,8 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
       {
 	   val targetLand:(Land,Land) =  mapWeakNeighbour.maxBy((land:(Land,Land)) => (land._1.getArmy >  land._2.getArmy))	   
 	   fromLand = targetLand._1.asInstanceOf[Field]
-       toLand = targetLand._2.asInstanceOf[Field]     
+       toLand = targetLand._2.asInstanceOf[Field]
+	   game.fromLand = fromLand
       }
   }
   
@@ -159,6 +154,7 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
       {
         counterAttack += 1
 	      setSelectedLand(fromLand,toLand)
+          game.sendNotificationUI
 	      attack(fromLand, toLand)
       }    
       setBattleCandidate
@@ -167,6 +163,8 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
         game.sendNotificationMessage(Message.Info,"Bot: Battlephase ausgesetzt")
       else
     game.sendNotificationMessage(Message.Info,"Bot: Battlephase beendet")
+    fromLand = null
+    game.resetFromAndToLand
   }
   
   
@@ -234,13 +232,13 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
 		     for(i <- 0 to attackDice.length -1)
 		     {
 		       attackDice(i) = dice.roll
-		       game.sendNotificationPlayerMessage(game.avatarContainer(attack.getHolder), "Bot " + attack.getHolder)
+		       game.sendNotificationPlayerMessage(game.getAvatar(attack.getHolder), "Bot " + attack.getHolder)
 		       game.sendNotificationMessage(Message.Info,": hat eine " + attackDice(i) + " gewuerfelt. ")
 		     }
 		     for(i <- 0 to defenseDice.length -1)
 		     {
 		       defenseDice(i) = dice.roll
-		       game.sendNotificationPlayerMessage(game.avatarContainer(defense.getHolder), "Spieler " + defense.getHolder)
+		       game.sendNotificationPlayerMessage(game.getAvatar(defense.getHolder), "Spieler " + defense.getHolder)
 		       game.sendNotificationMessage(Message.Info,": hat eine " + defenseDice(i) + " gewuerfelt. ")
 		     }
 		     Sorting.quickSort(attackDice)
@@ -309,6 +307,8 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
     	     game.setArmyForAttackAndDefenseLand(attack, defense, attackCountDices)
     	   else if(countEnemyInAttackLand == 0 && countEnemyInDefenseLand == 0)
     	     game.setArmyForAttackAndDefenseLand(attack, defense, attackCountDices)
+    	   else if(countEnemyInAttackLand == countEnemyInDefenseLand)
+    	     game.setArmyForAttackAndDefenseLand(attack, defense, attackCountDices)
     	    else if(countEnemyInAttackLand < countEnemyInDefenseLand)
     	   {
     	     if(attack.army > attackBarrier)
@@ -325,6 +325,7 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
 	
 	def startTacticPhase
 	{
+	   game.resetFromAndToLand
 	   game.sendNotificationMessage(Message.Info,"Bot: Startet Taktischephase!")  
 	   game.sendNotificationUI
 		 fromLand = null
@@ -414,10 +415,10 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
 	     }else
 	     {
 	    	 game.sendNotificationMessage(Message.Info,"Bot: Taktischephase nicht moeglich.")
-	    	 game.fromLand = null
-	    	 game.toLand = null
+	    	 
 	     }
-	       
+	   	   
+	       game.resetFromAndToLand
      
 	}
 	
@@ -438,6 +439,7 @@ class Bot(override val id:Integer, game:Gamefield) extends Avatar(id)
 	{
 	  toLand = null
 	}
+	
 	
   
     

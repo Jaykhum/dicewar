@@ -7,8 +7,11 @@ import main.scala.view.swing.GUI
 
 class DicewarController(val game:Gamefield) extends Observer {
   
-	game.gameHandler
-
+  def startGame
+  {
+    game.gameHandler
+  }
+	
 	def joinView(view:View)
 	{
 		game.addObserver(view)
@@ -42,7 +45,7 @@ class DicewarController(val game:Gamefield) extends Observer {
 //		  case Notification.Question=> delegateQuestion(notification)
 //		  case Notification.TacticAssign=> delegateTacticAssign(notification)
 //		  case Notification.TacticArmy=> delegateTacticArmy(notification)
-		  case _ => println("Falsche Notification")
+		  case _ => println("Debug Controller: Falsche Notification")
 	   }
 	}
 
@@ -54,7 +57,7 @@ class DicewarController(val game:Gamefield) extends Observer {
     	else
     	{
     		game.sendNotificationMessage(Message.Error,"Diese Eingabeoption ist aktuell nicht moeglich. Bitte erneut etwas Eingeben!")
-    		if(game.currentPhase !=2)
+    		if(game.currentPhase !=3)
     		  game.currentPhase -= 1
     		game.gameHandler
     	}
@@ -64,7 +67,16 @@ class DicewarController(val game:Gamefield) extends Observer {
 	def delegateMapSelction(notification:Notification)
     {
        //game.currentPlayer.inputType = notification.inputType
-       game.initGame(notification.map)
+	 if(game.checkInputTypeValidation(notification.inputType))
+    	{   		
+    		       game.initGame(notification.map)
+    		       game.currentPhase += 1
+    	}
+    	else
+    	{
+    	    game.sendNotificationMessage(Message.Error,"Diese Eingabeoption ist aktuell nicht moeglich. Bitte erneut etwas Eingeben!")
+    	}
+       game.gameHandler
     }
 	
 
@@ -84,7 +96,7 @@ class DicewarController(val game:Gamefield) extends Observer {
     	else
     	{
     	    game.sendNotificationMessage(Message.Error,"Diese Eingabeoption ist aktuell nicht moeglich. Bitte erneut etwas Eingeben!")
-    	    if(game.currentPhase !=2)
+    	    if(game.currentPhase !=3)
     	    	game.currentPhase -= 1
     	    game.gameHandler
     	}
@@ -100,7 +112,7 @@ class DicewarController(val game:Gamefield) extends Observer {
       else
       {
         game.sendNotificationMessage(Message.Error,"Diese Eingabeoption ist aktuell nicht moeglich. Bitte erneut etwas Eingeben!")
-        if(game.currentPhase !=2 && game.currentPhase != 7 && game.currentPhase != 19)
+        if(game.currentPhase !=3 && game.currentPhase != 8 && game.currentPhase != 20)
         	game.currentPhase -= 1
         game.gameHandler
       }
@@ -113,6 +125,7 @@ class DicewarController(val game:Gamefield) extends Observer {
     	  if(game.sendPlayerConfigMessage(notification.playerCount, notification.botCount))
     	  {
     	   game.initPlayer(notification.playerCount, notification.botCount)
+    	   game.currentPlayer = game.avatarContainer(0)
     	   game.currentPhase += 1
     	  }
     	  game.gameHandler

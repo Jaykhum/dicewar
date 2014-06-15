@@ -135,10 +135,11 @@ class TUI (var game: Gamefield) extends View
 	     case Notification.MapSample =>  displayMapSelection
 	     case Notification.Input => //readConsoleInput
 	     case Notification.Move => 
-	     case Notification.Question => 
+	     case Notification.Question =>
+	     case Notification.PlayerInit => playerInitMessage
 	     case Notification.Message =>  messageProcess(notification)
 	     case Notification.DrawUI =>  showField
-	     case _ => println("Debug: Falsche Notification")
+	     case _ => println("Debug TUI: Falsche Notification")
 	   }
 	}
 	
@@ -230,6 +231,10 @@ class TUI (var game: Gamefield) extends View
      println("------------")
    }
    
+   def playerInitMessage {
+   		println("Bitte die Anzahl aller Spieler vergeben, sowie die Anzahl ihrer Bots")
+   		println("Beispiel:spieler 3, bot 1")
+   }
       def showField = 
       {
      // label top
@@ -357,6 +362,9 @@ class TUI (var game: Gamefield) extends View
 	     println("--------------------------------------------------------------------------------")
 	     println("m|map: Map-Auswahl")
 	     println("Zeige Karten die zur Verfuegung stehen:")
+	     println("--------------------------------------------------------------------------------")
+	     println("spieler <Anzahl Spieler>, bot <Anzahl Bots>:")
+	     println("Vergibt die Anzahl der Mitspieler sowie die Anzahl der Bots aus den Mitspielern")
 	     println("--------------------------------------------------------------------------------")
 	     println("start <Kartenname>")
 	     println("Startet ein neues Spiel mit gewählter Karte")

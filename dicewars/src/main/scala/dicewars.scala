@@ -34,6 +34,8 @@ object dicewars {
     controller.joinView(tui)
     controller.joinView(gui)
     
+    controller.startGame
+    
 //    var run = true
 //    showMenu
 //    while(run)
