@@ -179,7 +179,7 @@ class TUI (var game: Gamefield) extends View
    {
      color match 
      {
-       case Avatar.Yellow => print(Console.YELLOW + messageContent + Console.RESET )
+       case Avatar.Blue => print(Console.YELLOW + messageContent + Console.RESET )
        case Avatar.Mangenta => print(Console.MAGENTA + messageContent + Console.RESET)
        case Avatar.Green => print(Console.GREEN + messageContent + Console.RESET)
        case _ => println("Color Fehler")
@@ -276,7 +276,7 @@ class TUI (var game: Gamefield) extends View
         	if(game.world(j)(k-1).getHolder == -1)
         		print(delimiterVertical + Console.CYAN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
         	else if(game.world(j)(k-1).getHolder == 0)
-        		print(delimiterVertical + Console.YELLOW + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        		print(delimiterVertical + Console.BLUE + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
         	else if(game.world(j)(k-1).getHolder == 1)
         		print(delimiterVertical + Console.MAGENTA + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
         	else if(game.world(j)(k-1).getHolder == 2)
@@ -290,7 +290,7 @@ class TUI (var game: Gamefield) extends View
         	if(game.world(j)(k-1).getHolder == -1)
         		print(delimiterVertical + Console.CYAN + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
         	else if(game.world(j)(k-1).getHolder == 0)
-        		print(delimiterVertical + Console.YELLOW + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        		print(delimiterVertical + Console.BLUE + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
         	else if(game.world(j)(k-1).getHolder == 1)
         		print(delimiterVertical + Console.MAGENTA + Console.WHITE_B + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
         	else if(game.world(j)(k-1).getHolder == 2)
@@ -304,7 +304,7 @@ class TUI (var game: Gamefield) extends View
         	if(game.world(j)(k-1).getHolder == -1)
         		print(delimiterVertical + Console.CYAN + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
         	else if(game.world(j)(k-1).getHolder == 0)
-        		print(delimiterVertical + Console.YELLOW + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
+        		print(delimiterVertical + Console.BLUE + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
         	else if(game.world(j)(k-1).getHolder == 1)
         		print(delimiterVertical + Console.MAGENTA + game.world(j)(k-1).showImage + Console.RESET + delimiterVertical)
         	else if(game.world(j)(k-1).getHolder == 2)

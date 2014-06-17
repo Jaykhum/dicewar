@@ -200,7 +200,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	{
 		color match 
 		{
-			case Avatar.Yellow => fieldPanel.showMsg(messageContent,3) //print(Console.YELLOW + messageContent + Console.RESET )
+			case Avatar.Blue => fieldPanel.showMsg(messageContent,3) //print(Console.YELLOW + messageContent + Console.RESET )
 			case Avatar.Mangenta => fieldPanel.showMsg(messageContent,4) //print(Console.MAGENTA + messageContent + Console.RESET)
 			case Avatar.Green => fieldPanel.showMsg(messageContent,5)//print(Console.GREEN + messageContent + Console.RESET)
 			case _ => println("Color Fehler")

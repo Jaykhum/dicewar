@@ -16,6 +16,6 @@ object Avatar extends Enumeration
 {
     type ColorTyp = Value
     val divider = 3
-    val Yellow, Mangenta, Green  = Value
-    val colorContainer = Array[ColorTyp](Yellow,Mangenta,Green)
+    val Blue, Mangenta, Green  = Value
+    val colorContainer = Array[ColorTyp](Blue,Mangenta,Green)
 }
