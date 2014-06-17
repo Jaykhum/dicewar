@@ -81,6 +81,7 @@ class FieldPanel(game:Gamefield) extends Panel
 		    publish(new FieldSelectedEvent(landPosition))
 		  }
 	  }
+	  repaint
 	}
 	
 	/*
@@ -159,9 +160,9 @@ class FieldPanel(game:Gamefield) extends Panel
 	def setPlayerColor(land:Land):Color =
 	{
 		 land.getHolder match{
-		   case 0 => Color.GREEN
+		   case 0 => Color.BLUE
 		   case 1 => Color.MAGENTA
-		   case 2 => Color.YELLOW
+		   case 2 => Color.GREEN
 		   case _ => Color.WHITE
 		 }
 	}
@@ -173,6 +174,7 @@ class FieldPanel(game:Gamefield) extends Panel
 		messageColor(msgOffset) = outType
 		messageText(msgOffset) = message
 		msgOffset += 1
+		repaint
 	}
 	
 	

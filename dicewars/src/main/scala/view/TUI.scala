@@ -26,6 +26,7 @@ class TUI (var game: Gamefield) extends View
 		    }
     })
 	
+	//helpView
 	
 	/*
 	 * process functions
@@ -139,6 +140,7 @@ class TUI (var game: Gamefield) extends View
 	     case Notification.PlayerInit => playerInitMessage
 	     case Notification.Message =>  messageProcess(notification)
 	     case Notification.DrawUI =>  showField
+	     case Notification.Exit => inputThread.stop()
 	     case _ => println("Debug TUI: Falsche Notification")
 	   }
 	}
@@ -150,8 +152,8 @@ class TUI (var game: Gamefield) extends View
 	
 	def displayMapSelection
     {
-   	  printM1; printM2; printM3; printM4;
-//   	  helpView
+	  println("Bitte Map auswaehlen")
+   	  printM1; printM2; printM3; printM4;  	  
     }
 	
 	
@@ -235,6 +237,7 @@ class TUI (var game: Gamefield) extends View
    		println("Bitte die Anzahl aller Spieler vergeben, sowie die Anzahl ihrer Bots")
    		println("Beispiel:spieler 3, bot 1")
    }
+   
       def showField = 
       {
      // label top

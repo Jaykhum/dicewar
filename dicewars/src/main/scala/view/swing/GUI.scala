@@ -45,8 +45,8 @@ class GUI(val game:Gamefield) extends Frame with View {
 	  case MapSelectedEvent(mapName) => sendMapChoice(mapName);  //listenTo(fieldPanel);selectPanel(fieldPanel)
 	  case MapChoice() => sendMapSelctionMenu //; listenTo(mapPanel); selectPanel(mapPanel)
 	  case FieldSelectedEvent(position) => sendPosition(position)
-	  case CloseEvent() => closeView
-	  case WindowClosing(_) =>closeView
+	  case CloseEvent() => sendCloseApp
+	  case WindowClosing(_) => sendCloseApp
 	}
 	
 
@@ -56,7 +56,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 		{
 			contents += new MenuItem(Action("Neues Spiel starten")
 			{
-			  //resetGame
+			  resetGame
 			})
 			contents += new MenuItem(Action("Runde beenden")
 			{
@@ -64,10 +64,23 @@ class GUI(val game:Gamefield) extends Frame with View {
 			})
 			contents += new MenuItem(Action("Quit")
 			{
-			  closeView
+			  sendCloseApp
 			})
 		}
 		contents += new Menu("Actions"){}
+	}
+
+
+	/*
+	 * close this view
+	 * 1. step: send message to observer to detach this object
+	 * 2. step: close GUI
+	 * */
+	def closeView 
+	{
+	    // dieses View aus der Liste entfernen.
+		// tui ebenfalls schließen (noti.)
+	    dispose
 	}
 	
 	
@@ -92,18 +105,11 @@ class GUI(val game:Gamefield) extends Frame with View {
 		response
     }
 	
-
-	/*
-	 * close this view
-	 * 1. step: send message to observer to detach this object
-	 * 2. step: close GUI
-	 * */
-	def closeView 
+	def resetGame
 	{
-	    // dieses View aus der Liste entfernen.
-		// tui ebenfalls schließen (noti.)
-	    dispose
+		sendReset	
 	}
+
 	
 	override def startView()
 	{
@@ -114,7 +120,8 @@ class GUI(val game:Gamefield) extends Frame with View {
 		listenTo(fieldPanel)
 		listenTo(mapPanel)
 		listenTo(menuPanel)
-		showCoverMenu
+		selectPanel(mapPanel)
+		//showCoverMenu
 	}
 
 	
@@ -141,6 +148,13 @@ class GUI(val game:Gamefield) extends Frame with View {
     }
 	
 	
+	def sendCloseApp =
+	{
+		var n = new Notification(Notification.Exit)
+		notifyObservers(n)
+	}
+	
+	
 	def sendMapSelctionMenu =
     {
       var notification = new Notification(Notification.MapSample)
@@ -155,6 +169,23 @@ class GUI(val game:Gamefield) extends Frame with View {
      notify.inputType = "map"
      notifyObservers(notify)
    }
+   	 
+   	 
+   	def sendReset
+   	{
+   	  var notification = new Notification(Notification.Reset)
+      notifyObservers(notification)   	  
+   	}
+   	 
+   	 
+   	def sendPlayerInit(playerCount:Int, botCount:Int)
+    {
+      var n = new Notification(Notification.PlayerInit)
+      n.playerCount = playerCount
+      n.botCount = botCount
+      n.inputType = "playerInit"
+      notifyObservers(n)
+    }
    	 
    	 
    	def sendPosition(position:WorldPosition)
@@ -172,12 +203,16 @@ class GUI(val game:Gamefield) extends Frame with View {
 	{
 	   notification.typ match
 	   {
-	     case Notification.MapSample => displayMapSelection
+		 case Notification.DrawUI => showField
+		 case Notification.Exit => closeView
 	     case Notification.Input => 
-	     case Notification.Move => inputUnitAmount
-	     case Notification.Question => questionResponse
+	     case Notification.MapSample => displayMapSelection
 	     case Notification.Message => messageProcess(notification)
-	     case Notification.DrawUI => showField
+	     case Notification.Move => inputUnitAmount
+	     case Notification.PlayerInit => playerInitMessage
+	     case Notification.Question => questionResponse
+	     case Notification.Reset => resetGame
+	     
 	     case _ => println("Debug: Falsche Notification")
 	   }
 	}
@@ -200,12 +235,12 @@ class GUI(val game:Gamefield) extends Frame with View {
 	{
 		color match 
 		{
-			case Avatar.Blue => fieldPanel.showMsg(messageContent,3) //print(Console.YELLOW + messageContent + Console.RESET )
+			case Avatar.Blue => fieldPanel.showMsg(messageContent,2) //print(Console.YELLOW + messageContent + Console.RESET )
 			case Avatar.Mangenta => fieldPanel.showMsg(messageContent,4) //print(Console.MAGENTA + messageContent + Console.RESET)
-			case Avatar.Green => fieldPanel.showMsg(messageContent,5)//print(Console.GREEN + messageContent + Console.RESET)
+			case Avatar.Green => fieldPanel.showMsg(messageContent,3)//print(Console.GREEN + messageContent + Console.RESET)
 			case _ => println("Color Fehler")
 		}
-		selectPanel(fieldPanel)
+		//selectPanel(fieldPanel)
 	}
 	
 	
@@ -215,7 +250,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 		//new DialogMessagePanel(messageContent)
 	  //println("frabe :"+ color + ", " + messageContent)
 	  fieldPanel.showMsg(messageContent, outType)
-	  selectPanel(fieldPanel)
+	  //selectPanel(fieldPanel)
 	}
    
 	
@@ -233,6 +268,17 @@ class GUI(val game:Gamefield) extends Frame with View {
 		}
 	}
 	
+	def playerInitMessage {
+//   		println("Bitte die Anzahl aller Spieler vergeben, sowie die Anzahl ihrer Bots")
+//   		println("Beispiel:spieler 3, bot 1")
+	  //var (playerAmount, botAmount) 
+	  var dialog = new DialogMessagePanel
+	  var temp = dialog.playInit.getOrElse(throw new IllegalStateException("Wrong input!!"))
+	  var playerAmount = temp.playerAmount
+	  var botAmount = temp.botAmount
+	  sendPlayerInit(playerAmount.toInt, botAmount.toInt)
+	  //.playInit.getOrElse()
+   }
 	
 	/*
 	 * displays the gamefield
@@ -269,19 +315,9 @@ class GUI(val game:Gamefield) extends Frame with View {
 	
 	def showCoverMenu
 	{
-		selectPanel(menuPanel)
+		
 	}
 }
-//   
-//	def battleAssignProcess(notification:Notification)
-//	{
-//		var notificationNew = new Notification(Notification.BattleAssign) 
-//		notificationNew.position = readPosition
-//		notificationNew.currentPlayer = notification.currentPlayer
-//		notificationNew.isFromLand = notification.isFromLand
-//		notifyObservers(notificationNew)
-//		incomingInput = false
-//	}
 //   
 //	def battleAttackProcess
 //	{
@@ -322,15 +358,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 //		
 //	}
 //   
-//	def resetGame
-//	{
-//		selectPanel(menuPanel)
-//		position = null
-//		mapChoosenFlag = false
-//		fieldFlag = false
-//		sendNewGame
-//		incomingInput = false
-//	}
+
 //	
 
 //	

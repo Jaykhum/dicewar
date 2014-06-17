@@ -33,26 +33,19 @@ class Gamefield extends Observable
   	
 	initWorld
 	
-//	def initPhase
-//	{
-//		fromLand = null
-//		toLand = null
-//		gameOver = false
-//		currentPhase = 0
-//		fieldContainer = null
-//		moveOption = 1
-//		currentPlayer = null
-//		currentInputType = "playerInit"
-//		currentRequestedPositionType = 0
-//	}
-	
-  	
-	def endInitPhase 
- 	{
-// 	  currentPhase = 1
- 	  currentPlayer = avatarContainer(0)
-// 	  gameHandler
- 	}
+	def initPhase
+	{
+		fromLand = null
+		toLand = null
+		gameOver = false
+		currentPhase = 0
+		fieldContainer = null
+		moveOption = 1
+		currentPlayer = null
+		currentInputType = "playerInit"
+		currentRequestedPositionType = 0
+		gameHandler
+	}
 	
   	
   	def exitGame
@@ -68,7 +61,6 @@ class Gamefield extends Observable
 	{
 	  fieldContainer = initFieldInWorld(map)
 	  initFieldHolder(fieldContainer)
-	  endInitPhase
 	}
   	
   	
@@ -558,6 +550,7 @@ class Gamefield extends Observable
     	  {// noch eine Phase hinzuzufuegen nach Phase 0 fuer das Mapsample
     	    currentPhase match
     	    {
+    	      
     	      case 0 	=> configPlayer
     	      case 1	=> sendMapSample
     	      case 2 	=> startReinforcement
@@ -609,10 +602,11 @@ class Gamefield extends Observable
   	
   	def sendMapSample
   	{
+  	  //sendNotificationMessage(Message.Info, "Bitte Map auswaehlen")
   	  currentInputType = "map"
   	  var n = new Notification(Notification.MapSample)  
       notifyObservers(n)
-      sendNotificationMessage(Message.Info, "Bitte Map auswaehlen")
+      
   	}
   	
   	
@@ -806,8 +800,7 @@ class Gamefield extends Observable
 		        
 		        if(checkPlayerOutOfGame(lostPlayer) && checkGameOver)
 		        {
-		          gameOver = true
-		        	currentPhase = -1
+		        	gameOver = true
 		        	gameHandler
 		        }
 		        else
@@ -888,6 +881,7 @@ class Gamefield extends Observable
 		  {
 		    fromLand = choosenLand
 		    currentPhase += 1
+		    sendNotificationUI
 		  }
 		  else
 		    sendNotificationMessage(Message.Error,"Das Teritorium ist nicht dein Land.")
@@ -901,17 +895,19 @@ class Gamefield extends Observable
 	
 	def setEnemyLand(pos:WorldPosition)
 	{
-	  var chooseland = world(pos.row)(pos.column)
-	  if(fromLand == chooseland)
+	  var choosenLand = world(pos.row)(pos.column)
+	  if(fromLand == choosenLand)
 	  {
 		  sendNotificationMessage(Message.Info, "Bereits ausgewaehltes Land wurde deselectiert!")
 		  resetFromAndToLand
 		  currentPhase -= 1
+		  sendNotificationUI
 	  }
 	  else if(checkEnemyLandSelection(currentPlayer, pos))
 	  {
-	      toLand = world(pos.row)(pos.column)
-	      currentPhase += 1; 
+	      toLand = choosenLand
+	      currentPhase += 1;
+	      sendNotificationUI
 	  }
 	  else
 		  sendNotificationMessage(Message.Error,"Ausgewaehltes Land ist dein eigenes.")
@@ -921,13 +917,21 @@ class Gamefield extends Observable
 	
 	def setOwn2Land(pos:WorldPosition)
 	{
-	  val choosenLand = world(pos.row)(pos.column)
-		if(toLand == null)
+		val choosenLand = world(pos.row)(pos.column)
+		if(fromLand == choosenLand)
+		{
+		  sendNotificationMessage(Message.Info, "Bereits ausgewaehltes Land wurde deselectiert!")
+		  resetFromAndToLand
+		  currentPhase -= 1
+		  sendNotificationUI
+	  	}
+		else if(toLand == null)
 		{
 		  if(choosenLand.checkHolder(currentPlayer) && fromLand.checkNeighbourhood(choosenLand))
 		  {
 		    toLand = choosenLand
 		    currentPhase += 1
+		    sendNotificationUI
 		  }else if(!fromLand.checkNeighbourhood(choosenLand))
 		  {
 		     sendNotificationMessage(Message.Error,"Das ausgewaehlte Land ist kein Nachbarland.")
@@ -1271,6 +1275,14 @@ class Gamefield extends Observable
 	  val n = new Notification(Notification.Question)
 	  notifyObservers(n)
 	}
+	
+	
+	def sendExit
+	{
+	  val n = new Notification(Notification.Exit)
+	  notifyObservers(n)
+	}
+	
 	
 	def sendUnitAmountRequest
 	{

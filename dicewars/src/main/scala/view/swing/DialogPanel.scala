@@ -8,7 +8,6 @@ case class UnitAmount(amount: String)
 class DialogPanel extends Dialog {
 	var amount: Option[UnitAmount] = None
 	val unitCount = new TextField
-	//val password = new PasswordField
 	title = "Interaction"
 	modal = true
 	// Panel contents

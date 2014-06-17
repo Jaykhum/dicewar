@@ -22,6 +22,6 @@ class Notification(var typ: Notification.NotificationTyp)
 object Notification extends Enumeration 
 {
     type NotificationTyp = Value
-    val Answer, DrawUI, GameOver, Input, Map, MapSample, Message, Move, Position, Question, PlayerInit = Value
-    //val Input, , , Answer, Menu, Help, NewGame, Exit, Reinforcement, BattleAssign, BattleAttack, Question, TacticAssign, TacticArmy = Value
+    val Answer, DrawUI, Exit, GameOver, Input, Map, MapSample, Message, Move, PlayerInit, Position, Question, Reset = Value
+    //val Input, , , Answer, Menu, Help, NewGame, , Reinforcement, BattleAssign, BattleAttack, Question, TacticAssign, TacticArmy = Value
 }

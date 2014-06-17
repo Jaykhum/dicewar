@@ -6,12 +6,26 @@ import main.scala.view._
 import main.scala.view.swing.GUI
 
 class DicewarController(val game:Gamefield) extends Observer {
-  
-  def startGame
-  {
-    game.gameHandler
-  }
 	
+	private var viewList = List[View]()
+  	def detachView(view:View)
+	{
+		delegateExit
+		game.removeObserver(view)
+	}
+
+  	
+  	def startGame
+  	{
+  		game.gameHandler
+  	}
+	    
+	protected def exitGame
+	{
+		println("Applikation wurde beendet")
+		System.exit(0)
+	}
+  
 	def joinView(view:View)
 	{
 		game.addObserver(view)
@@ -29,6 +43,8 @@ class DicewarController(val game:Gamefield) extends Observer {
 	    	   case Notification.Answer => delegateAnswer(notification)
 	    	   case Notification.Move => delegateMove(notification)
 	    	   case Notification.PlayerInit => delegatePlayerInit(notification)
+	    	   case Notification.Exit => delegateExit
+	    	   case Notification.Reset => delegateReset
 	    	   
 //       	  
 //	   	  case Notification.Menu => delegateMenu 
@@ -62,6 +78,12 @@ class DicewarController(val game:Gamefield) extends Observer {
     		game.gameHandler
     	}
     }
+	
+	def delegateExit
+	{
+		game.sendExit
+		exitGame
+	}
 	
 	
 	def delegateMapSelction(notification:Notification)
@@ -135,6 +157,11 @@ class DicewarController(val game:Gamefield) extends Observer {
     		game.sendNotificationMessage(Message.Error,"Diese Eingabeoption ist aktuell nicht moeglich. Bitte erneut etwas Eingeben!")
     		game.gameHandler
     	}
+    }
+    
+    def delegateReset
+    {
+      game.initPhase
     }
     
     
