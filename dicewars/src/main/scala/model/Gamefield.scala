@@ -712,7 +712,7 @@ class Gamefield extends Observable
   	
   	def reinforcementPhase =
  	{  	
-		sendNotificationPlayerMessage(currentPlayer,"Spieler: " + currentPlayer.id)
+  		sendNotificationPlayerMessage(currentPlayer,"Spieler " + currentPlayer.id +":")
 		sendNotificationMessage(Message.Info," ist dran.")
 		sendNotificationMessage(Message.Info,"Zahl der Verstaerkung: " + currentPlayer.newUnitsTemporary)
 		sendNotificationMessage(Message.Info,"Bitte Teritorium eingeben (Spalte,Zeile).")
