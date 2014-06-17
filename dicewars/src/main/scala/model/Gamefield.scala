@@ -1315,7 +1315,7 @@ class Gamefield extends Observable
 	  wait(() => 
 	  {
 		notifyObservers(notificationMessage)
-	  }, 500)
+	  }, 200)
 	  
 	}
 	
@@ -1336,7 +1336,10 @@ class Gamefield extends Observable
 	  var message = new Message(Message.Player, messageContent)
 	  notificationMessage.message = message
 	  notificationMessage.currentPlayer = player 
-	  notifyObservers(notificationMessage)
+	  wait(() => 
+	  {
+		notifyObservers(notificationMessage)
+	  }, 200)
 	}
 
 	
