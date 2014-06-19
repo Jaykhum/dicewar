@@ -28,8 +28,8 @@ class Gamefield extends Observable
 	val world = Array.ofDim[Land](World.height,World.width)
 	
 	var currentPlayer:Avatar = null
-	private var	currentInputType:String = ""
-	private var currentRequestedPositionType: Int = 0
+	var	currentInputType:String = ""
+	var currentRequestedPositionType: Int = 0
   	
 	initWorld
 	
@@ -184,7 +184,7 @@ class Gamefield extends Observable
 	}
 	
   	
-  	def startShowMapSelctionMenu
+  	def startShowMapSelectionMenu
 	{
 	  var notification = new Notification(Notification.MapSample)
 	  notifyObservers(notification);
