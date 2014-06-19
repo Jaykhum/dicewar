@@ -151,10 +151,10 @@ class Gamefield extends Observable
 	 * Initialize number of players.
 	 * @param numberofPlayer. Number of player.
 	 */
-	def initPlayer(allPlayer:Integer, botPlayer:Integer):Array[Avatar] =
+	def initPlayer(humanPlayer:Integer, botPlayer:Integer):Array[Avatar] =
 	{
-	  val avatarContainer = new Array[Avatar](allPlayer)
-	  val humanPlayer = allPlayer - botPlayer
+	  val avatarContainer = new Array[Avatar](humanPlayer + botPlayer)
+	  val allPlayer = humanPlayer + botPlayer
 	  for(i <- 0 until allPlayer)
 	  {
 	    if(i < humanPlayer)
@@ -1367,14 +1367,10 @@ class Gamefield extends Observable
 	def sendPlayerConfigMessage(playerCount:Int, botCount:Int):Boolean = 
 	{
 	  var correct = false
-	  if(playerCount > 3)
-    	    sendNotificationMessage(Message.Error,"Es koennen hoechsten drei Spieler mitspielen.")
-    	  else if(playerCount < 2)
-    	     sendNotificationMessage(Message.Error,"Es werden mindestens zwei Spieler benoetigt. ")
-    	  else if(botCount > playerCount)
-    	    sendNotificationMessage(Message.Error,"Die Anzahl der gesamten Spieler darf nicht kleiner sein als die Anzahl der Bots.")
-    	  else if(botCount == playerCount)
-    	    sendNotificationMessage(Message.Error,"Zu viele Bots ausgewaehlt, es muss mindestens eine Person mitspielen.")
+	  if((playerCount + botCount) > 3)
+    	    sendNotificationMessage(Message.Error,"Es koennen insgesamt hoechsten drei mitspielen.")
+    	  else if(playerCount < 1)
+    	     sendNotificationMessage(Message.Error,"Es wird mindestens ein Spieler benoetigt. ")
     	  else
     	    correct = true
     	 

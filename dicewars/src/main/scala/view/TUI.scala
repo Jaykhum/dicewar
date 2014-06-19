@@ -234,7 +234,7 @@ class TUI (var game: Gamefield) extends View
    }
    
    def playerInitMessage {
-   		println("Bitte die Anzahl aller Spieler vergeben, sowie die Anzahl ihrer Bots")
+   		println("Bitte die Anzahl aller Spieler vergeben, sowie die Anzahl Bots")
    		println("Beispiel:spieler 3, bot 1")
    }
    
@@ -367,7 +367,7 @@ class TUI (var game: Gamefield) extends View
 	     println("Zeige Karten die zur Verfuegung stehen:")
 	     println("--------------------------------------------------------------------------------")
 	     println("spieler <Anzahl Spieler>, bot <Anzahl Bots>:")
-	     println("Vergibt die Anzahl der Mitspieler sowie die Anzahl der Bots aus den Mitspielern")
+	     println("Vergibt die Anzahl der Spieler sowie die Anzahl der Bots")
 	     println("--------------------------------------------------------------------------------")
 	     println("start <Kartenname>")
 	     println("Startet ein neues Spiel mit gewählter Karte")
