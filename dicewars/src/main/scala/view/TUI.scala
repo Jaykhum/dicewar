@@ -181,7 +181,7 @@ class TUI (var game: Gamefield) extends View
    {
      color match 
      {
-       case Avatar.Blue => print(Console.YELLOW + messageContent + Console.RESET )
+       case Avatar.Blue => print(Console.BLUE + messageContent + Console.RESET )
        case Avatar.Mangenta => print(Console.MAGENTA + messageContent + Console.RESET)
        case Avatar.Green => print(Console.GREEN + messageContent + Console.RESET)
        case _ => println("Color Fehler")
