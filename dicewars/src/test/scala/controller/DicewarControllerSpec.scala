@@ -27,7 +27,7 @@ class FakeGame extends Gamefield
 	var botCount = 0
 	var doInitPlayer =false
 	var posConstrainChecked = false
-	var mapselectDone = false
+	var landSelectDone = false
 	
 	override def gameHandler = {startGameHandling = true}
 	
@@ -103,49 +103,22 @@ class FakeGame extends Gamefield
 	  }
 	}
 	
-	override def setLandSelection(pos:WorldPosition) = { mapselectDone = true}
-
+	override def setLandSelection(pos:WorldPosition) = { landSelectDone = true}
 }
+
+
 
 class FakeView extends View
 {
 	var started = false
 	var stopped = false
-//	var subscriberContainer:DicewarController = null 
-//	var displayMapMenu = false
-//	var displayField = false
-//	var displayMessage = false
-//	var inputRequest = false
-//	var questRequest = false
-//	var moveRequest = false
-//	var playerInitRequest = false
-//	var exitRequest = false
-	
 	
 	override def closeView = stopped = true
-	
 	override def startView = started = true
-	
-//	override def addObserver(controller:DicewarController) {subscriberContainer = controller}
-	override def updateObserver(notification:Notification) =
-	{}
-//	
-//	override def updateObserver(notification:Notification) =
-//	{
-//	   notification.typ match
-//	   {
-//	     case Notification.MapSample =>  displayMapMenu = true
-//	     case Notification.Input => inputRequest = true
-//	     case Notification.Move => moveRequest = true
-//	     case Notification.Question => questRequest = true
-//	     case Notification.PlayerInit => playerInitRequest = true
-//	     case Notification.Message => displayMessage = true 
-//	     case Notification.DrawUI => displayField = true
-//	     case Notification.Exit => exitRequest = true
-//	     case _ => //println("Debug TUI: Falsche Notification")
-//	   } 
-//	}
+	override def updateObserver(notification:Notification){}
 }
+
+
 
 class DicewarControllerSpec extends Specification
 {
@@ -192,12 +165,14 @@ class DicewarControllerSpec extends Specification
 	  "be able to delegate an answer yes" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    val noti =  new Notification(Notification.Answer)
-	    noti.answer = true
-	    noti.inputType = "question"
+	    val notification =  new Notification(Notification.Answer)
+	    notification.answer = true
+	    notification.inputType = "question"
 	    game.currentPhase = 3
 	    game.currentInputType = "question"
-	    controller.delegateAnswer(noti)
+	      
+	    controller.delegateAnswer(notification)
+	    
 	    game.inputTypeValidation must beTrue
 	    game.startGameHandling must beFalse
 	    game.userAnswer must beTrue
@@ -206,12 +181,15 @@ class DicewarControllerSpec extends Specification
 	  "be able to delegate an answer no" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    val noti =  new Notification(Notification.Answer)
-	    noti.answer = false
-	    noti.inputType = "question"
+	    val notification =  new Notification(Notification.Answer)
+	    notification.answer = false
+	    notification.inputType = "question"
+	    
 	    game.currentPhase = 3
 	    game.currentInputType = "question"
-	    controller.delegateAnswer(noti)
+	    
+	    controller.delegateAnswer(notification)
+	    
 	    game.inputTypeValidation must beTrue
 	    game.startGameHandling must beFalse
 	    game.userAnswer must beFalse
@@ -220,12 +198,14 @@ class DicewarControllerSpec extends Specification
 	  "be fail to delegate because wrong userinput type" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    val noti =  new Notification(Notification.Answer)
-	    noti.answer = false
-	    noti.inputType = "something"
+	    val notification =  new Notification(Notification.Answer)
+	    notification.answer = false
+	    notification.inputType = "something"
 	    game.currentPhase = 5
 	    game.currentInputType = "question"
-	    controller.delegateAnswer(noti)
+	      
+	    controller.delegateAnswer(notification)
+	    
 	    game.inputTypeValidation must beFalse
 	    game.startGameHandling must beTrue
 	    game.currentPhase must be_==(4)
@@ -235,12 +215,15 @@ class DicewarControllerSpec extends Specification
 	  "be fail to delegate because wrong type and phase 3" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    val noti =  new Notification(Notification.Answer)
-	    noti.answer = false
-	    noti.inputType = "question"
+	    val notification =  new Notification(Notification.Answer)
+	    notification.answer = false
+	    notification.inputType = "question"
+	    
 	    game.currentPhase = 3
 	    game.currentInputType ="something"
-	    controller.delegateAnswer(noti)
+	    
+	    controller.delegateAnswer(notification)
+	    
 	    game.inputTypeValidation must beFalse
 	    game.startGameHandling must beTrue
 	    game.currentPhase must be_==(3)
@@ -251,14 +234,14 @@ class DicewarControllerSpec extends Specification
 	  "be able to delegate mapselection" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    val noti =new Notification(Notification.Map)
-	    noti.map = "basicland"
-	    noti.inputType = "map"
+	    val notification =new Notification(Notification.Map)
+	    notification.map = "basicland"
+	    notification.inputType = "map"
 	    game.currentInputType ="map"
-	      
 	    game.gameInitDone must beFalse  
 	    
-	    controller.delegateMapSelction(noti)
+	    controller.delegateMapSelction(notification)
+	    
 	    game.inputTypeValidation must beTrue
 	    game.selectedMap must be_==("basicland")
 	    game.gameInitDone must beTrue
@@ -270,14 +253,14 @@ class DicewarControllerSpec extends Specification
 	  "be fail to delegate mapselection because of wrong input type" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    val noti =new Notification(Notification.Map)
-	    noti.map = "basicland"
-	    noti.inputType = "map"
+	    val notification =new Notification(Notification.Map)
+	    notification.map = "basicland"
+	    notification.inputType = "map"
 	    game.currentInputType ="something else"
 	      
 	    game.gameInitDone must beFalse  
 	    
-	    controller.delegateMapSelction(noti)
+	    controller.delegateMapSelction(notification)
 	    game.inputTypeValidation must beFalse
 	    game.currentPhase must be_==(0)
 	    game.startGameHandling must beTrue
@@ -295,11 +278,13 @@ class DicewarControllerSpec extends Specification
 	  "be able to delegate army move amount" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.Move)
-	    n.amount = 10
-	    n.inputType = "amount"
+	    var notification = new Notification(Notification.Move)
+	    notification.amount = 10
+	    notification.inputType = "amount"
 	    game.currentInputType ="amount"
-	    controller.delegateMove(n)
+	    
+	    controller.delegateMove(notification)
+	    
 	    game.inputTypeValidation must beTrue
 	    game.startUnitMove must beTrue
 	    game.choosenAmount must be_==(10)
@@ -308,11 +293,13 @@ class DicewarControllerSpec extends Specification
 	  "be fail to delegate army move amount because of input type" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.Move)
-	    n.amount = 10
-	    n.inputType = "amount"
+	    var notification = new Notification(Notification.Move)
+	    notification.amount = 10
+	    notification.inputType = "amount"
 	    game.currentInputType ="something else"
-	    controller.delegateMove(n)
+	      
+	    controller.delegateMove(notification)
+	    
 	    game.inputTypeValidation must beFalse
 	    game.startUnitMove must beFalse
 	    game.messageContent must be_==("Diese Eingabeoption ist aktuell nicht moeglich. Bitte erneut etwas Eingeben!")
@@ -323,12 +310,14 @@ class DicewarControllerSpec extends Specification
 	  "be fail to delegate army move amount because of input type and phase 3" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.Move)
-	    n.amount = 10
-	    n.inputType = "amount"
+	    var notification = new Notification(Notification.Move)
+	    notification.amount = 10
+	    notification.inputType = "amount"
 	    game.currentInputType ="something else"
 	    game.currentPhase = 3
-	    controller.delegateMove(n)
+	    
+	    controller.delegateMove(notification)
+	    
 	    game.inputTypeValidation must beFalse
 	    game.startUnitMove must beFalse
 	    game.messageContent must be_==("Diese Eingabeoption ist aktuell nicht moeglich. Bitte erneut etwas Eingeben!")
@@ -340,7 +329,9 @@ class DicewarControllerSpec extends Specification
 	  {
 	    val (game, view, controller) = createTestSetup
 	    game.startReset must beFalse
+	    
 	    controller.delegateReset
+	    
 	    game.startReset must beTrue
 	    
 	  }
@@ -348,13 +339,15 @@ class DicewarControllerSpec extends Specification
 	  "be able to delegate player init. with correct input" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.PlayerInit)
-	    n.playerCount = 2
-	    n.botCount = 1
-	    n.inputType = "playerInit"
+	    var notification = new Notification(Notification.PlayerInit)
+	    notification.playerCount = 2
+	    notification.botCount = 1
+	    notification.inputType = "playerInit"
 	    game.currentInputType = "playerInit"
 	    game.avatarContainer = new Array[Avatar](1)
-	    controller.delegatePlayerInit(n)
+	    
+	    controller.delegatePlayerInit(notification)
+	    
 	    game.inputTypeValidation must beTrue
 	    game.startGameHandling must beTrue
 	    game.currentPhase must be_==(1)
@@ -364,13 +357,15 @@ class DicewarControllerSpec extends Specification
 	  "be fail to delegate player init. because worong counts" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.PlayerInit)
-	    n.playerCount = 3
-	    n.botCount = 6
-	    n.inputType = "playerInit"
+	    var notification = new Notification(Notification.PlayerInit)
+	    notification.playerCount = 3
+	    notification.botCount = 6
+	    notification.inputType = "playerInit"
 	    game.currentInputType = "playerInit"
 	    game.avatarContainer = new Array[Avatar](1)
-	    controller.delegatePlayerInit(n)
+	    
+	    controller.delegatePlayerInit(notification)
+	    
 	    game.inputTypeValidation must beTrue
 	    game.startGameHandling must beTrue
 	    game.currentPhase must be_==(0)
@@ -380,13 +375,15 @@ class DicewarControllerSpec extends Specification
 	  "be fail to delegate player init. because worong input type" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.PlayerInit)
-	    n.playerCount = 3
-	    n.botCount = 6
-	    n.inputType = "playerInit"
+	    var notification = new Notification(Notification.PlayerInit)
+	    notification.playerCount = 3
+	    notification.botCount = 6
+	    notification.inputType = "playerInit"
 	    game.currentInputType = "something else"
 	    game.avatarContainer = new Array[Avatar](1)
-	    controller.delegatePlayerInit(n)
+	    
+	    controller.delegatePlayerInit(notification)
+	    
 	    game.inputTypeValidation must beFalse
 	    game.startGameHandling must beTrue
 	    game.currentPhase must be_==(0)
@@ -398,24 +395,28 @@ class DicewarControllerSpec extends Specification
 	  "be able to delegate Position" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.Position)
-	    n.position = new WorldPosition(5, 2)
-	    n.inputType = "position"
+	    var notification = new Notification(Notification.Position)
+	    notification.position = new WorldPosition(5, 2)
+	    notification.inputType = "position"
 	    game.currentInputType = "position"
-	    controller.delegatePosition(n)
+	      
+	    controller.delegatePosition(notification)
+	    
 	    game.inputTypeValidation must beTrue
 	    game.posConstrainChecked must beTrue
-	    game.mapselectDone must beTrue
+	    game.landSelectDone must beTrue
 	  }
 	  
 	  "be fail to delegate Position because wrong type" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.Position)
-	    n.position = new WorldPosition(5, 2)
-	    n.inputType = "position"
+	    var notification = new Notification(Notification.Position)
+	    notification.position = new WorldPosition(5, 2)
+	    notification.inputType = "position"
 	    game.currentInputType = "something else"
-	    controller.delegatePosition(n)
+	      
+	    controller.delegatePosition(notification)
+	    
 	    game.inputTypeValidation must beFalse
 	    game.startSendMessage must beTrue
 	    game.startGameHandling must beTrue
@@ -425,11 +426,13 @@ class DicewarControllerSpec extends Specification
 	  "be fail to delegate Position because wrong pos" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.Position)
-	    n.position = null
-	    n.inputType = "position"
+	    var notification = new Notification(Notification.Position)
+	    notification.position = null
+	    notification.inputType = "position"
 	    game.currentInputType = "position"
-	    controller.delegatePosition(n)
+	      
+	    controller.delegatePosition(notification)
+	    
 	    game.inputTypeValidation must beTrue
 	    game.posConstrainChecked must beFalse
 	    game.startSendMessage must beTrue
@@ -440,12 +443,14 @@ class DicewarControllerSpec extends Specification
 	  "be fail to delegate Position because wrong pos and phase 8" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.Position)
-	    n.position = null
-	    n.inputType = "position"
+	    var notification = new Notification(Notification.Position)
+	    notification.position = null
+	    notification.inputType = "position"
 	    game.currentInputType = "position"
 	    game.currentPhase = 8
-	    controller.delegatePosition(n)
+	    
+	    controller.delegatePosition(notification)
+	    
 	    game.inputTypeValidation must beTrue
 	    game.posConstrainChecked must beFalse
 	    game.startSendMessage must beTrue
@@ -456,12 +461,14 @@ class DicewarControllerSpec extends Specification
 	  "be fail to delegate Position because wrong type and phase 3" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.Position)
-	    n.position = new WorldPosition(5, 2)
-	    n.inputType = "position"
+	    var notification = new Notification(Notification.Position)
+	    notification.position = new WorldPosition(5, 2)
+	    notification.inputType = "position"
 	    game.currentInputType = "something else"
 	    game.currentPhase = 3
-	    controller.delegatePlayerInit(n)
+	    
+	    controller.delegatePlayerInit(notification)
+	    
 	    game.inputTypeValidation must beFalse
 	    game.startSendMessage must beTrue
 	    game.startGameHandling must beTrue
@@ -471,16 +478,116 @@ class DicewarControllerSpec extends Specification
 	  "be fail to delegate Position because wrong type and phase 20" in
 	  {
 	    val (game, view, controller) = createTestSetup
-	    var n = new Notification(Notification.Position)
-	    n.position = new WorldPosition(5, 2)
-	    n.inputType = "position"
+	    var notification = new Notification(Notification.Position)
+	    notification.position = new WorldPosition(5, 2)
+	    notification.inputType = "position"
 	    game.currentInputType = "something else"
 	    game.currentPhase = 20
-	    controller.delegatePlayerInit(n)
+	    
+	    controller.delegatePlayerInit(notification)
+	    
 	    game.inputTypeValidation must beFalse
 	    game.startSendMessage must beTrue
 	    game.startGameHandling must beTrue
 	    game.currentPhase must be_==(20)
+	  }
+	
+	  "be able to react to notification MapSample" in
+	  {
+	    val (game, view, controller) = createTestSetup
+	    var notification = new Notification(Notification.MapSample)
+	    
+	    controller.updateObserver(notification)
+	    
+	    game.startShowMapMenu must beTrue
+	  }
+	  
+	  "be able to react to notification Reset" in
+	  {
+	    val (game, view, controller) = createTestSetup
+	    var notification = new Notification(Notification.Reset)
+	    
+	    controller.updateObserver(notification)
+	    
+	    game.startReset must beTrue
+	  }
+	  
+	  "be able to react to notification Map" in
+	  {
+	    val (game, view, controller) = createTestSetup
+	    val notification =new Notification(Notification.Map)
+	    notification.map = "basicland"
+	    notification.inputType = "map"
+	    game.currentInputType ="map"
+	      
+	    controller.updateObserver(notification)
+	    
+	    game.selectedMap must be_==("basicland")
+	    game.gameInitDone must beTrue
+	  }
+	  
+	  "be able to react to notification Position" in
+	  {
+	    val (game, view, controller) = createTestSetup
+	    var notification = new Notification(Notification.Position)
+	    notification.position = new WorldPosition(5, 2)
+	    notification.inputType = "position"
+	    game.currentInputType = "position"
+	      
+	    controller.updateObserver(notification)
+	    
+	    game.inputTypeValidation must beTrue
+	    game.posConstrainChecked must beTrue
+	    game.landSelectDone must beTrue
+	  }
+	  
+	  "be able to react to notification Move" in
+	  {
+	    val (game, view, controller) = createTestSetup
+	  	var notification = new Notification(Notification.Move)
+	    notification.amount = 10
+	    notification.inputType = "amount"
+	    game.currentInputType ="amount"
+	    
+	    controller.updateObserver(notification)
+	    
+	    game.inputTypeValidation must beTrue
+	    game.startUnitMove must beTrue
+	    game.choosenAmount must be_==(10)
+	  }
+	  
+	  "be able to react to notification Answer" in
+	  {
+	    val (game, view, controller) = createTestSetup
+	    val notification =  new Notification(Notification.Answer)
+	    notification.answer = true
+	    notification.inputType = "question"
+	    game.currentPhase = 3
+	    game.currentInputType = "question"
+	      
+	    controller.updateObserver(notification)
+	    
+	    game.inputTypeValidation must beTrue
+	    game.startGameHandling must beFalse
+	    game.userAnswer must beTrue
+	  }
+	  
+	  "be able to react to notification PlayerInit" in
+	  {
+	    val (game, view, controller) = createTestSetup
+	    var notification = new Notification(Notification.PlayerInit)
+	    notification.playerCount = 2
+	    notification.botCount = 1
+	    notification.inputType = "playerInit"
+	    game.currentInputType = "playerInit"
+	    game.avatarContainer = new Array[Avatar](1)
+	    
+	    controller.updateObserver(notification)
+	    
+	    game.inputTypeValidation must beTrue
+	    game.startGameHandling must beTrue
+	    game.currentPhase must be_==(1)
+	    game.doInitPlayer must beTrue
 	  }
 	}
 }

@@ -1,6 +1,5 @@
 package main.scala.model
 
-import java.lang.Boolean
 import main.scala.util.Notification
 import scala.collection.immutable.Vector
 import scala.collection.mutable.ArrayBuffer
@@ -9,33 +8,18 @@ class WorldPosition(y: Int, x: Int){
   val row: Int = y
   val column: Int = x
   
-  def isSame(position: WorldPosition): Boolean = 
+  def isSame(position: WorldPosition): Boolean= 
   {
     if(position.row ==  this.row && position.column == this.column)
       return true
     else
       return false
   }
-  
-//	  def isBorder(position: WorldPosition): Boolean =
-//	  {
-//	    val rightN = new WorldPosition(this.row, this.column + 1)
-//	    val leftN = new WorldPosition(this.row, this.column - 1)
-//	    val upperN = new WorldPosition(this.row + 1, this.column)
-//	    val bottomN = new WorldPosition(this.row - 1, this.column)
-//	    
-//	    position match{ 
-//	      case rightN => return true
-//	      case leftN => return true
-//	      case upperN => return true
-//	      case bottomN => return true
-//	      case _ => return false
-//	      }
-//	  }
+
   /*
    * Check if two fields are neighbours
    * */
-  	def isBorder(position: WorldPosition): Boolean =
+  	def isBorder(position: WorldPosition):Boolean=
   	{
   	 	if(((position.row == this.row - 1) && (position.column == this.column)) || ((position.row == this.row + 1) && (position.column == this.column)))
   	 	  return true
@@ -44,9 +28,6 @@ class WorldPosition(y: Int, x: Int){
   	 	else
   	 	  return false
   	}
-  /* TODO: �berpr�fen ob �ber Spielfeld hinaus */
-  	
-  	
 }
 
 /*
@@ -368,8 +349,6 @@ class Field(row: Int, col: Int) extends Land
 	    
 	    weakestNeighbour
 	}
-
-
 }
 
 

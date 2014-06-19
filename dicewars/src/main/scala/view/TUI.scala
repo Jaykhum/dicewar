@@ -134,7 +134,7 @@ class TUI (var game: Gamefield) extends View
 	   notification.typ match
 	   {
 	     case Notification.MapSample =>  displayMapSelection
-	     case Notification.Input =>
+	     case Notification.Input => //readConsoleInput
 	     case Notification.Move => 
 	     case Notification.Question =>
 	     case Notification.PlayerInit => playerInitMessage
@@ -181,7 +181,7 @@ class TUI (var game: Gamefield) extends View
    {
      color match 
      {
-       case Avatar.Blue => print(Console.YELLOW + messageContent + Console.RESET )
+       case Avatar.Blue => print(Console.BLUE + messageContent + Console.RESET )
        case Avatar.Mangenta => print(Console.MAGENTA + messageContent + Console.RESET)
        case Avatar.Green => print(Console.GREEN + messageContent + Console.RESET)
        case _ => println("Color Fehler")

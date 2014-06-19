@@ -83,7 +83,6 @@ class Gamefield extends Observable
 		 tempFieldHolderID =  rnd.nextInt(playerCount)
 		 var chosePlayer = false
 		 var nextPlayerCounter = 0
-		 println("anzahl felder: " + fieldCount/playerCount)
 		 while(!chosePlayer)
 		 {
 			 if( (playerFieldCount(tempFieldHolderID)) < (fieldCount/playerCount) )
@@ -196,14 +195,12 @@ class Gamefield extends Observable
   	 * */
   	
   	
-  	 		/**
+  	 /**
 	 * Manage the count of the attacks and communicate with the user about it.
 	 * @param player. Should be the current player of the game.
 	 */
 	def attack
 	{
-	  var outloop = false
-	  
 	  sendNotificationMessage(Message.Info,"Angreifen? (ja/nein)")
 	  currentInputType = "question"
 	  currentPhase +=1
@@ -211,7 +208,7 @@ class Gamefield extends Observable
 	}
 	
 	
-	def attackAOtherLand
+	def attackAnOtherLand
 	{      
 		if(checkPossibleToBattle(currentPlayer))
 		{
@@ -227,7 +224,7 @@ class Gamefield extends Observable
 		}
 	}
 	
-	def attackAOtherLandContinue
+	def attackAnOtherLandContinue
 	{
 	  	if(currentPlayer.answer)
 		{
@@ -320,13 +317,17 @@ class Gamefield extends Observable
   	
  	def battlePhaseChooseOwnLand
 	{
-	  	if(!gameOver)
+	  	if(!gameOver && checkPossibleToBattle(currentPlayer))
 		{			
   			notifyObservers(new Notification(Notification.DrawUI))
 	  		sendNotificationMessage(Message.Info, "Waehle das Land, von welchem du aus angreifen willst.")    
 	  		currentInputType = "position"
 	  		currentRequestedPositionType = 1
 	  		//sendInputRequest
+		}else if(!checkPossibleToBattle(currentPlayer))
+		{
+		  currentPhase = 17
+		  gameHandler
 		}
 	}
   	
@@ -443,11 +444,13 @@ class Gamefield extends Observable
 	  
 	  currentPlayer = avatarContainer(indexOfNextPlayer)
 	  currentPhase = 2
+	  resetFromAndToLand
 	  
 	  if(currentPlayer.lost)
 		  newRound
 	  else
-		gameHandler
+	    gameHandler
+		
 	}
 	
 	
@@ -566,8 +569,8 @@ class Gamefield extends Observable
     	      case 12	=> attackSameLand
     	      case 13	=> attackSameLandContinue
     	      case 14	=> moveHandler
-    	      case 15	=> attackAOtherLand
-    	      case 16	=> attackAOtherLandContinue
+    	      case 15	=> attackAnOtherLand
+    	      case 16	=> attackAnOtherLandContinue
     	      case 17	=> startTactic
     	      case 18	=> tacticPhaseContinue
     	      case 19	=> tacticPhaseChooseFirstLand
@@ -879,17 +882,19 @@ class Gamefield extends Observable
 		{
 		  if(choosenLand.checkHolder(currentPlayer))
 		  {
-		    fromLand = choosenLand
-		    currentPhase += 1
-		    sendNotificationUI
-		  }
-		  else
-		    sendNotificationMessage(Message.Error,"Das Teritorium ist nicht dein Land.")
+		    if(currentPhase != 7 && currentPhase != 19 || ((currentPhase == 7 || currentPhase ==19) && checkEnoughArmy(pos)) )
+		    {   
+		    	fromLand = choosenLand
+			    currentPhase += 1
+			    sendNotificationUI
+		    }else if(!checkEnoughArmy(pos))
+		      sendNotificationMessage(Message.Error,"Auf dem ausgewaehltem Land befinden sich zu wenig Einheiten.")
+		    
+		  }else
+		    sendNotificationMessage(Message.Error,"Das Teritorium ist nicht dein Land.")   
 		}
 		else 
-		{
 		  println("Debug: ERROR beim setzen vom fromland")
-		}
 		gameHandler
 	}
 	
@@ -1206,10 +1211,10 @@ class Gamefield extends Observable
 	def checkEnoughArmy(position:WorldPosition):Boolean =
 	{
 	  var ok:Boolean = false
-	  if(world(position.row)(position.column).getArmy >=1)
+	  if(world(position.row)(position.column).getArmy > 1)
 	      ok = true
 	  else
-		  sendNotificationMessage(Message.Error,"Auf dem ausgewaehltem Land befinden sich zu wenig Einheiten.")
+		  ok = false
 	  ok
 	}
 	
