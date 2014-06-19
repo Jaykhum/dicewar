@@ -240,7 +240,7 @@ class DicewarControllerSpec extends Specification
 	    game.currentInputType ="map"
 	    game.gameInitDone must beFalse  
 	    
-	    controller.delegateMapSelction(notification)
+	    controller.delegateMapSelection(notification)
 	    
 	    game.inputTypeValidation must beTrue
 	    game.selectedMap must be_==("basicland")
@@ -260,7 +260,8 @@ class DicewarControllerSpec extends Specification
 	      
 	    game.gameInitDone must beFalse  
 	    
-	    controller.delegateMapSelction(notification)
+	    controller.delegateMapSelection(notification)
+	    
 	    game.inputTypeValidation must beFalse
 	    game.currentPhase must be_==(0)
 	    game.startGameHandling must beTrue

@@ -37,7 +37,7 @@ class DicewarController(val game:Gamefield) extends Observer {
 	   notification.typ match
 	   {
 	    	   case Notification.MapSample => delegateMapSelectionMenu
-	    	   case Notification.Map =>  delegateMapSelction(notification)
+	    	   case Notification.Map =>  delegateMapSelection(notification)
 	    	   case Notification.Position => delegatePosition(notification)
 	    	   case Notification.Answer => delegateAnswer(notification)
 	    	   case Notification.Move => delegateMove(notification)
@@ -69,7 +69,7 @@ class DicewarController(val game:Gamefield) extends Observer {
 	}
 	
 	
-	def delegateMapSelction(notification:Notification)
+	def delegateMapSelection(notification:Notification)
     {
 		if(game.checkInputTypeValidation(notification.inputType))
     	{   		
