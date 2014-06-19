@@ -134,7 +134,7 @@ class TUI (var game: Gamefield) extends View
 	   notification.typ match
 	   {
 	     case Notification.MapSample =>  displayMapSelection
-	     case Notification.Input => //readConsoleInput
+	     case Notification.Input =>
 	     case Notification.Move => 
 	     case Notification.Question =>
 	     case Notification.PlayerInit => playerInitMessage

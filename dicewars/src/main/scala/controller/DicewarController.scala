@@ -7,7 +7,7 @@ import main.scala.view.swing.GUI
 
 class DicewarController(val game:Gamefield) extends Observer {
 	
-	private var viewList = List[View]()
+	//private var viewList = List[View]()
   	def detachView(view:View)
 	{
 		delegateExit
@@ -45,23 +45,7 @@ class DicewarController(val game:Gamefield) extends Observer {
 	    	   case Notification.PlayerInit => delegatePlayerInit(notification)
 	    	   case Notification.Exit => delegateExit
 	    	   case Notification.Reset => delegateReset
-	    	   
-//       	  
-//	   	  case Notification.Menu => delegateMenu 
-//       	  
-//       	  case Notification.NewGame => delegateNewGame
-//       	  case Notification.Help => delegateHelp
-//       	  case Notification.Exit => delegateExit
-//		  
-//		  
-//		  
-//		  case Notification.Reinforcement=> delegateReinforcement(notification)
-//		  case Notification.BattleAssign=> delegateBattleAssign(notification)
-//		  case Notification.BattleAttack=> delegateBattleAttack(notification)
-//		  case Notification.Question=> delegateQuestion(notification)
-//		  case Notification.TacticAssign=> delegateTacticAssign(notification)
-//		  case Notification.TacticArmy=> delegateTacticArmy(notification)
-		  case _ => println("Debug Controller: Falsche Notification")
+	    	   case _ => println("Debug Controller: Falsche Notification")
 	   }
 	}
 
