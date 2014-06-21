@@ -191,7 +191,6 @@ class LandSpec extends Specification
 		
 		"be able to check has enemy neighbour is wrong" in
 		{
-			
 			val testWorld = Array.ofDim[Land](size,size)
 		    for(i <- 0 until size-1; j <- 0 until size-1)
 			  {
@@ -205,178 +204,227 @@ class LandSpec extends Specification
 			testField.setHolder(9)
 			testField.checkHasOwnNeighbour(testWorld) must beFalse
 		}
+		
+		"be able to return an array with own neighbours is correct" in
+		{
+			val testWorld = Array.ofDim[Land](size,size)
+			for(i <- 0 until size-1; j <- 0 until size-1)
+			  {
+			    testWorld(i)(j) = new Water(i,j)
+			  }
+			testWorld(3)(3) = new Field(3, 3)
+			testWorld(3)(2) = new Field(3, 2)
+			testWorld(5)(3) = new Field(5, 3)
+			testWorld(3)(3).setHolder(7)
+			testWorld(3)(2).setHolder(11)
+			testWorld(5)(3).setHolder(7)
+			var testField =  new Field(4, 3)
+			testField.setHolder(7)
+			var neighbourContainer = testField.getOwnNeighbourContainer(testWorld) 
+			neighbourContainer.isEmpty must beFalse
+		}
+		
+		"be able to return an array with own neighbours is wrong" in
+		{
+			
+			val testWorld = Array.ofDim[Land](size,size)
+		    for(i <- 0 until size-1; j <- 0 until size-1)
+			  {
+			    testWorld(i)(j) = new Water(i,j)
+			  }
+			testWorld(3)(3) = new Field(3, 3)
+			testWorld(3)(2) = new Field(3, 2)
+			testWorld(3)(3).setHolder(7)
+			testWorld(3)(2).setHolder(11)
+			var testField =  new Field(5, 5)
+			testField.setHolder(9)
+			var neighbourContainer = testField.getOwnNeighbourContainer(testWorld) 
+			neighbourContainer.isEmpty must beTrue
+		}
+		
+		"be able to return an array with enemy neighbours is correct" in
+		{
+			val testWorld = Array.ofDim[Land](size,size)
+			for(i <- 0 until size-1; j <- 0 until size-1)
+			  {
+			    testWorld(i)(j) = new Water(i,j)
+			  }
+			testWorld(3)(3) = new Field(3, 3)
+			testWorld(3)(2) = new Field(3, 2)
+			testWorld(5)(3) = new Field(5, 3)
+			testWorld(3)(3).setHolder(2)
+			testWorld(3)(2).setHolder(11)
+			testWorld(5)(3).setHolder(5)
+			var testField =  new Field(4, 3)
+			testField.setHolder(7)
+			var neighbourContainer = testField.getEnemyNeighbourContainer(testWorld) 
+			neighbourContainer.isEmpty must beFalse
+		}
+		
+		"be able to return an array with enemy neighbours is wrong" in
+		{
+			val testWorld = Array.ofDim[Land](size,size)
+			for(i <- 0 until size-1; j <- 0 until size-1)
+			  {
+			    testWorld(i)(j) = new Water(i,j)
+			  }
+			testWorld(3)(3) = new Field(3, 3)
+			testWorld(3)(2) = new Field(3, 2)
+			testWorld(5)(3) = new Field(5, 3)
+			testWorld(3)(3).setHolder(7)
+			testWorld(3)(2).setHolder(11)
+			testWorld(5)(3).setHolder(7)
+			var testField =  new Field(4, 3)
+			testField.setHolder(7)
+			var neighbourContainer = testField.getEnemyNeighbourContainer(testWorld) 
+			neighbourContainer.isEmpty must beTrue
+		}
+		
+		"be able to count the amount of enemy neighbours is 2" in
+		{
+			val testWorld = Array.ofDim[Land](size,size)
+			for(i <- 0 until size-1; j <- 0 until size-1)
+			  {
+			    testWorld(i)(j) = new Water(i,j)
+			  }
+			testWorld(3)(3) = new Field(3, 3)
+			testWorld(3)(2) = new Field(3, 2)
+			testWorld(5)(3) = new Field(5, 3)
+			testWorld(3)(3).setHolder(2)
+			testWorld(3)(2).setHolder(11)
+			testWorld(5)(3).setHolder(5)
+			var testField =  new Field(4, 3)
+			testField.setHolder(7)
+			var neighbourContainer = testField.getNumberOfEnemyNeighbour(testWorld) 
+			neighbourContainer must be_==(2)
+		}
+		
+		"be able to count the amount of enemy neighbours is 0" in
+		{
+			val testWorld = Array.ofDim[Land](size,size)
+			for(i <- 0 until size-1; j <- 0 until size-1)
+			  {
+			    testWorld(i)(j) = new Water(i,j)
+			  }
+			testWorld(3)(3) = new Field(3, 3)
+			testWorld(3)(2) = new Field(3, 2)
+			testWorld(5)(3) = new Field(5, 3)
+			testWorld(3)(3).setHolder(7)
+			testWorld(3)(2).setHolder(11)
+			testWorld(5)(3).setHolder(7)
+			var testField =  new Field(4, 3)
+			testField.setHolder(7)
+			var neighbourContainer = testField.getNumberOfEnemyNeighbour(testWorld) 
+			neighbourContainer must be_==(0)
+		}
+		
+		"be able to check the enemy neighbours army count weaker" in
+		{
+			val testWorld = Array.ofDim[Land](size,size)
+			for(i <- 0 until size-1; j <- 0 until size-1)
+			  {
+			    testWorld(i)(j) = new Water(i,j)
+			  }
+			testWorld(3)(3) = new Field(3, 3)
+			testWorld(3)(2) = new Field(3, 2)
+			testWorld(5)(3) = new Field(5, 3)
+			testWorld(3)(3).setHolder(6)
+			testWorld(3)(3).setArmy(20)
+			testWorld(3)(2).setHolder(11)
+			testWorld(5)(3).setHolder(9)
+			testWorld(3)(3).setArmy(13)
+			var testField =  new Field(4, 3)
+			testField.setArmy(37)
+			testField.setHolder(7)
+			testField.checkHasWeakerEnemyNeighbour(testWorld) must beTrue
+		}
+		
+		"be able to check the enemy neighbours army count stronger" in
+		{
+			val testWorld = Array.ofDim[Land](size,size)
+			for(i <- 0 until size-1; j <- 0 until size-1)
+			  {
+			    testWorld(i)(j) = new Water(i,j)
+			  }
+			testWorld(3)(3) = new Field(3, 3)
+			testWorld(3)(2) = new Field(3, 2)
+			testWorld(5)(3) = new Field(5, 3)
+			testWorld(3)(3).setHolder(6)
+			testWorld(3)(3).setArmy(20)
+			testWorld(3)(2).setHolder(11)
+			testWorld(5)(3).setHolder(9)
+			testWorld(5)(3).setArmy(13)
+			var testField =  new Field(4, 3)
+			testField.setArmy(2)
+			testField.setHolder(7)
+			testField.checkHasWeakerEnemyNeighbour(testWorld) must beFalse
+		}
+		
+		"be able to return the weakest enemy neighbours Territory" in
+		{
+			val testWorld = Array.ofDim[Land](size,size)
+			for(i <- 0 until size-1; j <- 0 until size-1)
+			  {
+			    testWorld(i)(j) = new Water(i,j)
+			  }
+			testWorld(3)(3) = new Field(3, 3)
+			testWorld(3)(2) = new Field(3, 2)
+			testWorld(5)(3) = new Field(5, 3)
+			testWorld(3)(3).setHolder(6)
+			testWorld(3)(3).setArmy(20)
+			testWorld(3)(2).setHolder(11)
+			testWorld(5)(3).setHolder(9)
+			testWorld(5)(3).setArmy(13)
+			var testField =  new Field(4, 3)
+			testField.setArmy(37)
+			testField.setHolder(7)
+			var testEnemyField =testField.getWeakestEnemyNeighbour(testWorld) 
+			testEnemyField must be_==(testWorld(5)(3))
+			testEnemyField.getArmy must be_==(13)
+		}
+		
+		"be fail to return the weakest enemy neighbours Territory because they are stronger" in
+		{
+			val testWorld = Array.ofDim[Land](size,size)
+			for(i <- 0 until size-1; j <- 0 until size-1)
+			  {
+			    testWorld(i)(j) = new Water(i,j)
+			  }
+			testWorld(3)(3) = new Field(3, 3)
+			testWorld(3)(2) = new Field(3, 2)
+			testWorld(5)(3) = new Field(5, 3)
+			testWorld(3)(3).setHolder(6)
+			testWorld(3)(3).setArmy(20)
+			testWorld(3)(2).setHolder(11)
+			testWorld(5)(3).setHolder(9)
+			testWorld(5)(3).setArmy(13)
+			var testField =  new Field(4, 3)
+			testField.setArmy(5)
+			testField.setHolder(7)
+			var testEnemyField = testField.getWeakestEnemyNeighbour(testWorld) 
+			testEnemyField must be_==(null)
+		}
+		
+		"be fail to return the weakest enemy neighbours Territory because no enemies" in
+		{
+			val testWorld = Array.ofDim[Land](size,size)
+			for(i <- 0 until size-1; j <- 0 until size-1)
+			  {
+			    testWorld(i)(j) = new Water(i,j)
+			  }
+			testWorld(3)(3) = new Field(3, 3)
+			testWorld(3)(2) = new Field(3, 2)
+			testWorld(5)(3) = new Field(5, 3)
+			testWorld(3)(3).setHolder(7)
+			testWorld(3)(3).setArmy(20)
+			testWorld(3)(2).setHolder(6)
+			testWorld(5)(3).setHolder(7)
+			testWorld(5)(3).setArmy(13)
+			var testField =  new Field(4, 3)
+			testField.setArmy(45)
+			testField.setHolder(7)
+			var testEnemyField = testField.getWeakestEnemyNeighbour(testWorld) 
+			testEnemyField must be_==(null)
+		}
 	}
 }
-
-//class Field(row: Int, col: Int) extends Land 
-//{
-//	
-//	def getOwnNeighbourContainer(world: Array[Array[Land]]):ArrayBuffer[Field]=
-//	{
-//	  var ownLand = this
-//	  
-//	  var neighbourContainerPosition = new ArrayBuffer[WorldPosition]()
-//	  var neighbourContainer = new ArrayBuffer[Field]()
-//	  
-//	  neighbourContainerPosition += new WorldPosition(position.row, position.column-1)
-//	  neighbourContainerPosition += new WorldPosition(position.row, position.column+1)
-//	  neighbourContainerPosition += new WorldPosition(position.row+1, position.column)
-//	  neighbourContainerPosition += new WorldPosition(position.row-1, position.column)
-//	  
-//	  neighbourContainerPosition = neighbourContainerPosition.filter(pos => World.checkPositionIsInWorld(pos))
-//
-//	  if(neighbourContainerPosition.length != 0)
-//	  {
-//	    for(i <- 0 until neighbourContainerPosition.length)
-//	    {
-//	      var neighbourLand = world(neighbourContainerPosition.apply(i).row)(neighbourContainerPosition.apply(i).column)
-//	      if(neighbourLand.getHolder == ownLand.getHolder && neighbourLand.getFieldType)
-//	      {
-//	        neighbourContainer += neighbourLand.asInstanceOf[Field]
-//	      }
-//	    }
-//	  }   
-//	    
-//	    neighbourContainer
-//	}
-//	
-//	
-//	def getEnemyNeighbourContainer(world: Array[Array[Land]]):ArrayBuffer[Field]=
-//	{
-//	  var ownLand = this
-//	  
-//	  var neighbourContainerPosition = new ArrayBuffer[WorldPosition]()
-//	  var neighbourContainer = new ArrayBuffer[Field]()
-//	  
-//	  neighbourContainerPosition += new WorldPosition(position.row, position.column-1)
-//	  neighbourContainerPosition += new WorldPosition(position.row, position.column+1)
-//	  neighbourContainerPosition += new WorldPosition(position.row+1, position.column)
-//	  neighbourContainerPosition += new WorldPosition(position.row-1, position.column)
-//	  
-//	  neighbourContainerPosition = neighbourContainerPosition.filter(pos => World.checkPositionIsInWorld(pos))
-//	  
-//	  if(neighbourContainerPosition.length != 0)
-//	  {
-//	    for(i <- 0 until neighbourContainerPosition.length)
-//	    {
-//	      var neighbourLand = world(neighbourContainerPosition.apply(i).row)(neighbourContainerPosition.apply(i).column)
-//	      if(neighbourLand.getHolder != ownLand.getHolder && neighbourLand.getFieldType)
-//	      {
-//	        neighbourContainer += neighbourLand.asInstanceOf[Field]
-//	      }
-//	    }
-//	  }
-//	    neighbourContainer
-//	}
-//	
-//	
-//	
-//	/**
-//	 * Gives the count of enemy neighbours.
-//	 * @param world. The world of the game.
-//	 * @return return the count of enemy Neigbours.
-//	 */
-//	def getNumberOfEnemyNeighbour(world: Array[Array[Land]]):Int =
-//	{
-//	  var ownLand = this
-//	  var enemyNumber = 0;
-//	  var neighbourContainer = new ArrayBuffer[WorldPosition]()
-//	  
-//	  neighbourContainer += new WorldPosition(position.row, position.column-1)
-//	  neighbourContainer += new WorldPosition(position.row, position.column+1)
-//	  neighbourContainer += new WorldPosition(position.row+1, position.column)
-//	  neighbourContainer += new WorldPosition(position.row-1, position.column)
-//	  
-//	  
-//	  for(i <- 0 until neighbourContainer.length)
-//	  {
-//	    if(World.checkPositionIsInWorld(neighbourContainer.apply(i)))
-//	    {
-//	      var neighbourLand = world(neighbourContainer.apply(i).row)(neighbourContainer.apply(i).column)
-//	      if(neighbourLand.getFieldType && neighbourLand.getHolder != ownLand.getHolder)
-//	        enemyNumber += 1
-//	    }
-//	  }
-//	  enemyNumber
-//	}
-//	
-//
-//	/**
-//	 * Check if the player has to the declared position a neighbour which belongs to him.
-//	 * @param world. The world of the game.
-//	 * @return return true if the position has a neighbour which belongs another player.
-//	 */
-//	def checkHasWeakerEnemyNeighbour(world: Array[Array[Land]]):Boolean =
-//	{
-//	  var ownLand = this
-//	  
-//	  var neighbourContainer = new ArrayBuffer[WorldPosition]()
-//	  
-//	  neighbourContainer += new WorldPosition(position.row, position.column-1)
-//	  neighbourContainer += new WorldPosition(position.row, position.column+1)
-//	  neighbourContainer += new WorldPosition(position.row+1, position.column)
-//	  neighbourContainer += new WorldPosition(position.row-1, position.column)
-//	  
-//	  var hasWeakerEnemyNeighbour = false
-//	  neighbourContainer = neighbourContainer.filter(pos => World.checkPositionIsInWorld(pos))
-//
-//	  if(neighbourContainer.length != 0)
-//	  {
-//	    for(i <- 0 until neighbourContainer.length)
-//	    {
-//	      var neighbourLand = world(neighbourContainer.apply(i).row)(neighbourContainer.apply(i).column)
-//	      if(neighbourLand.getHolder != ownLand.getHolder && neighbourLand.getFieldType && 
-//	          neighbourLand.getArmy < ownLand.getArmy)
-//	      {
-//	        hasWeakerEnemyNeighbour = true
-//	      }
-//	    }
-//	  }else
-//	    hasWeakerEnemyNeighbour = false     
-//	    
-//	    hasWeakerEnemyNeighbour
-//	}
-//
-//	/**
-//	 * Give the weakest neighbour as measured by the amound of army.
-//	 * Are there more than one weakest neighbour because of equal of the army, 
-//	 * the function will just return one of it per clockwise rotation => 1.top- 2.right- 3.down 4.left-land.
-//	 * @param world. The world of the game.
-//	 * @return return null if there is no land or the neighbour land is stronger as the ownland otherwise it will return the land.
-//	 */
-//	def getWeakestEnemyNeighbour(world: Array[Array[Land]]):Land =
-//	{
-//	  var ownLand = this
-//	  
-//	  var neighbourContainer = new ArrayBuffer[WorldPosition]()
-//	  
-//	  neighbourContainer += new WorldPosition(position.row+1, position.column)
-//	  neighbourContainer += new WorldPosition(position.row, position.column+1)
-//	  neighbourContainer += new WorldPosition(position.row-1, position.column)
-//	  neighbourContainer += new WorldPosition(position.row, position.column-1)  
-//	  
-//	  
-//	  var weakestNeighbour:Land = null
-//	  neighbourContainer = neighbourContainer.filter(pos => World.checkPositionIsInWorld(pos))
-//	  for(i <- 0 until neighbourContainer.length)
-//
-//	  if(neighbourContainer.length != 0)
-//	  {
-//	    var weakestArmy = ownLand.getArmy
-//	    for(i <- 0 until neighbourContainer.length)
-//	    {
-//	      var neighbourLand = world(neighbourContainer.apply(i).row)(neighbourContainer.apply(i).column)
-//	      if(neighbourLand.getHolder != ownLand.getHolder && neighbourLand.getFieldType && 
-//	          neighbourLand.getArmy < ownLand.getArmy && neighbourLand.getArmy < weakestArmy)
-//	      {
-//	        weakestArmy = neighbourLand.getArmy
-//	        weakestNeighbour = neighbourLand
-//	      }
-//	      
-//	    }
-//	  }else
-//	    weakestNeighbour = null   
-//	    
-//	    weakestNeighbour
-//	}
-//}
