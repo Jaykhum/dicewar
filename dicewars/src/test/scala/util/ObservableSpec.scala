@@ -36,7 +36,7 @@ class ObservableSpec extends Specification
 		"can add and remove observers" in
 		{      
 		    publisher.addObserver(subscriber)
-		    publisher.subscriberContainer.isEmpty must beFalse
+		    publisher.subscriberContainer.head must be_==(subscriber)
 		    publisher.removeObserver(subscriber)
 		    publisher.subscriberContainer.isEmpty must beTrue
 		}

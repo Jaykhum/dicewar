@@ -1,26 +1,34 @@
 package test.scala.model
 
+// scala packages
 import org.specs2.mutable._
-import main.scala.model.WorldPosition
-import main.scala.model.Land
-import main.scala.model.Field
-import main.scala.model.Avatar
-import main.scala.model.Water
 
+// own costum packages
+import main.scala.model.Avatar
+import main.scala.model.Field
+import main.scala.model.Land
+import main.scala.model.Water
+import main.scala.model.WorldPosition
+
+
+/*
+ * Spec class for testing the models WorldPosition, Field and WaterField
+ * */
 class LandSpec extends Specification
 {
 	"A WorldPosition" should
 	{	  
+	  // test fields
 	  val position1 = new WorldPosition(3,2)
 	  val position2 = new WorldPosition(2,3)
 	  val position3 = new WorldPosition(4,2)
 	  
-	  "have an row value" in
+	  "have a row value" in
 	  {
 	    position1.row must be_==(3)
 	  }
 	  
-	  "have an column value" in
+	  "have a column value" in
 	  {
 	    position1.column must be_==(2)
 	  }
@@ -426,5 +434,64 @@ class LandSpec extends Specification
 			var testEnemyField = testField.getWeakestEnemyNeighbour(testWorld) 
 			testEnemyField must be_==(null)
 		}
+	}
+	
+	"A WaterField" should
+	{
+	  
+	  val testWaterField = new Water(1,1)
+	  val testWaterField1 = new Water(1,2)
+	  val testWaterField2 = new Water(4,1) 
+	  
+	  "have a row value" in
+	  {
+	    testWaterField.position.row must be_==(1)
+	  }
+	  
+	  "have a column value" in
+	  {
+	    testWaterField.position.column must be_==(1)
+	  }
+	  
+	  "have a sign value" in
+	  {
+	    testWaterField.sign must be_==("ww")
+	  }
+	  
+	  "have a holder value" in
+	  {
+	    testWaterField.holder must be_==(-1)
+	  }
+	  
+	  "be able to return the army on this field" in
+	  {
+	    testWaterField.getArmy must be_==(0)
+	  }
+	  
+	  "be able to return the holder id of this field" in
+	  {
+	    testWaterField.getHolder must be_==(-1)
+	  }
+	  
+	  "be able to return this field is no LandFieldType" in
+	  {
+	    testWaterField.getFieldType must beFalse
+	  }
+	  
+	  "be able to return false then checking the holder" in
+	  {
+	    var testPlayer = new Avatar(3)
+	    testWaterField.checkHolder(testPlayer) must beFalse
+	  }
+	  
+	  "be able to check the neighbourhood with an other field is correct" in
+	  {
+	    testWaterField.checkNeighbourhood(testWaterField1) must beTrue
+	  }
+	  
+	  "be able to check the neighbourhood with an other field is wrong" in
+	  {
+	    testWaterField.checkNeighbourhood(testWaterField2) must beFalse
+	  }
 	}
 }

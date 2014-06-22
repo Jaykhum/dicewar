@@ -1,5 +1,6 @@
 package main.scala.view.swing
 
+// scala packages
 import scala.swing._
 import scala.swing.event.Event
 import javax.swing.ImageIcon
@@ -8,9 +9,10 @@ import javax.swing.ImageIcon
 // event class
 case class MapSelectedEvent(val mapName:String) extends Event
 
+
 /*
- * 
- * 
+ * A 5x1 GridPanel which display the example of the chooseable maps
+ * @ headline: label of this panel
  * */
 abstract class MapChoicePanel(headline:String) extends GridPanel(5,1)
 {

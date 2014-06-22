@@ -1,10 +1,6 @@
 package main.scala.view.swing
 
-// own packages
-import main.scala.model.Gamefield
-import main.scala.model.Land
-import main.scala.model.WorldPosition
-import main.scala.model.World
+// scala packages 
 import scala.swing._
 import scala.swing.event._
 import scala.swing.event.MouseReleased
@@ -15,13 +11,20 @@ import javax.swing.border.EmptyBorder
 import java.awt.BorderLayout
 import java.awt.Color
 
+// own costum packages
+import main.scala.model.Gamefield
+import main.scala.model.Land
+import main.scala.model.WorldPosition
+import main.scala.model.World
 
 
 // event class
 case class FieldSelectedEvent(val position:WorldPosition) extends Event
 
+
 /*
- * 
+ * panel for displaying the gamefield 
+ * @ game: model of the gamefield
  * */
 class FieldPanel(game:Gamefield) extends Panel  
 {
@@ -53,6 +56,7 @@ class FieldPanel(game:Gamefield) extends Panel
 
 	/*
 	 * compute field index
+	 * @ p: position of the mouse
 	 * */
 	def findLand(p: Point):WorldPosition =
 	{
@@ -68,34 +72,39 @@ class FieldPanel(game:Gamefield) extends Panel
 		return null
 	}
 	
+	
 	/*
 	 * event handler for mouse action
+	 * @ e: event of which should be reacted
 	 * */
 	def mouseReleasedHandler(e:event.MouseReleased)
 	{
-	  if(e.peer.getButton() == MouseEvent.BUTTON1)
-	  {
-		  val landPosition:WorldPosition = findLand(e.point)
-		  if (landPosition != null)
-		  {
-		    publish(new FieldSelectedEvent(landPosition))
-		  }
-	  }
-	  repaint
+		if(e.peer.getButton() == MouseEvent.BUTTON1)
+		{
+			val landPosition:WorldPosition = findLand(e.point)
+			if (landPosition != null)
+			{
+				publish(new FieldSelectedEvent(landPosition))
+			}
+		}
+		repaint
 	}
+	
 	
 	/*
 	 * change size of the frame
 	 * */
 	def updateSize = 
 	{
-			preferredSize = new Dimension(
-			    World.width * CellWidth,
-			    (World.height + TextOffset) * CellHeight)
+		preferredSize = new Dimension(
+			World.width * CellWidth,
+			(World.height + TextOffset) * CellHeight)
 	}
+	
 	
 	/*
 	 * display all components of this pannel
+	 * @ g: the window of the frame
 	 * */
 	override def paintComponent(g:Graphics2D):Unit =
 	{
@@ -118,10 +127,10 @@ class FieldPanel(game:Gamefield) extends Panel
 	}
 	
 	
-
-	
 	/*
 	 * draw the field logo
+	 * @ g: the window of the frame
+	 * @ land: contains the territory information
 	 * */
 	def drawLogo(g:Graphics2D, land:Land)
 	{
@@ -154,8 +163,10 @@ class FieldPanel(game:Gamefield) extends Panel
 			g.drawImage(image_water, x, y, null)
 	}
 	
+	
 	/*
 	 * specify the player who owns the army with his color
+	 * @ land: contains the holder information which is needed for the colorselection
 	 * */
 	def setPlayerColor(land:Land):Color =
 	{
@@ -167,6 +178,12 @@ class FieldPanel(game:Gamefield) extends Panel
 		 }
 	}
 	
+	
+	/*
+	 * take the game message and save the last five ones to display
+	 * @ message: content of the message
+	 * @ outType: defines the color
+	 * */
 	def showMsg(message:String, outType:Int)
 	{	
 		if((msgOffset %5) == 0)
@@ -177,7 +194,9 @@ class FieldPanel(game:Gamefield) extends Panel
 		repaint
 	}
 	
-	
+	/*
+	 * handle the color which should be displayed
+	 * */
 	def matchMsgColor(outType:Int):Color =
 	{
 	  outType match

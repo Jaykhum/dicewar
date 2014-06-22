@@ -1,36 +1,46 @@
 package test.scala.controller
 
-import main.scala.model._
-import main.scala.controller.DicewarController
-import main.scala.view._
-import main.scala.util._
+// scala packages 
 import org.specs2.mutable._
-import main.scala.controller.DicewarController
 
+// own costum packages
+import main.scala.controller.DicewarController
+import main.scala.model._
+import main.scala.util._
+import main.scala.view._
+
+
+/*
+ * The FakeGame class simulates a model from type gamefield.
+ * The flags symoblize that a function of the orgin gamefield
+ * will be cast and processing. 
+ * */
 class FakeGame extends Gamefield
 {
-	var startGameHandling = false
-	//override var currentInputType = "no String"
-	var inputTypeValidation = false
-	//override var currentPhase = 0
-	var userAnswer = false
-	var startSendMessage = false
-	var messageContent:String = "no String"
-	var selectedMap:String = "no String"
-	var gameInitDone = false
-	var startShowMapMenu =  false
-	var choosenAmount = 0
-	var startUnitMove = false
-	var startReset = false
-	var playerConfigOk = false
-	var playerCount = 0
+	// class variables 
 	var botCount = 0
+	var choosenAmount = 0
+	var messageContent:String = "no String"
+	var playerCount = 0
+	var userAnswer = false
+	var selectedMap:String = "no String"
+	
+	// status flags
 	var doInitPlayer =false
-	var posConstrainChecked = false
+	var gameInitDone = false
+	var inputTypeValidation = false				// progessing InputType validation
 	var landSelectDone = false
-	
-	override def gameHandler = {startGameHandling = true}
-	
+	var playerConfigOk = false
+	var posConstrainChecked = false
+	var startGameHandling = false				// processing GameHanlding
+	var startSendMessage = false
+	var startShowMapMenu =  false
+	var startReset = false
+	var startUnitMove = false
+
+	/*
+	 * @ inputType: is a string which defines the the of the incoming input
+	 * */
 	override def checkInputTypeValidation(inputType:String):Boolean = 
 	{
 	  if(currentInputType == inputType)
@@ -45,29 +55,84 @@ class FakeGame extends Gamefield
 	  }
 	}
 	
-	override def questionResponse(answer:Boolean) = {userAnswer = answer}
 	
-	override def sendNotificationMessage(messageType:Message.MessageTyp, messageContent:String) = 
+	/*
+	 * @ position: [row/column] coordinates of a field
+	 * */
+	override def checkPositionConstrains(position:WorldPosition): Boolean =
 	{
-	  this.messageContent = messageContent
-	  startSendMessage = true
+	  if(position == null)
+	  {
+	    posConstrainChecked = false
+	    false
+	  }
+	  else
+	  {
+	    posConstrainChecked = true
+		true
+	  }
 	}
 	
+	
+	override def gameHandler = {startGameHandling = true}
+	
+	
+	/*
+	 * @ map: contains a string which the name of the choosen map
+	 * */
 	override def initGame(map:String) =
 	{
 	  selectedMap = map
 	  gameInitDone = true
 	}
 	
-	override def startShowMapSelectionMenu = {startShowMapMenu = true}
+	
+	override def initPhase = {startReset = true}
+	
+	
+	/*
+	 * @ humanPlayer: is an integer which contains the amount of human Player
+	 * @ botPlayer: is an integer which contains the amount of AI's
+	 * */
+	override def initPlayer(humanPlayer:Integer, botPlayer:Integer):Array[Avatar] =
+	{
+	  doInitPlayer = true
+	   val avatarContainer = new Array[Avatar](humanPlayer + botPlayer)
+	  avatarContainer
+	}
+	
+	
+	/*
+	 * @ amount: defines how many units the player wish to move
+	 * */
 	override def manageUnitMove(amount:Int) =
 	{
 	  startUnitMove = true
 	  choosenAmount = amount
 	}
+		
 	
-	override def initPhase = {startReset = true}
+	/*
+	 * @ answer: contains the users answer from a yes-no-question
+	 * */
+	override def questionResponse(answer:Boolean) = {userAnswer = answer}
 	
+	
+	/*
+	 * @ messageType: defines the type of the incoming message
+	 * @ messageContent: contains the message as a string
+	 * */
+	override def sendNotificationMessage(messageType:Message.MessageTyp, messageContent:String) = 
+	{
+	  this.messageContent = messageContent
+	  startSendMessage = true
+	}
+	
+	
+	/*
+	 * @ humanPlayer: is an integer which contains the amount of human Player
+	 * @ botPlayer: is an integer which contains the amount of AI's 
+	 * */
 	override def sendPlayerConfigMessage(playerCount:Int, botCount:Int):Boolean = 
 	{
 		if(playerCount > botCount)
@@ -82,32 +147,22 @@ class FakeGame extends Gamefield
 		}
 	}
 	
-	override def initPlayer(humanPlayer:Integer, botPlayer:Integer):Array[Avatar] =
-	{
-	  doInitPlayer = true
-	   val avatarContainer = new Array[Avatar](humanPlayer + botPlayer)
-	  avatarContainer
-	}
 	
-	override def checkPositionConstrains(pos:WorldPosition): Boolean =
-	{
-	  if(pos == null)
-	  {
-	    posConstrainChecked = false
-	    false
-	  }
-	  else
-	  {
-	    posConstrainChecked = true
-		true
-	  }
-	}
-	
+	/*
+	 * @ position: [row/column] coordinates of a field
+	 * */
 	override def setLandSelection(pos:WorldPosition) = { landSelectDone = true}
+	
+	
+	override def startShowMapSelectionMenu = {startShowMapMenu = true}
 }
 
 
 
+
+/*
+ * The FakeView simulates a View
+ * */
 class FakeView extends View
 {
 	var started = false
@@ -120,8 +175,15 @@ class FakeView extends View
 
 
 
+
+/*
+ * Spec class for testing the DicewarController
+ * */
 class DicewarControllerSpec extends Specification
 {
+	/*
+	 * creates the three components Model, View and Controller
+	 * */
 	def createTestSetup : (FakeGame, FakeView, DicewarController) =
 	{
 		val fakeGame = new FakeGame

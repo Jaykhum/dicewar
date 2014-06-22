@@ -1,10 +1,15 @@
 package main.scala.view.swing
 
+// scala packages
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 
+
 case class UnitAmount(amount: String)
 
+/*
+ * A pop up input menu for requesting the user to put the amount of the units that should be moved
+ * */
 class DialogPanel extends Dialog {
 	var amount: Option[UnitAmount] = None
 	val unitCount = new TextField

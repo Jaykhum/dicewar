@@ -1,32 +1,31 @@
 package main.scala.view.swing
 
-// own packages
-//import main.scala.controller.DicewarController
-import main.scala.model._
-import main.scala.util._
-import main.scala.view._
+// scala packages 
 import scala.swing._
 import scala.swing.event.WindowClosing
 import javax.swing.JOptionPane
 
+// own costum packages
+import main.scala.model._
+import main.scala.util._
+import main.scala.view._
+
+
 
 object messages extends TextArea(rows = 5, columns = 80)
 
-
+/*
+ * Graphical User Interface contains a menu bar and some panels
+ * parent class View and Frame
+ * @ game: is the model of the Gamefield
+ * */
 class GUI(val game:Gamefield) extends Frame with View {
-	// frametitel
+	// frametitle
 	title = "Dicewars"
-	  
-	val swingView = this
 	// panel inits.
 	var fieldPanel:FieldPanel =  null
-	var menuPanel:MenuPanel = null
-//	// selected fieldposition
-//	var position :WorldPosition = null
-//	// flag to beckon to send a notification to the observer
-//	var mapChoosenFlag:Boolean = false
-//	var fieldFlag:Boolean = false
-//	var incomingInput:Boolean = false
+
+	
 	/*
 	 * MapChoicePanel is a abstract class, so to define a normal object with new is forbidden
 	 * Solution: case Classes used 
@@ -42,14 +41,16 @@ class GUI(val game:Gamefield) extends Frame with View {
 	 * */
 	reactions +=
 	{
-	  case MapSelectedEvent(mapName) => sendMapChoice(mapName);  //listenTo(fieldPanel);selectPanel(fieldPanel)
-	  case MapChoice() => sendMapSelctionMenu //; listenTo(mapPanel); selectPanel(mapPanel)
-	  case FieldSelectedEvent(position) => sendPosition(position)
-	  case CloseEvent() => sendCloseApp
-	  case WindowClosing(_) => sendCloseApp
+		case MapSelectedEvent(mapName) => sendMapChoice(mapName);
+		case FieldSelectedEvent(position) => sendPosition(position)
+		case CloseEvent() => sendCloseApp
+		case WindowClosing(_) => sendCloseApp
 	}
 	
-
+	
+	/*
+	 * menubar of this frame contains reset and quit (... coming other features)
+	 * */
 	menuBar = new MenuBar
 	{
 		contents += new Menu("Game")
@@ -57,10 +58,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 			contents += new MenuItem(Action("Neues Spiel starten")
 			{
 			  resetGame
-			})
-			contents += new MenuItem(Action("Runde beenden")
-			{
-				// sendRoundEnd
 			})
 			contents += new MenuItem(Action("Quit")
 			{
@@ -73,25 +70,42 @@ class GUI(val game:Gamefield) extends Frame with View {
 
 	/*
 	 * close this view
-	 * 1. step: send message to observer to detach this object
-	 * 2. step: close GUI
 	 * */
 	def closeView 
 	{
-	    // dieses View aus der Liste entfernen.
-		// tui ebenfalls schließen (noti.)
 	    dispose
 	}
 	
 	
+	/*
+	 * request an input from the user which containts the amount of units the user likes to move
+	 * and read the user input and notify the observers about it
+	 * */
 	def inputUnitAmount =
 	{		
 		val input= new DialogPanel().amount.getOrElse(throw new IllegalStateException("Wrong input!!"))
 		var response = input.amount
 		sendAmountOfUnit(response.toInt)
 	}
+		
+	
+	/*
+	 * request an input from the user, input needed are amount of human and AI player
+	 * */
+	def playerInitMessage 
+	{
+		var dialog = new DialogMessagePanel
+		var temp = dialog.playInit.getOrElse(throw new IllegalStateException("Wrong input!!"))
+		var playerAmount = temp.playerAmount
+		var botAmount = temp.botAmount
+		sendPlayerInit(playerAmount.toInt, botAmount.toInt)
+	}
 	
 	
+	/*
+	 * request user to confirm with yes or no
+	 * and read the user input and notify the observers about it
+	 * */
 	def readResponse:Boolean =
     {	
 		var response = false
@@ -99,122 +113,152 @@ class GUI(val game:Gamefield) extends Frame with View {
                                                             "Fortfahren?",
                                                             "",
                                                             JOptionPane.YES_NO_OPTION);
-		println(eingabe)
 		if(eingabe == 0)
 		  response = true
 		response
     }
 	
+	
+	/*
+	 * restart the application and begin with the initializen phase
+	 * */
 	def resetGame
 	{
 		sendReset	
 	}
 
 	
-	override def startView()
+	/*
+	 * start this view
+	 * */
+	override def startView
 	{
 		if(fieldPanel == null)
     		fieldPanel = new FieldPanel(game)
-		if(menuPanel == null)
-			menuPanel = new MenuPanel("Spiel Start")
 		listenTo(fieldPanel)
 		listenTo(mapPanel)
-		listenTo(menuPanel)
 		selectPanel(mapPanel)
-		//showCoverMenu
 	}
 
 	
-	   	/* 
-   	 *	Communication functions 
+	/* 
+   	 *	Communication functions of this class
    	 **/
    
-   
+	/*
+	 * send the input with the amount of the unit which should be moved
+	 * @ amount: containts the user input
+	 * */
     def sendAmountOfUnit(amount:Int)
     {
-      var n = new Notification(Notification.Move)
-      n.amount = amount
-      n.inputType = "amount"
-      notifyObservers(n)
+    	var notification = new Notification(Notification.Move)
+    	notification.amount = amount
+    	notification.inputType = "amount"
+    	notifyObservers(notification)
     }
    
 	
+    /*
+     * send the answer from the user
+     * @ answer: containts the user input
+     * */
 	def sendAnswer(answer:Boolean)
     {    
-      var n = new Notification(Notification.Answer)
-      n.answer = answer
-      n.inputType = "question"
-      notifyObservers(n)
+		var notification  = new Notification(Notification.Answer)
+		notification.answer = answer
+		notification.inputType = "question"
+		notifyObservers(notification)
     }
 	
 	
+	/*
+     * send the request to close this application
+     * */
 	def sendCloseApp =
 	{
-		var n = new Notification(Notification.Exit)
-		notifyObservers(n)
+		var notification = new Notification(Notification.Exit)
+		notifyObservers(notification)
 	}
 	
 	
+	/*
+     * send the request to show all map examples
+     * */
 	def sendMapSelctionMenu =
     {
-      var notification = new Notification(Notification.MapSample)
-      notifyObservers(notification)
+		var notification = new Notification(Notification.MapSample)
+		notifyObservers(notification)
     }
 	
 	
-   	 def sendMapChoice(mapName:String) = 
-   {
-     var notify = new Notification(Notification.Map)
-     notify.map = mapName
-     notify.inputType = "map"
-     notifyObservers(notify)
-   }
+	/*
+     * send the name of the choosen map which the user want to play
+     * @ mapName: containts the user input
+     * */
+   	def sendMapChoice(mapName:String) = 
+    {
+		var notification = new Notification(Notification.Map)
+		notification.map = mapName
+		notification.inputType = "map"
+		notifyObservers(notification)
+    }
    	 
-   	 
+	/*
+     * send the request to reset the game
+     * */ 
    	def sendReset
    	{
-   	  var notification = new Notification(Notification.Reset)
-      notifyObservers(notification)   	  
+   	  	var notification = new Notification(Notification.Reset)
+   	  	notifyObservers(notification)   	  
    	}
    	 
-   	 
+   	
+   	/*
+     * send the amount of human player and AI's
+     * @ playerCount: containts the user input human player
+     * @ botCount: containts the user input AI player
+     * */
    	def sendPlayerInit(playerCount:Int, botCount:Int)
     {
-      var n = new Notification(Notification.PlayerInit)
-      n.playerCount = playerCount
-      n.botCount = botCount
-      n.inputType = "playerInit"
-      notifyObservers(n)
+   		var notification = new Notification(Notification.PlayerInit)
+      	notification.playerCount = playerCount
+      	notification.botCount = botCount
+      	notification.inputType = "playerInit"
+      	notifyObservers(notification)
     }
    	 
-   	 
+   	   	
+   	/*
+     * send the position of the selected land
+     * @ position: [column/row] containts the user input 
+     * */ 
    	def sendPosition(position:WorldPosition)
     {
-      var n = new Notification(Notification.Position)
-      n.position = position
-      n.inputType = "position"
-      notifyObservers(n)
+	    var notification = new Notification(Notification.Position)
+	    notification.position = position
+	    notification.inputType = "position"
+	    notifyObservers(notification)
     }
 	
+   	
    	/*
 	 * reactions corresponding to notifictions form the other pattern
 	 * */
 	override def updateObserver(notification:Notification)
 	{
-	   notification.typ match
-	   {
-		 case Notification.DrawUI => showField
-		 case Notification.Exit => closeView
-	     case Notification.Input => 
-	     case Notification.MapSample => displayMapSelection
-	     case Notification.Message => messageProcess(notification)
-	     case Notification.Move => inputUnitAmount
-	     case Notification.PlayerInit => playerInitMessage
-	     case Notification.Question => questionResponse
-	     case Notification.Reset => resetGame
-	     
-	     case _ => println("Debug: Falsche Notification")
-	   }
+		notification.typ match
+		{
+		 	case Notification.DrawUI => showField
+		 	case Notification.Exit => closeView
+		 	case Notification.Input => 
+		 	case Notification.MapSample => displayMapSelection
+		 	case Notification.Message => messageProcess(notification)
+		 	case Notification.Move => inputUnitAmount
+		 	case Notification.PlayerInit => playerInitMessage
+		 	case Notification.Question => questionResponse
+		 	case Notification.Reset => resetGame	     
+		 	case _ => println("Debug: Falsche Notification")
+		}
 	}
 	
 	
@@ -223,7 +267,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	 * */
 	
 	/*
-	 * shows choice of maps
+	 * shows examples of maps
 	 * */
 	def displayMapSelection
     {
@@ -231,29 +275,38 @@ class GUI(val game:Gamefield) extends Frame with View {
     }
 	
 	
+	/*
+	 * handels the color in which the message should be displayed
+	 * @ color: possible colors for the players
+	 * @ messageContent: content of this message
+	 * */
 	def messagePrint(color:Avatar.ColorTyp, messageContent:String)
 	{
 		color match 
 		{
-			case Avatar.Blue => fieldPanel.showMsg(messageContent,2) //print(Console.YELLOW + messageContent + Console.RESET )
-			case Avatar.Mangenta => fieldPanel.showMsg(messageContent,4) //print(Console.MAGENTA + messageContent + Console.RESET)
-			case Avatar.Green => fieldPanel.showMsg(messageContent,3)//print(Console.GREEN + messageContent + Console.RESET)
+			case Avatar.Blue => fieldPanel.showMsg(messageContent,2)
+			case Avatar.Mangenta => fieldPanel.showMsg(messageContent,4)
+			case Avatar.Green => fieldPanel.showMsg(messageContent,3)
 			case _ => println("Color Fehler")
 		}
-		//selectPanel(fieldPanel)
 	}
 	
 	
+	/*
+	 * display the Message on this frame
+	 * @ outType: type of this message
+	 * @ messageContent: containts the string with the content
+	 * */
 	def messagePrintln(outType:Int, messageContent:String)
 	{
-	  //println(color + messageContent + Console.RESET )
-		//new DialogMessagePanel(messageContent)
-	  //println("frabe :"+ color + ", " + messageContent)
-	  fieldPanel.showMsg(messageContent, outType)
-	  //selectPanel(fieldPanel)
+		fieldPanel.showMsg(messageContent, outType)
 	}
    
 	
+	/*
+	 * message handler needed for displaying the game messages
+	 * @ messageNotification: contains the message type and the content
+	 * */
 	def messageProcess(messageNotification:Notification)
 	{
 		var messageTyp:Message.MessageTyp = messageNotification.message.typ
@@ -268,41 +321,27 @@ class GUI(val game:Gamefield) extends Frame with View {
 		}
 	}
 	
-	def playerInitMessage {
-//   		println("Bitte die Anzahl aller Spieler vergeben, sowie die Anzahl ihrer Bots")
-//   		println("Beispiel:spieler 3, bot 1")
-	  //var (playerAmount, botAmount) 
-	  var dialog = new DialogMessagePanel
-	  var temp = dialog.playInit.getOrElse(throw new IllegalStateException("Wrong input!!"))
-	  var playerAmount = temp.playerAmount
-	  var botAmount = temp.botAmount
-	  sendPlayerInit(playerAmount.toInt, botAmount.toInt)
-	  //.playInit.getOrElse()
-   }
 	
 	/*
 	 * displays the gamefield
 	 * */
-	 def showField = 
-      {
-		selectPanel(fieldPanel)
-      }
+	def showField =	selectPanel(fieldPanel)
 	
 	 
 	/*
 	 * Help functions
 	 * */
 	
-	 
-	def questionResponse
-	{
-		sendAnswer(readResponse)
-	}
+	/*
+	 * request to send the answer notification
+	 * */ 
+	def questionResponse = 	sendAnswer(readResponse)
 	 
 	
 	/*
 	 * display the selected Panel (Field/Menu/Dialog)
-	 * standard Framesize with width = 280 and height = 340   
+	 * standard Framesize with width = 280 and height = 340
+	 * @ panel: contains the panel components which should be displayed   
 	 * */
 	def selectPanel(panel:Panel)
 	{
@@ -311,150 +350,4 @@ class GUI(val game:Gamefield) extends Frame with View {
 		contents =  panel
 		visible = true
 	}
-	
-	
-	def showCoverMenu
-	{
-		
-	}
 }
-//   
-//	def battleAttackProcess
-//	{
-//		var notification = new Notification(Notification.BattleAttack)
-//		notification.value = deliverArmyCount
-//		notifyObservers(notification)
-//		incomingInput = false
-//    }
-//	
-//	
-//
-//	def mapSampleProcess
-//	{
-//		
-//		incomingInput = false
-//	}
-//   
-
-//	   
-//	
-//	def readPosition: WorldPosition =
-//	{
-//		var loop = true
-//		//warten auf action !!! besser lösung finden?!!
-//		while(!fieldFlag  && incomingInput)
-//		{
-//			listenTo(fieldPanel)
-//		}
-//		fieldFlag = false
-//		incomingInput = false
-//		position
-//	}
-//	
-//   
-//	def reinforcementProcess(notification:Notification)
-//	{
-//		sendReinforcementChoice(readPosition, notification.currentPlayer)
-//		
-//	}
-//   
-
-//	
-
-//	
-//	/*
-//	 * 
-//	 * */
-//	def sendMapChoice(mapName:String) = 
-//	{
-//		var notify = new Notification(Notification.Map)
-//		notify.map = mapName
-//		notifyObservers(notify)
-//		incomingInput = false
-//	}
-//	def sendMapSample
-//	{
-//		var notify = new Notification(Notification.MapSample)
-//		notifyObservers(notify)
-//		incomingInput = false
-//	}
-//	
-//	def sendMenu
-//	{
-//		var notify = new Notification(Notification.Menu)
-//		notifyObservers(notify)
-//		incomingInput = false
-//	}
-//
-//	def sendNewGame
-//	{
-//		var notify = new Notification(Notification.NewGame)
-//		notifyObservers(notify)
-//		incomingInput = false
-//	}
-//	
-//	def sendReinforcementChoice(position:WorldPosition, player:Avatar)
-//	{
-//		var notification = new Notification(Notification.Reinforcement)
-//		notification.position = position
-//		notification.currentPlayer = player
-//		notifyObservers(notification)
-//		incomingInput = false
-//	} 
-//	
-//	def setPosition(pos :WorldPosition):WorldPosition = 
-//	{
-//		this.position = pos
-//		position
-//	}
-//   
-//	def startView()
-//	{
-//    	if(fieldPanel == null)
-//    		fieldPanel = new FieldPanel(game)
-//		listenTo(fieldPanel)
-//		if(menuPanel == null)
-//			menuPanel = new MenuPanel("Spiel Start")
-//		if(!mapChoosenFlag)
-//		{
-//			selectPanel(menuPanel)
-//
-//		}
-//		else
-//			selectPanel(fieldPanel)
-//		while(!mapChoosenFlag && !incomingInput){
-//		  listenTo(menuPanel)
-//		  sendMenu
-//		}
-//		incomingInput = false
-//	}
-//   
-//	def tacticProcess(n:Notification)
-//	{
-//		n.position = readPosition
-//		notifyObservers(n)
-//		incomingInput = false
-//	}
-//	
-//	/*
-//	 * reactions corresponding to notifictions form the other pattern
-//	 * */
-//	def updateObserver(notification:Notification)
-//	{
-//	   notification.typ match
-//	   {
-//       	  case Notification.Menu => incomingInput = false; //sendMenu
-////       	  case Notification.Help => helpProcess
-//       	  case Notification.MapSample => incomingInput = true; mapSampleProcess
-//       	  case Notification.NewGame => incomingInput = true; resetGame
-//		  case Notification.Reinforcement => incomingInput = true; reinforcementProcess(notification)
-//		  case Notification.BattleAssign => incomingInput = true; battleAssignProcess(notification)
-//		  case Notification.BattleAttack => incomingInput = true; battleAttackProcess
-//		  case Notification.Message => incomingInput = true; messageProcess(notification)
-//		  case Notification.Question => incomingInput = true; questionProcess(notification)
-//		  case Notification.TacticAssign => incomingInput = true; tacticProcess(notification)
-//		  case Notification.TacticArmy => incomingInput = true; armyProcess(notification)
-//		  case Notification.DrawUI => incomingInput = true; selectPanel(fieldPanel)
-//		  case _ => println("Debug: Falsche Notification" + notification.typ)
-//	   }
-//	}

@@ -1,8 +1,17 @@
 package test.scala.util
 
+// scala packages 
 import org.specs2.mutable._
+
+// own costum packages
 import main.scala.util.Notification
 
+
+
+
+/*
+ * Spec class for testing the Notification
+ * */
 class NotificationSpec extends Specification
 {
 	"A Notification" should

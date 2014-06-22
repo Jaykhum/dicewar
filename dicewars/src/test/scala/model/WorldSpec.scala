@@ -1,9 +1,17 @@
 package test.scala.model
 
+// scala packages 
 import org.specs2.mutable._
+
+// own costum packages
 import main.scala.model.World
 import main.scala.model.WorldPosition
 
+
+
+/*
+ * Spec class for testing the World
+ * */
 class WorldSpec extends Specification
 {
 	"A World" should

@@ -1,6 +1,9 @@
 package test.scala.model
 
+// scala packages 
 import org.specs2.mutable._
+
+// own costum packages
 import main.scala.model.Dice
 
 class DiceSpec extends Specification 
