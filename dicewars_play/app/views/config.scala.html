@@ -1,0 +1,76 @@
+@(message: String)
+
+@main("Dicewars") {
+
+    <div id="config">
+	    <fieldset>
+			<h1>Dicewars<h1>
+			<form>
+			<!--
+			Anzahl Spieler<br><input id="playerCount" name="player" type="number" min="2" max="3" size="10" maxlength="30"><br>
+			Anzahl Bots<br><input id="botCount" name="bot" type="number" min="0" max="2" size="10" maxlength="40"><br>
+			-->
+			Anzahl Spieler<br><input id="playerCount" name="player" type="text" value="2"  maxlength="10"><br>
+			Anzahl Bots<br><input id="botCount" name="bot" type="text" value="1" maxlength="10"><br>
+				<input type="button" value="Senden" id="send"/>
+			</form>
+		</fieldset>
+
+
+		<script>
+				
+		function checkInput (playerCount, botCount) {
+			var wahr = new Boolean(true);
+			var falsch = new Boolean(false);
+			var messageContent = ""; 
+			if(playerCount && botCount)
+			{
+				if (isNaN(playerCount) && isNaN(botCount)) {
+					messageContent = playerCount +  " und " + botCount + " sind keine Zahlen ";
+					rotateMessage(messageContent);
+					return falsch;
+				}else if(isNaN(playerCount)){
+					messageContent = playerCount +  " ist keine Zahl ";
+					rotateMessage(messageContent);
+					return falsch;
+				}else if(isNaN(botCount)){
+					messageContent = botCount +  " ist keine Zahl ";
+					rotateMessage(messageContent);
+					return falsch;
+				}else
+				{
+					messageContent = "";
+					rotateMessage(messageContent);
+					return wahr;
+				}
+			}else
+			{
+				messageContent = "Bitte alle Felder ausfuellen";
+				rotateMessage(messageContent);
+				return falsch;
+			}
+		
+		}
+		
+		$('#send').click(function() {
+		var playerValue = document.getElementById('playerCount').value;
+		var botValue = document.getElementById('botCount').value;
+		if(checkInput(playerValue, botValue) == true)
+		{
+			ws.send("notification",{notify:"config", player:playerValue, bot:botValue});
+		}
+							  
+		});
+
+
+		$('#quit').click(function() {
+			
+		
+	  
+		});
+
+		</script> 
+
+ 
+	</div>
+}

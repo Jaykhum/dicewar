@@ -1,0 +1,52 @@
+@(message: String)
+
+@main("Dicewars") {
+
+    <div id="maps">
+			<fieldset>
+			<h1>Maps<h1>
+			<form>
+			
+				<input class="basiclandButton" type="button" value="Basicland" id="basiclandMap"/><br>
+				<input class="land2Button" type="button" value="Land 2" id="land2"/><br>
+				<input class="land3Button" type="button" value="Land 3" id="land3"/><br>
+				<input class="land4Button" type="button" value="Land 4" id="land4"/><br>
+			</form>
+			</fieldset>
+			
+	 <script>
+	 
+	 
+	 
+	 
+
+	
+	$('#basiclandMap').click(function() {
+		ws.send("notification",{notify:"map", mapId:"1"});
+	});
+	
+
+$('#land2').click(function() {
+		ws.send("notification",{notify:"map", mapId:"2"});
+});
+
+
+
+
+$('#land3').click(function() {
+	ws.send("notification",{notify:"map", mapId:"3"});
+});
+
+$('#land4').click(function() {
+
+	//var mapId = "4";
+	//$.get("/maps" + mapId, function( data ) {
+			ws.send("notification",{notify:"map", mapId:"4"});
+		//  });  
+});
+
+
+ </script> 
+ </div>
+ 
+}

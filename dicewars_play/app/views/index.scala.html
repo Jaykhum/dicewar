@@ -1,0 +1,246 @@
+@(message: String)
+
+@main("Dicewars") {
+
+    <div id="Game">
+	
+
+	
+	</div>
+		<script>
+
+		var answerOfQuestion = false;
+		var message1_1="";
+		var color1_1 = "black";
+		var message1_2="";
+		var color1_2 = "black";
+		var message2_1="";
+		var color2_1 = "black";
+		var message2_2="";
+		var color2_2 = "black";
+		var message3_1="";
+		var color3_1 = "black";
+		var message3_2="";
+		var color3_2 = "black";
+		var message4_1="";
+		var color4_1 = "black";
+		var message4_2="";
+		var color4_2 = "black";
+		var message5_1="";
+		var color5_1 = "black";
+		var message5_2 ="";
+		var color5_2 = "black";
+		var previousStatus="";
+		var previousMessage="";
+		var previousColor="";
+		var ws = $.websocket("ws://localhost:9000/indexWebsocket", {
+			open: function() { alert('open') },
+			close: function() { alert('close') },
+			onerror: function(e) { alert('error'); console.log(e) },
+			events: {
+                pageCall: function(e) {
+					console.log("Event Response: " + e.data);
+					var page = e.data.call;
+					$.get("/" + page, function( data ) {
+							
+					var result = $('<div />').append(data).find('#' + page).html();
+					$('#Game').html(result);
+
+					});
+					
+                },
+				message: function(e) {
+					messageContent = e.data.content;
+					messageStatus = e.data.status;
+					messageColor = e.data.color;
+					rotateMessage(messageContent, messageStatus, messageColor)
+					
+                },
+				question: function(e) {
+					makeQuestion();
+                },
+				move: function(e) {
+					moveWidget()
+                }				
+			}
+		});
+		
+		sendMessage();
+	
+	window.onload = function()
+	{
+		initMessageLabel();
+	}
+	
+	function initMessageLabel()
+	{
+		document.getElementById('message5_1').innerHTML = message5_1;
+		document.getElementById('message5_1').className = color5_1;
+		document.getElementById('message5_2').innerHTML = message5_2;
+		document.getElementById('message5_2').className = color5_2;
+		document.getElementById('message4_1').innerHTML = message4_1;
+		document.getElementById('message4_1').className = color4_1;
+		document.getElementById('message4_2').innerHTML = message4_2;
+		document.getElementById('message4_2').className = color4_2;
+		document.getElementById('message3_1').innerHTML = message3_1;
+		document.getElementById('message3_1').className = color3_1;
+		document.getElementById('message3_2').innerHTML = message3_2;
+		document.getElementById('message3_2').className = color3_2;
+		document.getElementById('message2_1').innerHTML = message2_1;
+		document.getElementById('message2_1').className = color2_1;
+		document.getElementById('message2_2').innerHTML = message2_2;
+		document.getElementById('message2_2').className = color2_2;
+		document.getElementById('message1_1').innerHTML = message1_1;
+		document.getElementById('message1_1').className = color1_1;
+		document.getElementById('message1_2').innerHTML = message1_2;
+		document.getElementById('message1_2').className = color1_2;
+	}
+	
+	function rotateMessage(newMessage, status, messageColor)
+	{
+		console.log("farbe: " + messageColor)
+		if(previousStatus != "Player" && status != "Player")
+		{
+		console.log("rotiere");
+		console.log("status " + status);
+		console.log("message " + newMessage);
+			message5_1 = message4_1;
+			color5_1 = color4_1;
+			message5_2 = message4_2;
+			color5_2 = color4_2;
+			message4_1 = message3_1;
+			color4_1 = color3_1;
+			message4_2 = message3_2;
+			color4_2 = color3_2;
+			message3_1 = message2_1;
+			color3_1 = color2_1;
+			message3_2 = message2_2;
+			color3_2 = color2_2;
+			message2_1 = message1_1;
+			color2_1 = color1_1;
+			message2_2 = message1_2;
+			color2_2 = color1_2;
+			message1_1 = newMessage;
+			color1_1 = messageColor;
+			message1_2 = "";
+			color1_2 = "black";
+			previousStatus = "";
+			previousMessage = "";
+			previousColor = "black";
+			
+		}else if(previousStatus != "Player" && status == "Player")
+		{	
+			previousMessage = newMessage;
+			previousStatus = status;
+			previousColor = messageColor;
+			console.log("merke die player message");
+			console.log("status " + status);
+			console.log("message " + newMessage);
+		}else if(previousStatus == "Player" && status != "Player")
+		{
+			console.log("verbinde player message mit aktueller message");
+			console.log("status " + status);
+			console.log("message " + newMessage);
+			message5_1 = message4_1;
+			color5_1 = color4_1;
+			message5_2 = message4_2;
+			color5_2 = color4_2;
+			message4_1 = message3_1;
+			color4_1 = color3_1;
+			message4_2 = message3_2;
+			color4_2 = color3_2;
+			message3_1 = message2_1;
+			color3_1 = color2_1;
+			message3_2 = message2_2;
+			color3_2 = color2_2;
+			message2_1 = message1_1;
+			color2_1 = color1_1;
+			message2_2 = message1_2;
+			color2_2 = color1_2;
+			message1_1 = previousMessage;
+			color1_1 = previousColor;
+			message1_2 = newMessage;
+			color1_2 = messageColor;
+			previousMessage = "";
+			previousStatus	= "";	
+			previousColor = "black";
+				
+		}else{
+		
+		console.log("fall der nicht geprueft wird status: " + status);
+		console.log("fall der nicht geprueft wird message: " + newMessage);
+		alert("es gibt noch ein fall der nicht geprueft wurde");
+		}
+		
+		
+		initMessageLabel();
+			
+		
+	/*
+		document.getElementById('message5').innerHTML = document.getElementById('message4').value;
+		document.getElementById('message4').innerHTML = document.getElementById('message3').value;
+		document.getElementById('message3').innerHTML = document.getElementById('message2').value;
+		document.getElementById('message2').innerHTML = document.getElementById('message1').value;
+		document.getElementById('message1').innerHTML = newMessage;*/
+	}
+
+	function makeQuestion(){
+		answerOfQuestion = confirm(messageContent);
+		ws.send("notification", {notify:"answer", answer:answerOfQuestion});
+	}
+	  
+	function sendMessage(){
+		waitOfSocketConnection(ws, function(){
+        ws.send("notification", {notify:"ready"});
+		});
+	}
+
+
+	function waitOfSocketConnection(socket, callback){
+    setTimeout(
+        function () {
+            if (socket.readyState === 1) {
+                if(callback != null){
+                    callback();
+                }
+                return;
+            } else {
+                waitOfSocketConnection(socket, callback);
+            }
+        },10); 
+	}
+	
+	function moveWidget()
+	{
+		var unit=prompt(messageContent);
+		
+		if (unit)
+		{
+			if(isNaN(unit))
+			{
+				messageContent = unit + " ist keine Zahl";
+				rotateMessage(messageContent);
+			}else
+			{
+				ws.send("notification", {notify:"amount", amount:unit});
+			}
+		}else 
+		{
+			messageContent = "Bitte Feld ausfuellen";
+			rotateMessage(messageContent);
+			moveWidget()
+		}
+	}
+	
+	//document.write("<label id=message>"+ messageContent +"</label>");
+
+		</script> 
+		
+	<label id="message1_1"></label><label id="message1_2"></label><br>
+	<label id="message2_1"></label><label id="message2_2"></label><br>
+	<label id="message3_1"></label><label id="message3_2"></label><br>
+	<label id="message4_1"></label><label id="message4_2"></label><br>
+	<label id="message5_1"></label><label id="message5_2"></label>
+ 
+
+}

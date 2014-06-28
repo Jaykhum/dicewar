@@ -1,0 +1,48 @@
+@(message: String, controller:controllers.DicewarViewController)
+
+@import controllers.DicewarViewController
+
+@main("Dicewars") {
+
+    <div id="map">
+			<h1>Spielfeld<h1>				
+				
+	
+     
+        <table border="1">
+		
+
+		
+          @for(i <- 0 until controller.getCellSum) {
+		  @if(controller.checkAddNextLine(i)) {
+			  <tr>
+			  @for(i <- i until i + controller.width){
+				<td id= "@i" class="@controller.getCellType(i)">
+				<label id="@i" class="@controller.getPlayerColor(i)">@controller.getArmyForCell(i)</label>
+			    </td>		
+			  }
+			  </tr>
+			}
+          
+      	 }
+        </table>
+				
+			
+	
+
+			
+
+	<script>
+		$( "td[class~='landCell']" ).click(function(event) {
+		ws.send("notification",{notify:"position", position:event.toElement.id});
+		});
+		
+		$( "td[class~='landCellSelected']" ).click(function(event) {
+		ws.send("notification",{notify:"position", position:event.toElement.id});
+		});
+
+	</script> 
+
+ </div>
+ 
+}
