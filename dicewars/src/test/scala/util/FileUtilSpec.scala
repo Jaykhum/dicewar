@@ -3,7 +3,7 @@ package test.scala.util
 import org.specs2.mutable._
 import main.scala.util.FileUtil
 
-class FileUtilSpec extends Specification
+class FileUtilSpec extends SpecificationWithJUnit
 {
 	"A FileUtil" should
 	{

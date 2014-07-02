@@ -179,7 +179,7 @@ class FakeView extends View
 /*
  * Spec class for testing the DicewarController
  * */
-class DicewarControllerSpec extends Specification
+class DicewarControllerSpec extends SpecificationWithJUnit
 {
 	/*
 	 * creates the three components Model, View and Controller

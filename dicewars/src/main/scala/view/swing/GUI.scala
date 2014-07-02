@@ -24,6 +24,10 @@ class GUI(val game:Gamefield) extends Frame with View {
 	title = "Dicewars"
 	// panel inits.
 	var fieldPanel:FieldPanel =  null
+	var runView =  true
+	val guiThread = new Thread(new Runnable {
+		override def run()	{	while(runView )	{}	}
+    })
 
 	
 	/*
@@ -43,7 +47,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 	{
 		case MapSelectedEvent(mapName) => sendMapChoice(mapName);
 		case FieldSelectedEvent(position) => sendPosition(position)
-		case CloseEvent() => sendCloseApp
 		case WindowClosing(_) => sendCloseApp
 	}
 	
@@ -73,7 +76,8 @@ class GUI(val game:Gamefield) extends Frame with View {
 	 * */
 	def closeView 
 	{
-	    dispose
+	    runView  = false
+		dispose
 	}
 	
 	
@@ -138,6 +142,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 		listenTo(fieldPanel)
 		listenTo(mapPanel)
 		selectPanel(mapPanel)
+		//guiThread.start
 	}
 
 	
@@ -282,9 +287,10 @@ class GUI(val game:Gamefield) extends Frame with View {
 	 * */
 	def messagePrint(color:Avatar.ColorTyp, messageContent:String)
 	{
+	  println(color);
 		color match 
 		{
-			case Avatar.Blue => fieldPanel.showMsg(messageContent,2)
+			case Avatar.Blue => fieldPanel.showMsg(messageContent,2);  println("da: " +color);
 			case Avatar.Mangenta => fieldPanel.showMsg(messageContent,4)
 			case Avatar.Green => fieldPanel.showMsg(messageContent,3)
 			case _ => println("Color Fehler")

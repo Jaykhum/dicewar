@@ -12,7 +12,7 @@ import main.scala.model.WorldPosition
 /*
  * Spec class for testing the World
  * */
-class WorldSpec extends Specification
+class WorldSpec extends SpecificationWithJUnit
 {
 	"A World" should
 	{	  

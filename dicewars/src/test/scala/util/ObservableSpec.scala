@@ -6,7 +6,7 @@ import main.scala.util.Observable
 import main.scala.util.Observer
 import main.scala.util.Notification
 
-class ObservableSpec extends Specification
+class ObservableSpec extends SpecificationWithJUnit
 {
 	val publisher = new Observable{}
 	val subscriber = new Observer{

@@ -17,16 +17,9 @@ class TUI (var game: Gamefield) extends View
 	val labelHorizontal = Array[String] ("  A ", "  B ", "  C ", "  D ", "  E ", "  F ", "  G ", "  H ", "  I ", "  J ", "  K ", "  L ", "  M ", "  N ", "  O ", "  P ", "  Q ", "  R ")
 	val labelVertical = Array[String] ("01", "02", "03", "04", "05", "06", "07", "08", "09","10")
 	val inputThread = new Thread(new Runnable {
-	    override def run() {
-		      try {
-		        while(readConsoleInput){}
-		      } catch {
-		        case ex: Exception => 
-		      }
-		    }
+		override def run()	{	while(readConsoleInput)	{}	}
     })
 	
-	//helpView
 	
 	/*
 	 * process functions

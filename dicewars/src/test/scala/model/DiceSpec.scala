@@ -6,7 +6,7 @@ import org.specs2.mutable._
 // own costum packages
 import main.scala.model.Dice
 
-class DiceSpec extends Specification 
+class DiceSpec extends SpecificationWithJUnit
 {
 	"A Dice" should
 	{

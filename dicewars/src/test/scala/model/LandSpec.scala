@@ -14,7 +14,7 @@ import main.scala.model.WorldPosition
 /*
  * Spec class for testing the models WorldPosition, Field and WaterField
  * */
-class LandSpec extends Specification
+class LandSpec extends SpecificationWithJUnit
 {
 	"A WorldPosition" should
 	{	  

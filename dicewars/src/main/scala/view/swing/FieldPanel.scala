@@ -40,8 +40,8 @@ class FieldPanel(game:Gamefield) extends Panel
 	val TextHeight:Int = 15
 	val TextOffset:Int = 3
 	var msgOffset:Int = 0
-	var messageText = Array[String]("", "", "", "", "")
-	var messageColor = Array[Int](1, 1, 1, 1, 1)
+	var messageText = List[String]("", "", "", "", "")
+	var messageColor = List[Int](0, 0, 0, 0, 0)
 	
 	updateSize
 	
@@ -186,11 +186,14 @@ class FieldPanel(game:Gamefield) extends Panel
 	 * */
 	def showMsg(message:String, outType:Int)
 	{	
-		if((msgOffset %5) == 0)
-		  msgOffset = 0
-		messageColor(msgOffset) = outType
-		messageText(msgOffset) = message
-		msgOffset += 1
+		if(messageText.length == 5)
+		{
+		  messageText.drop(0)
+		  messageColor.drop(0)
+		}
+		messageColor ::= outType
+		messageText ::= message
+
 		repaint
 	}
 	

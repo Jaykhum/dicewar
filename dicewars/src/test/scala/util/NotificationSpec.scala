@@ -12,7 +12,7 @@ import main.scala.util.Notification
 /*
  * Spec class for testing the Notification
  * */
-class NotificationSpec extends Specification
+class NotificationSpec extends SpecificationWithJUnit
 {
 	"A Notification" should
 	{
