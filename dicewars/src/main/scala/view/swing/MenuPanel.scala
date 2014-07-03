@@ -28,15 +28,6 @@ class MenuPanel(headline:String) extends GridPanel(4,1)
 		}
 	}
 	
-	// help menu button
-//	contents += new Button
-//	{
-//		menuPanel.listenTo(this)
-//		action =  Action("Hilfe")
-//		{
-//			  //this.publish(notification)
-//		}
-//	}
 	
 	// quit button	
 	contents += new Button

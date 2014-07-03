@@ -32,14 +32,14 @@ class FieldPanel(game:Gamefield) extends Panel
 	// paths to imagefiles for the field labels 
 	val image_land = ImageIO.read(new File("Symbols/land.png"))
 	val image_water = ImageIO.read(new File("Symbols/water1.png"))
-//	val image_selected = ImageIO.read(new File("Symbols/selected.png"))
+	val image_selected = ImageIO.read(new File("Symbols/selected.png"))
 	
 	// size of one field
 	val CellWidth:Int = 36
 	val CellHeight:Int = 32
+	// parameters for the game-info-field
 	val TextHeight:Int = 15
 	val TextOffset:Int = 3
-	var msgOffset:Int = 0
 	var messageText = List[String]("", "", "", "", "")
 	var messageColor = List[Int](0, 0, 0, 0, 0)
 	
@@ -52,80 +52,7 @@ class FieldPanel(game:Gamefield) extends Panel
 	{
 	  case e: MouseReleased => mouseReleasedHandler(e)
 	}
-	
-
-	/*
-	 * compute field index
-	 * @ p: position of the mouse
-	 * */
-	def findLand(p: Point):WorldPosition =
-	{
-		val col:Int = p.x / CellWidth
-		val row:Int = p.y / CellHeight
-		val rect = new Rectangle(p.x, p.y, CellWidth, CellHeight)
-      	if (rect.contains(p)) {
-      		if(col >= 0 && row >= 0)
-      		{
-      			return new WorldPosition(row, col)
-      		}
-      	}
-		return null
-	}
-	
-	
-	/*
-	 * event handler for mouse action
-	 * @ e: event of which should be reacted
-	 * */
-	def mouseReleasedHandler(e:event.MouseReleased)
-	{
-		if(e.peer.getButton() == MouseEvent.BUTTON1)
-		{
-			val landPosition:WorldPosition = findLand(e.point)
-			if (landPosition != null)
-			{
-				publish(new FieldSelectedEvent(landPosition))
-			}
-		}
-		repaint
-	}
-	
-	
-	/*
-	 * change size of the frame
-	 * */
-	def updateSize = 
-	{
-		preferredSize = new Dimension(
-			World.width * CellWidth,
-			(World.height + TextOffset) * CellHeight)
-	}
-	
-	
-	/*
-	 * display all components of this pannel
-	 * @ g: the window of the frame
-	 * */
-	override def paintComponent(g:Graphics2D):Unit =
-	{
-		g.setColor(new Color(255, 255, 255))
-		g.fillRect(0, 0, size.width, size.height)
-		for ( i <- 0 to World.width-1; j <-0 to World.height-1)
-		{
-			drawLogo(g, game.world(j)(i))
-		}
-
-		/*
-		 * Display the last five game messages for the user
-		 * */
-		g.setFont(new Font("Verdana", 1, 12))
-		for( i <- 0 to 4)
-		{
-		  g.setColor(matchMsgColor(messageColor(i)))
-		  g.drawString(messageText(i), 0, (CellHeight * World.height + (TextHeight*(i+1))))
-		}
-	}
-	
+		
 	
 	/*
 	 * draw the field logo
@@ -147,13 +74,10 @@ class FieldPanel(game:Gamefield) extends Panel
 		 */
 		if(land.getFieldType){
 			if (land == game.fromLand || land == game.toLand)
-				g.drawImage(image_land, x, y, 1, 1, null)
-//			{
-//				g.drawImage(image_selected, x, y, null)
-//				selectedLand == null
-//			}
+			{
+				g.drawImage(image_selected, x, y, null)
+			}
 			else
-				//g.drawImage(image_land, x, y, CellWidth, CellHeight, null)
 				g.drawImage(image_land, x, y, null)
 		  	g.setColor(setPlayerColor(land))
 		  	g.setFont(new Font("Verdana", 1, 12))
@@ -163,10 +87,94 @@ class FieldPanel(game:Gamefield) extends Panel
 			g.drawImage(image_water, x, y, null)
 	}
 	
+
+	/*
+	 * compute field index
+	 * @ p: position of the mouse
+	 * @ return: the coordinates of the selected field
+	 * */
+	def findLand(p: Point):WorldPosition =
+	{
+		val col:Int = p.x / CellWidth
+		val row:Int = p.y / CellHeight
+		val rect = new Rectangle(p.x, p.y, CellWidth, CellHeight)
+      	if (rect.contains(p)) {
+      		if(col >= 0 && row >= 0)
+      		{
+      			return new WorldPosition(row, col)
+      		}
+      	}
+		return null
+	}
+		
+	
+	/*
+	 * handle the color which should be displayed
+	 * @ outType: defines the color
+	 * @ return: the color for the draw function
+	 * */
+	def matchMsgColor(outType:Int):Color =
+	{
+	  outType match
+	  {
+	    case 0 => Color.BLACK
+	    case 1 => Color.RED
+	    case 2 => Color.BLUE
+	    case 3 => Color.GREEN
+	    case 4 => Color.MAGENTA
+	    case 5 => Color.YELLOW
+	    case _ => Color.BLACK
+	  }
+	}
+	
+	
+	/*
+	 * event handler for mouse action
+	 * @ e: event of which should be reacted
+	 * */
+	def mouseReleasedHandler(e:event.MouseReleased)
+	{
+		if(e.peer.getButton() == MouseEvent.BUTTON1)
+		{
+			val landPosition:WorldPosition = findLand(e.point)
+			if (landPosition != null)
+			{
+				publish(new FieldSelectedEvent(landPosition))
+			}
+		}
+		updateDisplay
+	}
+	
+	
+	/*
+	 * display all components of this pannel
+	 * @ g: the window of the frame
+	 * */
+	override def paintComponent(g:Graphics2D) =
+	{
+		g.setColor(new Color(255, 255, 255))
+		g.fillRect(0, 0, size.width, size.height)
+		for ( i <- 0 to World.width-1; j <-0 to World.height-1)
+		{
+			drawLogo(g, game.world(j)(i))
+		}
+
+		/*
+		 * Display the last five game messages for the user
+		 * */
+		g.setFont(new Font("Verdana", 1, 12))
+		for( i <- 0 to 4)
+		{
+		  g.setColor(matchMsgColor(messageColor(i)))
+		  g.drawString(messageText(i), 0, (CellHeight * World.height + (TextHeight*(i+1))))
+		}
+	}
+	
 	
 	/*
 	 * specify the player who owns the army with his color
 	 * @ land: contains the holder information which is needed for the colorselection
+	 * @ return: the color for the draw function
 	 * */
 	def setPlayerColor(land:Land):Color =
 	{
@@ -193,24 +201,23 @@ class FieldPanel(game:Gamefield) extends Panel
 		}
 		messageColor ::= outType
 		messageText ::= message
-
-		repaint
+		updateDisplay
 	}
 	
+	
 	/*
-	 * handle the color which should be displayed
+	 * show updates on the gamefield
 	 * */
-	def matchMsgColor(outType:Int):Color =
+	def updateDisplay =  repaint
+	
+	
+	/*
+	 * change size of the frame
+	 * */
+	def updateSize = 
 	{
-	  outType match
-	  {
-	    case 0 => Color.BLACK
-	    case 1 => Color.RED
-	    case 2 => Color.BLUE
-	    case 3 => Color.GREEN
-	    case 4 => Color.MAGENTA
-	    case 5 => Color.YELLOW
-	    case _ => Color.BLACK
-	  }
+		preferredSize = new Dimension(
+			World.width * CellWidth,
+			(World.height + TextOffset) * CellHeight)
 	}
 }

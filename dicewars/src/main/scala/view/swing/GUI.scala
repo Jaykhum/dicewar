@@ -77,6 +77,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	def closeView 
 	{
 	    runView  = false
+	    guiThread.stop
 		dispose
 	}
 	
@@ -142,7 +143,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 		listenTo(fieldPanel)
 		listenTo(mapPanel)
 		selectPanel(mapPanel)
-		//guiThread.start
+		guiThread.start
 	}
 
 	
@@ -205,6 +206,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 		var notification = new Notification(Notification.Map)
 		notification.map = mapName
 		notification.inputType = "map"
+		selectPanel(fieldPanel)
 		notifyObservers(notification)
     }
    	 
@@ -331,7 +333,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	/*
 	 * displays the gamefield
 	 * */
-	def showField =	selectPanel(fieldPanel)
+	def showField = fieldPanel.updateDisplay
 	
 	 
 	/*

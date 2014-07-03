@@ -27,7 +27,7 @@ class TUI (var game: Gamefield) extends View
 	
 	override def closeView
 	{
-	  
+		inputThread.stop
 	}
 	
 	override def startView
