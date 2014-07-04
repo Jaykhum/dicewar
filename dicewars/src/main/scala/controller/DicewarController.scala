@@ -40,6 +40,7 @@ class DicewarController(val game:Gamefield) extends Observer {
 	protected def exitGame
 	{
 		println("Applikation wurde beendet")
+		Thread sleep(200)
 		System.exit(0)
 	}
   

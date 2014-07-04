@@ -25,6 +25,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	// panel inits.
 	var fieldPanel:FieldPanel =  null
 	var runView =  true
+	var fieldPanelFlag = false
 	val guiThread = new Thread(new Runnable {
 		override def run()	{	while(runView )	{}	}
     })
@@ -207,6 +208,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 		notification.map = mapName
 		notification.inputType = "map"
 		selectPanel(fieldPanel)
+		fieldPanelFlag = true
 		notifyObservers(notification)
     }
    	 
@@ -289,7 +291,6 @@ class GUI(val game:Gamefield) extends Frame with View {
 	 * */
 	def messagePrint(color:Avatar.ColorTyp, messageContent:String)
 	{
-	  println(color);
 		color match 
 		{
 			case Avatar.Blue => fieldPanel.showMsg(messageContent,2);  println("da: " +color);
@@ -333,7 +334,18 @@ class GUI(val game:Gamefield) extends Frame with View {
 	/*
 	 * displays the gamefield
 	 * */
-	def showField = fieldPanel.updateDisplay
+	def showField =
+	{
+	  if(fieldPanelFlag)    
+	  {
+	    fieldPanel.updateDisplay
+	  }
+	  else
+	  {
+		selectPanel(fieldPanel)
+	    fieldPanelFlag = true
+	  }
+	}
 	
 	 
 	/*
