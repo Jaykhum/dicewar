@@ -40,7 +40,7 @@ class ObservableSpec extends SpecificationWithJUnit
 		    publisher.removeObserver(subscriber)
 		    publisher.subscriberContainer.isEmpty must beTrue
 		}
-    
+    /**
 		"can notifiy observers" in
 		{
 			
@@ -51,5 +51,6 @@ class ObservableSpec extends SpecificationWithJUnit
 			publisher.removeObserver(subscriber)
 			subscriber.observerStatus must beTrue
 		}
+		**/
 	}
 }

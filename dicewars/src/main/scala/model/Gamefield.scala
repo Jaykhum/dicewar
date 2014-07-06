@@ -350,7 +350,6 @@ class Gamefield extends Observable
 	  		sendNotificationMessage(Message.Info, "Waehle das Land, welches du angreifen willst.")    
 	  		currentInputType = "position"
 	  		currentRequestedPositionType = 2
-	  		//sendInputRequest
 		}
 	}
   	
@@ -366,7 +365,6 @@ class Gamefield extends Observable
 	  		sendNotificationMessage(Message.Info, "Waehle das Land, von welchem du aus angreifen willst.")    
 	  		currentInputType = "position"
 	  		currentRequestedPositionType = 1
-	  		//sendInputRequest
 		}else if(!checkPossibleToBattle(currentPlayer))
 		{
 		  currentPhase = 17
@@ -999,8 +997,6 @@ class Gamefield extends Observable
 	      currentPhase += 1;
 	      sendNotificationUI
 	  }
-	  else
-		  sendNotificationMessage(Message.Error,"Ausgewaehltes Land ist dein eigenes.")
 	  gameHandler
 	}
 	
@@ -1043,7 +1039,7 @@ class Gamefield extends Observable
 	}
 	
 	
-	/*
+	/**
 	 * Send request to user, they need to response a question
 	 * */
 	def questionResponse(response:Boolean) = 
@@ -1057,12 +1053,8 @@ class Gamefield extends Observable
 	}
 	
 	
-	/*
-  	 * help functions
-  	 * */
 	
-	
-	/*
+	/**
 	 * Invert an Array in downward order.
 	 * @ array: the given array to invert.
 	 * @ return: the array in the inverse order
@@ -1110,7 +1102,7 @@ class Gamefield extends Observable
 	}
 	
 	
-	/*
+	/**
 	 * Check whether the amount of unit to move for the assigned land is allowed.
 	 * When the amount is too high, the user will be informed about it.
 	 * @ land: The army of this land be checked. 
@@ -1120,7 +1112,7 @@ class Gamefield extends Observable
 	 * */
 	def checkNumberOfUnitMove(army:Int):Boolean =
 	{
-		if(fromLand.getArmy - army < 1)
+		if((fromLand.getArmy - army) < 1)
 		{
 			sendNotificationMessage(Message.Error,"Zuviele Einheiten gewaehlt. Bitte erneut eingeben.")
 			return false
