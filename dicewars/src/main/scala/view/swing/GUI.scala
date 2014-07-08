@@ -293,7 +293,7 @@ class GUI(val game:Gamefield) extends Frame with View {
 	{
 		color match 
 		{
-			case Avatar.Blue => fieldPanel.showMsg(messageContent,2);  println("da: " +color);
+			case Avatar.Blue => fieldPanel.showMsg(messageContent,2)
 			case Avatar.Mangenta => fieldPanel.showMsg(messageContent,4)
 			case Avatar.Green => fieldPanel.showMsg(messageContent,3)
 			case _ => println("Color Fehler")
